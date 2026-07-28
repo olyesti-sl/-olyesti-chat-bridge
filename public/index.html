@@ -17,29 +17,21 @@ body {
   overflow: hidden;
 }
 
-#scene {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
-}
+#scene { flex: 1; position: relative; overflow: hidden; }
 
 #bg {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background: url('lounge.jpg') center center / cover no-repeat;
   filter: brightness(0.75);
 }
 #bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
+  content: ''; position: absolute; inset: 0;
   background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.65) 100%);
 }
 
 #stage {
   position: absolute;
-  bottom: 10%;
-  left: 0; right: 0;
+  bottom: 10%; left: 0; right: 0;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -53,9 +45,7 @@ body {
 #stage::-webkit-scrollbar { display: none; }
 
 .character {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: flex; flex-direction: column; align-items: center;
   animation: float 3s ease-in-out infinite;
   flex-shrink: 0;
 }
@@ -70,7 +60,6 @@ body {
   50% { transform: translateY(-7px); }
 }
 
-/* Speech bubble */
 .char-bubble {
   background: rgba(10,8,20,0.9);
   border: 1px solid rgba(255,220,100,0.25);
@@ -90,249 +79,93 @@ body {
 }
 .char-bubble.visible { opacity: 1; }
 .char-bubble::after {
-  content: '';
-  position: absolute;
-  bottom: -7px; left: 50%;
-  transform: translateX(-50%);
+  content: ''; position: absolute;
+  bottom: -7px; left: 50%; transform: translateX(-50%);
   border: 7px solid transparent;
   border-top-color: rgba(255,220,100,0.25);
   border-bottom: none;
 }
 
-/* 3D Avatar */
-.avatar {
-  position: relative;
-  width: 60px;
-  height: 100px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/* Avatar */
+.avatar { position: relative; width: 60px; height: 110px; display: flex; flex-direction: column; align-items: center; }
+.av-hair { position: absolute; top: -6px; width: 46px; height: 28px; border-radius: 50% 50% 0 0; z-index: 3; }
+.av-hair.long::after {
+  content: ''; position: absolute;
+  top: 18px; left: -2px; right: -2px; height: 30px;
+  border-radius: 0 0 8px 8px;
+  background: inherit;
+  z-index: -1;
+}
+.av-head { width: 42px; height: 42px; border-radius: 50%; position: relative; z-index: 2; margin-top: 4px; box-shadow: inset -6px -4px 0 rgba(0,0,0,0.2), inset 4px 4px 0 rgba(255,255,255,0.08); }
+.av-eyes { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 4; }
+.av-eye { width: 6px; height: 7px; background: #1a1010; border-radius: 50%; position: relative; }
+.av-eye::after { content: ''; position: absolute; top: 1px; left: 1px; width: 2px; height: 2px; background: rgba(255,255,255,0.7); border-radius: 50%; }
+.av-mouth { position: absolute; top: 28px; left: 50%; transform: translateX(-50%); width: 10px; height: 5px; border-bottom: 2px solid rgba(0,0,0,0.3); border-radius: 0 0 6px 6px; z-index: 4; }
+.av-neck { width: 14px; height: 8px; margin-top: -2px; z-index: 1; }
+
+/* Male body */
+.av-body { width: 44px; height: 44px; border-radius: 10px 10px 6px 6px; margin-top: -2px; position: relative; box-shadow: inset -5px -4px 0 rgba(0,0,0,0.2), inset 3px 3px 0 rgba(255,255,255,0.07); z-index: 1; }
+
+/* Female body — wider hips, narrower shoulders */
+.av-body.female {
+  width: 38px;
+  border-radius: 8px 8px 14px 14px;
+  clip-path: polygon(8% 0%, 92% 0%, 100% 40%, 110% 100%, -10% 100%, 0% 40%);
 }
 
-/* Hair */
-.av-hair {
-  position: absolute;
-  top: -6px;
-  width: 46px;
-  height: 28px;
-  border-radius: 50% 50% 0 0;
-  z-index: 3;
-}
+.av-legs { display: flex; gap: 6px; margin-top: 2px; }
+.av-leg { width: 14px; height: 20px; border-radius: 4px 4px 6px 6px; box-shadow: inset -3px -2px 0 rgba(0,0,0,0.2); }
 
-/* Head */
-.av-head {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  position: relative;
-  z-index: 2;
-  margin-top: 4px;
-  box-shadow: inset -6px -4px 0 rgba(0,0,0,0.2), inset 4px 4px 0 rgba(255,255,255,0.08);
-}
+/* Female legs — slightly longer */
+.av-leg.female { height: 24px; width: 12px; }
 
-/* Eyes */
-.av-eyes {
-  position: absolute;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 8px;
-  z-index: 4;
-}
-.av-eye {
-  width: 6px;
-  height: 7px;
-  background: #1a1010;
-  border-radius: 50%;
-  position: relative;
-}
-.av-eye::after {
-  content: '';
-  position: absolute;
-  top: 1px; left: 1px;
-  width: 2px; height: 2px;
-  background: rgba(255,255,255,0.7);
-  border-radius: 50%;
-}
-
-/* Mouth */
-.av-mouth {
-  position: absolute;
-  top: 28px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 10px;
-  height: 5px;
-  border-bottom: 2px solid rgba(0,0,0,0.3);
-  border-radius: 0 0 6px 6px;
-  z-index: 4;
-}
-
-/* Neck */
-.av-neck {
-  width: 14px;
-  height: 8px;
-  margin-top: -2px;
-  z-index: 1;
-}
-
-/* Body/torso */
-.av-body {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px 10px 6px 6px;
-  margin-top: -2px;
-  position: relative;
-  box-shadow: inset -5px -4px 0 rgba(0,0,0,0.2), inset 3px 3px 0 rgba(255,255,255,0.07);
-  z-index: 1;
-}
-
-/* Legs */
-.av-legs {
-  display: flex;
-  gap: 6px;
-  margin-top: 2px;
-}
-.av-leg {
-  width: 14px;
-  height: 20px;
-  border-radius: 4px 4px 6px 6px;
-  box-shadow: inset -3px -2px 0 rgba(0,0,0,0.2);
-}
-
-.char-name {
-  font-size: 0.65rem;
-  color: rgba(255,220,140,0.7);
-  margin-top: 6px;
-  letter-spacing: 0.06em;
-  white-space: nowrap;
-  text-shadow: 0 1px 6px rgba(0,0,0,1);
-}
-
-.char-shadow {
-  width: 44px; height: 8px;
-  background: rgba(0,0,0,0.45);
-  border-radius: 50%;
-  filter: blur(5px);
-  margin-top: 3px;
-}
-
-/* Skin tones */
-.skin-0 { background: #f5c9a0; }
-.skin-1 { background: #e8a87c; }
-.skin-2 { background: #c68642; }
-.skin-3 { background: #8d5524; }
-.skin-4 { background: #fde0c8; }
-.skin-5 { background: #d4956a; }
-
-/* Hair colors */
-.hair-0 { background: #2c1810; }
-.hair-1 { background: #8b4513; }
-.hair-2 { background: #f4d03f; }
-.hair-3 { background: #1a1a2e; }
-.hair-4 { background: #c0392b; }
-.hair-5 { background: #7f8c8d; }
-
-/* Outfit colors */
-.outfit-0 { background: linear-gradient(180deg,#2c3e50,#1a252f); }
-.outfit-1 { background: linear-gradient(180deg,#6b2d0e,#3d1a08); }
-.outfit-2 { background: linear-gradient(180deg,#1a3a2a,#0d1f15); }
-.outfit-3 { background: linear-gradient(180deg,#2d1a4e,#180d2a); }
-.outfit-4 { background: linear-gradient(180deg,#3a2a0a,#1e1505); }
-.outfit-5 { background: linear-gradient(180deg,#1a2a4e,#0d1528); }
-
-/* Pants */
-.pants-0 { background: #1a1a2e; }
-.pants-1 { background: #2c1810; }
-.pants-2 { background: #0d2a1a; }
-.pants-3 { background: #2a1a0d; }
-.pants-4 { background: #1a0d2a; }
-.pants-5 { background: #0d1a2a; }
-
-/* Neck skin match */
-.neck-0 { background: #f5c9a0; }
-.neck-1 { background: #e8a87c; }
-.neck-2 { background: #c68642; }
-.neck-3 { background: #8d5524; }
-.neck-4 { background: #fde0c8; }
-.neck-5 { background: #d4956a; }
+.char-name { font-size: 0.65rem; color: rgba(255,220,140,0.7); margin-top: 6px; letter-spacing: 0.06em; white-space: nowrap; text-shadow: 0 1px 6px rgba(0,0,0,1); }
+.char-shadow { width: 44px; height: 8px; background: rgba(0,0,0,0.45); border-radius: 50%; filter: blur(5px); margin-top: 3px; }
 
 /* Footer */
-footer {
-  background: rgba(6,4,2,0.96);
-  border-top: 1px solid rgba(255,200,80,0.12);
-  padding: 10px 16px 14px;
-  z-index: 20;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-#identityBar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.75rem;
-  color: #555;
-}
-#identityBar #myAvatar { font-size: 1rem; }
+footer { background: rgba(6,4,2,0.96); border-top: 1px solid rgba(255,200,80,0.12); padding: 10px 16px 14px; z-index: 20; display: flex; flex-direction: column; gap: 8px; }
+#identityBar { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: #555; }
 #identityBar #myName { color: #7a6a4a; }
 #changeId { cursor: pointer; color: #3a3020; text-decoration: underline; font-size: 0.7rem; }
 #changeId:hover { color: #aa9060; }
 #compose { display: flex; gap: 8px; }
 input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: none; }
-#msgInput {
-  flex: 1;
-  background: #100e08;
-  color: #e8d8b0;
-  border: 1px solid rgba(255,200,80,0.15);
-  border-radius: 10px;
-  padding: 10px 14px;
-}
+#msgInput { flex: 1; background: #100e08; color: #e8d8b0; border: 1px solid rgba(255,200,80,0.15); border-radius: 10px; padding: 10px 14px; }
 #msgInput:focus { border-color: rgba(255,200,80,0.35); }
-#sendBtn {
-  background: rgba(180,120,20,0.25);
-  color: #d4a840;
-  border: 1px solid rgba(255,200,80,0.2);
-  border-radius: 10px;
-  padding: 10px 18px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
+#sendBtn { background: rgba(180,120,20,0.25); color: #d4a840; border: 1px solid rgba(255,200,80,0.2); border-radius: 10px; padding: 10px 18px; cursor: pointer; transition: background 0.2s; }
 #sendBtn:hover { background: rgba(180,120,20,0.4); color: #ffcc60; }
 
 /* Modal */
-#modal {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.92);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 200;
-}
-#modalBox {
-  background: #0d0a06;
-  border: 1px solid rgba(255,200,80,0.15);
-  border-radius: 16px;
-  padding: 28px 24px;
-  width: 320px;
-  display: flex; flex-direction: column; gap: 16px;
-}
+#modal { position: fixed; inset: 0; background: rgba(0,0,0,0.92); display: flex; align-items: center; justify-content: center; z-index: 200; overflow-y: auto; padding: 20px; }
+#modalBox { background: #0d0a06; border: 1px solid rgba(255,200,80,0.15); border-radius: 16px; padding: 24px 20px; width: 340px; display: flex; flex-direction: column; gap: 14px; }
 #modalBox h2 { font-size: 1.1rem; color: #e8c870; }
 #modalBox p { font-size: 0.78rem; color: #5a4a2a; }
-#nameInput {
-  background: #100e08;
-  color: #e8d8b0;
-  border: 1px solid rgba(255,200,80,0.2);
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 0.9rem;
-  font-family: inherit;
-  width: 100%;
+#nameInput { background: #100e08; color: #e8d8b0; border: 1px solid rgba(255,200,80,0.2); border-radius: 8px; padding: 10px 12px; font-size: 0.9rem; font-family: inherit; width: 100%; }
+
+.picker-label { font-size: 0.72rem; color: #7a6a4a; margin-bottom: 4px; }
+.swatch-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.swatch {
+  width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+  border: 2px solid transparent; transition: border-color 0.15s, transform 0.15s;
 }
+.swatch:hover { transform: scale(1.15); }
+.swatch.selected { border-color: #e8c870; }
+
+/* Gender toggle */
+.gender-row { display: flex; gap: 8px; }
+.gender-btn {
+  flex: 1; padding: 8px; border-radius: 8px; cursor: pointer;
+  font-family: inherit; font-size: 0.85rem;
+  background: #100e08; color: #7a6a4a;
+  border: 2px solid transparent; transition: all 0.15s;
+}
+.gender-btn.selected { border-color: rgba(255,200,80,0.4); color: #e8c870; background: #1a1408; }
+
+/* Avatar preview */
+#previewWrap { display: flex; justify-content: center; padding: 8px 0; }
+
 .modal-btns { display: flex; gap: 8px; }
-.modal-btns button {
-  flex: 1; padding: 10px; border-radius: 8px;
-  cursor: pointer; font-family: inherit; font-size: 0.85rem;
-}
+.modal-btns button { flex: 1; padding: 10px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 0.85rem; }
 #guestBtn { background: #100e08; color: #7a6a4a; border: 1px solid rgba(255,200,80,0.1); }
 #saveBtn { background: rgba(180,120,20,0.3); color: #e8c870; border: 1px solid rgba(255,200,80,0.25); }
 #guestBtn:hover { background: #181408; }
@@ -344,8 +177,33 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
 <div id="modal">
   <div id="modalBox">
     <h2>Welcome to Olyesti</h2>
-    <p>Enter your display name to join the lounge.</p>
     <input id="nameInput" type="text" placeholder="Your display name" maxlength="32" />
+
+    <div>
+      <div class="picker-label">Gender</div>
+      <div class="gender-row">
+        <button class="gender-btn selected" data-gender="male">♂ Male</button>
+        <button class="gender-btn" data-gender="female">♀ Female</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="picker-label">Skin tone</div>
+      <div class="swatch-row" id="skinPicker"></div>
+    </div>
+
+    <div>
+      <div class="picker-label">Hair color</div>
+      <div class="swatch-row" id="hairPicker"></div>
+    </div>
+
+    <div>
+      <div class="picker-label">Outfit color</div>
+      <div class="swatch-row" id="outfitPicker"></div>
+    </div>
+
+    <div id="previewWrap"></div>
+
     <div class="modal-btns">
       <button id="guestBtn">Join as Guest</button>
       <button id="saveBtn">Save & Enter</button>
@@ -358,17 +216,14 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
   <div id="stage">
     <div class="character" id="char-sl">
       <div class="char-bubble visible" id="bubble-sl">Connected to Second Life</div>
-      <div class="avatar" id="avatar-sl">
+      <div class="avatar">
         <div class="av-hair hair-3"></div>
-        <div class="av-head skin-0" style="background:#0d1a2e;box-shadow:inset -6px -4px 0 rgba(0,0,0,0.3);">
+        <div class="av-head" style="background:#0d1a2e;">
           <div class="av-eyes"><div class="av-eye" style="background:#00aaff;"></div><div class="av-eye" style="background:#00aaff;"></div></div>
         </div>
-        <div class="av-neck neck-0" style="background:#0d1a2e;"></div>
+        <div class="av-neck" style="background:#0d1a2e;"></div>
         <div class="av-body outfit-5"></div>
-        <div class="av-legs">
-          <div class="av-leg pants-0"></div>
-          <div class="av-leg pants-0"></div>
-        </div>
+        <div class="av-legs"><div class="av-leg pants-0"></div><div class="av-leg pants-0"></div></div>
       </div>
       <div class="char-name">SL Relay</div>
       <div class="char-shadow"></div>
@@ -378,8 +233,7 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
 
 <footer>
   <div id="identityBar">
-    <span id="myAvatar">👤</span>
-    <span id="myName"></span>
+    <span id="myName">Not joined</span>
     <span id="changeId">change</span>
   </div>
   <div id="compose">
@@ -389,85 +243,131 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
 </footer>
 
 <script>
-const SKIN = ['skin-0','skin-1','skin-2','skin-3','skin-4','skin-5'];
-const HAIR = ['hair-0','hair-1','hair-2','hair-3','hair-4','hair-5'];
-const OUTFIT = ['outfit-0','outfit-1','outfit-2','outfit-3','outfit-4','outfit-5'];
-const PANTS = ['pants-0','pants-1','pants-2','pants-3','pants-4','pants-5'];
-const NECK = ['neck-0','neck-1','neck-2','neck-3','neck-4','neck-5'];
+const SKIN_COLORS = ['#f5c9a0','#e8a87c','#c68642','#8d5524','#fde0c8','#d4956a'];
+const HAIR_COLORS = ['#2c1810','#8b4513','#f4d03f','#1a1a2e','#c0392b','#7f8c8d','#ffffff','#4a0080'];
+const OUTFIT_COLORS = [
+  ['#2c3e50','#1a252f'],['#6b2d0e','#3d1a08'],['#1a3a2a','#0d1f15'],
+  ['#2d1a4e','#180d2a'],['#3a2a0a','#1e1505'],['#1a2a4e','#0d1528'],
+  ['#4a1a1a','#2a0d0d'],['#1a4a3a','#0d2a20']
+];
+const PANTS_COLORS = ['#1a1a2e','#2c1810','#0d2a1a','#2a1a0d','#1a0d2a','#0d1a2a'];
 
-function hash(str) {
+let selSkin = 0, selHair = 0, selOutfit = 0, selGender = 'male';
+
+function makeSwatch(container, colors, selected, onSelect) {
+  colors.forEach((c, i) => {
+    const s = document.createElement('div');
+    s.className = 'swatch' + (i === selected ? ' selected' : '');
+    s.style.background = Array.isArray(c) ? `linear-gradient(180deg,${c[0]},${c[1]})` : c;
+    s.onclick = () => {
+      container.querySelectorAll('.swatch').forEach(x => x.classList.remove('selected'));
+      s.classList.add('selected');
+      onSelect(i);
+      updatePreview();
+    };
+    container.appendChild(s);
+  });
+}
+
+makeSwatch(document.getElementById('skinPicker'), SKIN_COLORS, selSkin, i => selSkin = i);
+makeSwatch(document.getElementById('hairPicker'), HAIR_COLORS, selHair, i => selHair = i);
+makeSwatch(document.getElementById('outfitPicker'), OUTFIT_COLORS, selOutfit, i => selOutfit = i);
+
+document.querySelectorAll('.gender-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selGender = btn.dataset.gender;
+    updatePreview();
+  };
+});
+
+function buildAvatarEl(skin, hair, outfit, pants, gender) {
+  const isFemale = gender === 'female';
+  const wrap = document.createElement('div');
+  wrap.className = 'avatar';
+  const hairEl = document.createElement('div');
+  hairEl.className = 'av-hair' + (isFemale ? ' long' : '');
+  hairEl.style.background = HAIR_COLORS[hair];
+  const head = document.createElement('div');
+  head.className = 'av-head';
+  head.style.background = SKIN_COLORS[skin];
+  head.innerHTML = `<div class="av-eyes"><div class="av-eye"></div><div class="av-eye"></div></div><div class="av-mouth"></div>`;
+  const neck = document.createElement('div');
+  neck.className = 'av-neck';
+  neck.style.background = SKIN_COLORS[skin];
+  const body = document.createElement('div');
+  body.className = 'av-body' + (isFemale ? ' female' : '');
+  body.style.background = `linear-gradient(180deg,${OUTFIT_COLORS[outfit][0]},${OUTFIT_COLORS[outfit][1]})`;
+  const legs = document.createElement('div');
+  legs.className = 'av-legs';
+  for (let i = 0; i < 2; i++) {
+    const leg = document.createElement('div');
+    leg.className = 'av-leg' + (isFemale ? ' female' : '');
+    leg.style.background = PANTS_COLORS[pants];
+    legs.appendChild(leg);
+  }
+  wrap.appendChild(hairEl);
+  wrap.appendChild(head);
+  wrap.appendChild(neck);
+  wrap.appendChild(body);
+  wrap.appendChild(legs);
+  return wrap;
+}
+
+function hashName(name) {
   let h = 0;
-  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) & 0xfffff;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xfffff;
   return h;
 }
 
-function buildAvatar(name) {
-  const h = hash(name);
-  const skin = SKIN[h % 6];
-  const hair = HAIR[(h >> 3) % 6];
-  const outfit = OUTFIT[(h >> 6) % 6];
-  const pants = PANTS[(h >> 9) % 6];
-  const neck = NECK[h % 6];
-
-  const wrap = document.createElement('div');
-  wrap.className = 'avatar';
-  wrap.innerHTML = `
-    <div class="av-hair ${hair}"></div>
-    <div class="av-head ${skin}">
-      <div class="av-eyes"><div class="av-eye"></div><div class="av-eye"></div></div>
-      <div class="av-mouth"></div>
-    </div>
-    <div class="av-neck ${neck}"></div>
-    <div class="av-body ${outfit}"></div>
-    <div class="av-legs">
-      <div class="av-leg ${pants}"></div>
-      <div class="av-leg ${pants}"></div>
-    </div>
-  `;
-  return wrap;
+function updatePreview() {
+  const pw = document.getElementById('previewWrap');
+  pw.innerHTML = '';
+  const pants = selSkin % PANTS_COLORS.length;
+  pw.appendChild(buildAvatarEl(selSkin, selHair, selOutfit, pants, selGender));
 }
+updatePreview();
 
 const nameInput = document.getElementById('nameInput');
 const modal = document.getElementById('modal');
 const stage = document.getElementById('stage');
 const msgInput = document.getElementById('msgInput');
 const myNameEl = document.getElementById('myName');
-const myAvatarEl = document.getElementById('myAvatar');
 
 let identity = null;
 const activeChars = {};
 
-function getOrCreateChar(key, name) {
+function getOrCreateChar(key, name, skin, hair, outfit, gender) {
   if (activeChars[key]) return activeChars[key];
-
   const char = document.createElement('div');
   char.className = 'character';
   char.style.animationDelay = (Object.keys(activeChars).length * 0.4) + 's';
-
   const bubble = document.createElement('div');
   bubble.className = 'char-bubble';
-
-  const avatar = buildAvatar(name);
-
+  const h = hashName(name);
+  const s = skin !== undefined ? skin : h % 6;
+  const ha = hair !== undefined ? hair : (h >> 3) % 8;
+  const o = outfit !== undefined ? outfit : (h >> 6) % 8;
+  const p = s % PANTS_COLORS.length;
+  const g = gender || 'male';
+  const avatar = buildAvatarEl(s, ha, o, p, g);
   const nameEl = document.createElement('div');
   nameEl.className = 'char-name';
   nameEl.textContent = name;
-
   const shadow = document.createElement('div');
   shadow.className = 'char-shadow';
-
   char.appendChild(bubble);
   char.appendChild(avatar);
   char.appendChild(nameEl);
   char.appendChild(shadow);
   stage.appendChild(char);
-
   activeChars[key] = { el: char, bubbleEl: bubble, timer: null };
   return activeChars[key];
 }
 
-function showMessage(key, name, text) {
-  const ch = getOrCreateChar(key, name);
+function showMessage(key, name, text, skin, hair, outfit, gender) {
+  const ch = getOrCreateChar(key, name, skin, hair, outfit, gender);
   ch.bubbleEl.textContent = text.slice(0, 120);
   ch.bubbleEl.classList.add('visible');
   if (ch.timer) clearTimeout(ch.timer);
@@ -477,12 +377,14 @@ function showMessage(key, name, text) {
 function handleMessage(msg) {
   const slBubble = document.getElementById('bubble-sl');
   if (msg.source === 'secondlife') {
-    showMessage('sl_' + msg.speaker, msg.speaker, msg.text);
+    const h = hashName(msg.speaker);
+    showMessage('sl_' + msg.speaker, msg.speaker, msg.text, h%6, (h>>3)%8, (h>>6)%8, 'male');
     slBubble.textContent = msg.speaker + ': ' + msg.text.slice(0, 80);
     slBubble.classList.add('visible');
     setTimeout(() => slBubble.classList.remove('visible'), 5000);
   } else {
-    showMessage('web_' + msg.speaker, msg.speaker, msg.text);
+    showMessage('web_' + msg.speaker, msg.speaker, msg.text,
+      msg.skin, msg.hair, msg.outfit, msg.gender);
   }
 }
 
@@ -497,26 +399,38 @@ function loadIdentity() {
 
 function applyIdentity() {
   myNameEl.textContent = identity.name;
-  getOrCreateChar('me', identity.name);
+  getOrCreateChar('me', identity.name, identity.skin, identity.hair, identity.outfit, identity.gender);
 }
 
 document.getElementById('saveBtn').onclick = () => {
   const name = nameInput.value.trim();
   if (!name) { nameInput.focus(); return; }
-  identity = { name, guest: false };
+  identity = { name, skin: selSkin, hair: selHair, outfit: selOutfit, gender: selGender, guest: false };
   localStorage.setItem('olyesti_identity', JSON.stringify(identity));
   applyIdentity();
   modal.style.display = 'none';
 };
 
 document.getElementById('guestBtn').onclick = () => {
-  identity = { name: 'Guest' + Math.floor(Math.random()*9000+1000), guest: true };
+  const name = 'Guest' + Math.floor(Math.random()*9000+1000);
+  const h = hashName(name);
+  identity = { name, skin: h%6, hair: (h>>3)%8, outfit: (h>>6)%8, gender: 'male', guest: true };
   applyIdentity();
   modal.style.display = 'none';
 };
 
 document.getElementById('changeId').onclick = () => {
-  nameInput.value = identity.guest ? '' : identity.name;
+  if (identity) {
+    nameInput.value = identity.guest ? '' : identity.name;
+    selSkin = identity.skin || 0;
+    selHair = identity.hair || 0;
+    selOutfit = identity.outfit || 0;
+    selGender = identity.gender || 'male';
+    document.querySelectorAll('.gender-btn').forEach(b => {
+      b.classList.toggle('selected', b.dataset.gender === selGender);
+    });
+    updatePreview();
+  }
   modal.style.display = 'flex';
 };
 
@@ -527,7 +441,11 @@ socket.on('message', msg => handleMessage(msg));
 function send() {
   const text = msgInput.value.trim();
   if (!text || !identity) return;
-  socket.emit('web-message', { name: identity.name, text });
+  socket.emit('web-message', {
+    name: identity.name, text,
+    skin: identity.skin, hair: identity.hair,
+    outfit: identity.outfit, gender: identity.gender
+  });
   msgInput.value = '';
 }
 
