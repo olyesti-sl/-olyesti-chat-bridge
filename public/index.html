@@ -6,218 +6,364 @@
 <title>Olyesti Live Chat</title>
 <script src="/socket.io/socket.io.js"></script>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background: #0a0a0a;
-    color: #e8e8e8;
-    height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  header {
-    width: 100%;
-    max-width: 700px;
-    padding: 18px 20px 12px;
-    border-bottom: 1px solid #222;
-  }
-  header h1 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    color: #fff;
-  }
-  header p {
-    font-size: 0.78rem;
-    color: #666;
-    margin-top: 2px;
-  }
-  #chat {
-    flex: 1;
-    width: 100%;
-    max-width: 700px;
-    overflow-y: auto;
-    padding: 16px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .msg {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  .msg.web { flex-direction: row-reverse; }
-  .avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-    flex-shrink: 0;
-  }
-  .bubble {
-    max-width: 75%;
-    padding: 9px 13px;
-    border-radius: 16px;
-    font-size: 0.9rem;
-    line-height: 1.4;
-  }
-  .msg.sl .bubble {
-    background: #1a1a2e;
-    border-bottom-left-radius: 4px;
-    color: #c8d8ff;
-  }
-  .msg.web .bubble {
-    background: #1a2e1a;
-    border-bottom-right-radius: 4px;
-    color: #c8ffc8;
-  }
-  .msg.mine .bubble {
-    background: #2a1f3d;
-    border-bottom-right-radius: 4px;
-    color: #e8d8ff;
-  }
-  .meta {
-    font-size: 0.7rem;
-    color: #555;
-    margin-top: 3px;
-  }
-  .bubble-wrap { display: flex; flex-direction: column; }
-  .msg.web .bubble-wrap, .msg.mine .bubble-wrap { align-items: flex-end; }
-  footer {
-    width: 100%;
-    max-width: 700px;
-    padding: 12px 20px 20px;
-    border-top: 1px solid #222;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  #compose {
-    display: flex;
-    gap: 8px;
-  }
-  input, button {
-    font-family: inherit;
-    font-size: 0.9rem;
-    border: none;
-    outline: none;
-  }
-  #msgInput {
-    flex: 1;
-    background: #161616;
-    color: #e8e8e8;
-    border: 1px solid #2a2a2a;
-    border-radius: 10px;
-    padding: 10px 14px;
-  }
-  #msgInput:focus { border-color: #444; }
-  #sendBtn {
-    background: #2d2d2d;
-    color: #fff;
-    border-radius: 10px;
-    padding: 10px 18px;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  #sendBtn:hover { background: #3a3a3a; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #050508;
+  color: #e8e8e8;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
 
-  /* Identity modal */
-  #modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-  }
-  #modalBox {
-    background: #111;
-    border: 1px solid #2a2a2a;
-    border-radius: 16px;
-    padding: 28px 24px;
-    width: 320px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  #modalBox h2 { font-size: 1.1rem; color: #fff; }
-  #modalBox p { font-size: 0.8rem; color: #666; }
-  #nameInput {
-    background: #1a1a1a;
-    color: #e8e8e8;
-    border: 1px solid #2a2a2a;
-    border-radius: 8px;
-    padding: 10px 12px;
-    font-size: 0.9rem;
-    font-family: inherit;
-    width: 100%;
-  }
-  .icon-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 8px;
-  }
-  .icon-opt {
-    font-size: 1.4rem;
-    text-align: center;
-    cursor: pointer;
-    padding: 6px;
-    border-radius: 8px;
-    border: 2px solid transparent;
-    transition: border-color 0.15s;
-  }
-  .icon-opt.selected { border-color: #666; background: #1e1e1e; }
-  .modal-btns { display: flex; gap: 8px; }
-  .modal-btns button {
-    flex: 1;
-    padding: 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 0.85rem;
-  }
-  #guestBtn { background: #1a1a1a; color: #aaa; border: 1px solid #2a2a2a; }
-  #saveBtn { background: #2d2d2d; color: #fff; border: 1px solid #3a3a3a; }
-  #guestBtn:hover { background: #222; }
-  #saveBtn:hover { background: #3a3a3a; }
-  #identityBar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.8rem;
-    color: #555;
-  }
-  #identityBar span { cursor: pointer; color: #444; text-decoration: underline; }
-  #identityBar span:hover { color: #888; }
+/* SCENE */
+#scene {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  perspective: 800px;
+}
+
+/* Floor */
+#scene::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 55%;
+  background: linear-gradient(180deg, #0a0a14 0%, #12121f 40%, #1a1428 100%);
+  transform: rotateX(20deg);
+  transform-origin: bottom center;
+}
+
+/* Ceiling/walls */
+#scene::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, #05050a 0%, #0d0d1a 100%);
+}
+
+/* Ambient glow spots */
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 1;
+}
+.glow-1 { width: 300px; height: 200px; background: rgba(80,40,120,0.25); top: 10%; left: 10%; }
+.glow-2 { width: 250px; height: 180px; background: rgba(20,60,100,0.2); top: 5%; right: 15%; }
+.glow-3 { width: 200px; height: 150px; background: rgba(100,50,20,0.15); bottom: 20%; left: 40%; }
+
+/* Floor grid lines for 3D effect */
+#grid {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 50%;
+  z-index: 2;
+  overflow: hidden;
+}
+#grid svg { width: 100%; height: 100%; }
+
+/* Back wall decor */
+#wall {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 52%;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 8px;
+}
+.wall-panel {
+  width: 180px;
+  height: 90px;
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 4px;
+  margin: 0 12px;
+  background: rgba(255,255,255,0.02);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.08);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* Characters container */
+#stage {
+  position: absolute;
+  bottom: 28%;
+  left: 0; right: 0;
+  height: 200px;
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 60px;
+}
+
+.character {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  animation: float 3s ease-in-out infinite;
+}
+.character:nth-child(2) { animation-delay: 0.5s; }
+.character:nth-child(3) { animation-delay: 1s; }
+.character:nth-child(4) { animation-delay: 1.5s; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.char-bubble {
+  background: rgba(20,15,35,0.92);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  color: #ccc;
+  max-width: 160px;
+  text-align: center;
+  margin-bottom: 8px;
+  position: relative;
+  opacity: 0;
+  transition: opacity 0.3s;
+  line-height: 1.3;
+  word-break: break-word;
+}
+.char-bubble.visible { opacity: 1; }
+.char-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(255,255,255,0.1);
+  border-bottom: none;
+}
+
+.char-body {
+  width: 56px;
+  height: 80px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.char-head {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  border: 2px solid rgba(255,255,255,0.15);
+  box-shadow: 0 0 20px rgba(150,100,255,0.2);
+  position: relative;
+  z-index: 2;
+}
+
+.char-torso {
+  width: 32px;
+  height: 36px;
+  border-radius: 8px 8px 4px 4px;
+  margin-top: -4px;
+}
+
+.char-name {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.4);
+  margin-top: 4px;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.char-shadow {
+  width: 40px;
+  height: 8px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 50%;
+  filter: blur(4px);
+  margin-top: 2px;
+}
+
+/* SL relay character — fixed left */
+#sl-char {
+  position: absolute;
+  left: 40px;
+  bottom: 0;
+}
+
+/* Footer */
+footer {
+  background: rgba(8,8,14,0.95);
+  border-top: 1px solid #1a1a2a;
+  padding: 10px 16px 14px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+#identityBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: #444;
+}
+#identityBar #myAvatar { font-size: 1rem; }
+#identityBar #myName { color: #666; }
+#changeId { cursor: pointer; color: #333; text-decoration: underline; font-size: 0.7rem; }
+#changeId:hover { color: #888; }
+#compose { display: flex; gap: 8px; }
+input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: none; }
+#msgInput {
+  flex: 1;
+  background: #0f0f18;
+  color: #e8e8e8;
+  border: 1px solid #1e1e2e;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+#msgInput:focus { border-color: #333; }
+#sendBtn {
+  background: #1e1e2e;
+  color: #aaa;
+  border-radius: 10px;
+  padding: 10px 18px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#sendBtn:hover { background: #2a2a3e; color: #fff; }
+
+/* Modal */
+#modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.9);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200;
+}
+#modalBox {
+  background: #0d0d18;
+  border: 1px solid #1e1e2e;
+  border-radius: 16px;
+  padding: 28px 24px;
+  width: 320px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+#modalBox h2 { font-size: 1.1rem; color: #fff; }
+#modalBox p { font-size: 0.78rem; color: #555; }
+#nameInput {
+  background: #111120;
+  color: #e8e8e8;
+  border: 1px solid #1e1e2e;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  width: 100%;
+}
+.icon-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 8px; }
+.icon-opt {
+  font-size: 1.4rem; text-align: center; cursor: pointer;
+  padding: 6px; border-radius: 8px;
+  border: 2px solid transparent; transition: border-color 0.15s;
+}
+.icon-opt.selected { border-color: #444; background: #1a1a2a; }
+.modal-btns { display: flex; gap: 8px; }
+.modal-btns button {
+  flex: 1; padding: 10px; border-radius: 8px;
+  cursor: pointer; font-family: inherit; font-size: 0.85rem;
+}
+#guestBtn { background: #111120; color: #888; border: 1px solid #1e1e2e; }
+#saveBtn { background: #1e1e2e; color: #fff; border: 1px solid #2a2a3e; }
+#guestBtn:hover { background: #16161f; }
+#saveBtn:hover { background: #2a2a3e; }
+
+/* Color palette for char bodies */
+.color-0 { background: linear-gradient(180deg,#2d1f4e,#1a1230); }
+.color-1 { background: linear-gradient(180deg,#1f3a4e,#0f2030); }
+.color-2 { background: linear-gradient(180deg,#3a2010,#201008); }
+.color-3 { background: linear-gradient(180deg,#1f4e2d,#0f3018); }
+.color-4 { background: linear-gradient(180deg,#4e1f2d,#300f18); }
+.color-5 { background: linear-gradient(180deg,#2a2a1f,#18180f); }
 </style>
 </head>
 <body>
 
 <div id="modal">
   <div id="modalBox">
-    <h2>Welcome to Olyesti Live Chat</h2>
-    <p>Choose a name and avatar to use across visits, or join as a guest.</p>
+    <h2>Welcome to Olyesti</h2>
+    <p>Choose your avatar name and icon — saved for future visits.</p>
     <input id="nameInput" type="text" placeholder="Your display name" maxlength="32" />
     <div class="icon-grid" id="iconGrid"></div>
     <div class="modal-btns">
-      <button id="guestBtn">Guest</button>
-      <button id="saveBtn">Save & Join</button>
+      <button id="guestBtn">Join as Guest</button>
+      <button id="saveBtn">Save & Enter</button>
     </div>
   </div>
 </div>
 
-<header>
-  <h1>Olyesti Live Chat</h1>
-  <p>Connected to the Olyesti relay in Second Life.</p>
-</header>
+<div id="scene">
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+  <div class="glow glow-3"></div>
 
-<div id="chat"></div>
+  <div id="wall">
+    <div class="wall-panel">Olyesti</div>
+    <div class="wall-panel" style="width:240px;height:110px;font-size:1.8rem;color:rgba(255,255,255,0.06);">✦</div>
+    <div class="wall-panel">Second Life</div>
+  </div>
+
+  <div id="grid">
+    <svg viewBox="0 0 1000 300" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Perspective grid lines -->
+      <defs>
+        <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#1a1a2e" stop-opacity="0.8"/>
+          <stop offset="100%" stop-color="#1a1a2e" stop-opacity="0.1"/>
+        </linearGradient>
+      </defs>
+      <!-- Horizontal lines -->
+      <line x1="0" y1="20" x2="1000" y2="20" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+      <line x1="0" y1="60" x2="1000" y2="60" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      <line x1="0" y1="110" x2="1000" y2="110" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+      <line x1="0" y1="175" x2="1000" y2="175" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+      <line x1="0" y1="260" x2="1000" y2="260" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+      <!-- Vertical perspective lines converging to center -->
+      <line x1="500" y1="0" x2="0" y2="300" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+      <line x1="500" y1="0" x2="200" y2="300" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+      <line x1="500" y1="0" x2="400" y2="300" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+      <line x1="500" y1="0" x2="600" y2="300" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+      <line x1="500" y1="0" x2="800" y2="300" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+      <line x1="500" y1="0" x2="1000" y2="300" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+    </svg>
+  </div>
+
+  <div id="stage">
+    <!-- SL relay character always present -->
+    <div class="character" id="char-sl">
+      <div class="char-bubble" id="bubble-sl">Connected to Second Life</div>
+      <div class="char-body">
+        <div class="char-head" style="background:#0d1a2e;">🌐</div>
+        <div class="char-torso color-1"></div>
+      </div>
+      <div class="char-name">SL Relay</div>
+      <div class="char-shadow"></div>
+    </div>
+  </div>
+</div>
 
 <footer>
   <div id="identityBar">
@@ -233,18 +379,20 @@
 
 <script>
 const ICONS = ['☕','🌿','🦋','🌙','⭐','🔥','🌸','🍵','🦊','🐺','🌊','💎','🎭','🪐','🌺','🦁','🐉','✨','🍂','🌴'];
+const COLORS = ['color-0','color-1','color-2','color-3','color-4','color-5'];
+
 const iconGrid = document.getElementById('iconGrid');
 const nameInput = document.getElementById('nameInput');
 const modal = document.getElementById('modal');
-const chat = document.getElementById('chat');
+const stage = document.getElementById('stage');
 const msgInput = document.getElementById('msgInput');
 const myNameEl = document.getElementById('myName');
 const myAvatarEl = document.getElementById('myAvatar');
 
 let selectedIcon = ICONS[0];
-let identity = { name: '', icon: ICONS[0], guest: false };
+let identity = null;
+const activeChars = {}; // key -> { el, bubbleEl, timer }
 
-// Build icon grid
 ICONS.forEach((ic, i) => {
   const d = document.createElement('div');
   d.className = 'icon-opt' + (i === 0 ? ' selected' : '');
@@ -257,6 +405,81 @@ ICONS.forEach((ic, i) => {
   iconGrid.appendChild(d);
 });
 
+function colorForName(name) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffff;
+  return COLORS[h % COLORS.length];
+}
+
+function iconForName(name) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 17 + name.charCodeAt(i)) & 0xffff;
+  return ICONS[h % ICONS.length];
+}
+
+function getOrCreateChar(key, icon, name, colorClass) {
+  if (activeChars[key]) return activeChars[key];
+
+  const char = document.createElement('div');
+  char.className = 'character';
+  char.style.animationDelay = (Object.keys(activeChars).length * 0.4) + 's';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'char-bubble';
+
+  const body = document.createElement('div');
+  body.className = 'char-body';
+
+  const head = document.createElement('div');
+  head.className = 'char-head';
+  head.style.background = '#1a1228';
+  head.textContent = icon;
+
+  const torso = document.createElement('div');
+  torso.className = 'char-torso ' + colorClass;
+
+  const nameEl = document.createElement('div');
+  nameEl.className = 'char-name';
+  nameEl.textContent = name;
+
+  const shadow = document.createElement('div');
+  shadow.className = 'char-shadow';
+
+  body.appendChild(head);
+  body.appendChild(torso);
+  char.appendChild(bubble);
+  char.appendChild(body);
+  char.appendChild(nameEl);
+  char.appendChild(shadow);
+  stage.appendChild(char);
+
+  activeChars[key] = { el: char, bubbleEl: bubble, timer: null };
+  return activeChars[key];
+}
+
+function showMessage(key, icon, name, colorClass, text) {
+  const ch = getOrCreateChar(key, icon, name, colorClass);
+  ch.bubbleEl.textContent = text.slice(0, 80);
+  ch.bubbleEl.classList.add('visible');
+  if (ch.timer) clearTimeout(ch.timer);
+  ch.timer = setTimeout(() => ch.bubbleEl.classList.remove('visible'), 6000);
+}
+
+function handleMessage(msg) {
+  if (msg.source === 'secondlife') {
+    const key = 'sl_' + msg.speaker;
+    showMessage(key, iconForName(msg.speaker), msg.speaker, colorForName(msg.speaker), msg.text);
+    // Also show on SL relay bubble briefly
+    const slBubble = document.getElementById('bubble-sl');
+    slBubble.textContent = msg.speaker + ': ' + msg.text.slice(0, 60);
+    slBubble.classList.add('visible');
+    setTimeout(() => slBubble.classList.remove('visible'), 5000);
+  } else {
+    const key = 'web_' + msg.speaker;
+    showMessage(key, iconForName(msg.speaker), msg.speaker, colorForName(msg.speaker), msg.text);
+  }
+}
+
 function loadIdentity() {
   const saved = localStorage.getItem('olyesti_identity');
   if (saved) {
@@ -268,7 +491,9 @@ function loadIdentity() {
 
 function applyIdentity() {
   myAvatarEl.textContent = identity.icon;
-  myNameEl.textContent = identity.guest ? 'Guest' : identity.name;
+  myNameEl.textContent = identity.name;
+  // Create the user's own character
+  getOrCreateChar('me', identity.icon, identity.name, colorForName(identity.name));
 }
 
 document.getElementById('saveBtn').onclick = () => {
@@ -291,48 +516,17 @@ document.getElementById('changeId').onclick = () => {
   modal.style.display = 'flex';
 };
 
-function timeStr(ts) {
-  return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-
-function addMessage(msg, mine = false) {
-  const isSL = msg.source === 'secondlife';
-  const div = document.createElement('div');
-  div.className = 'msg ' + (mine ? 'mine' : isSL ? 'sl' : 'web');
-
-  const icon = isSL ? '🌐' : (mine ? identity.icon : '💬');
-  const av = document.createElement('div');
-  av.className = 'avatar';
-  av.style.background = isSL ? '#0d0d1a' : mine ? '#1a0d2e' : '#0d1a0d';
-  av.textContent = icon;
-
-  const wrap = document.createElement('div');
-  wrap.className = 'bubble-wrap';
-
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble';
-  bubble.textContent = (isSL ? '' : '') + msg.text;
-
-  const meta = document.createElement('div');
-  meta.className = 'meta';
-  meta.textContent = msg.speaker + ' · ' + timeStr(msg.at);
-
-  wrap.appendChild(bubble);
-  wrap.appendChild(meta);
-  div.appendChild(av);
-  div.appendChild(wrap);
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-}
-
 const socket = io();
-socket.on('history', msgs => msgs.forEach(m => addMessage(m)));
-socket.on('message', msg => addMessage(msg));
+socket.on('history', msgs => {
+  // Show last few messages as character bubbles
+  msgs.slice(-5).forEach(m => handleMessage(m));
+});
+socket.on('message', msg => handleMessage(msg));
 
 function send() {
   const text = msgInput.value.trim();
-  if (!text) return;
-  socket.emit('web-message', { name: identity.guest ? identity.name : identity.name, text });
+  if (!text || !identity) return;
+  socket.emit('web-message', { name: identity.name, text });
   msgInput.value = '';
 }
 
@@ -343,3 +537,4 @@ loadIdentity();
 </script>
 </body>
 </html>
+
