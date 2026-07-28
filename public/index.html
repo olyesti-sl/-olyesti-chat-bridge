@@ -339,19 +339,36 @@ function buildAvatarEl(skin, hair, outfit, pants, gender) {
   const isFemale = gender === 'female';
   const wrap = document.createElement('div');
   wrap.className = 'avatar';
+
   const hairEl = document.createElement('div');
   hairEl.className = 'av-hair' + (isFemale ? ' long' : '');
   hairEl.style.background = HAIR_COLORS[hair];
+
   const head = document.createElement('div');
   head.className = 'av-head';
   head.style.background = SKIN_COLORS[skin];
-  head.innerHTML = `<div class="av-eyes"><div class="av-eye"></div><div class="av-eye"></div></div><div class="av-mouth"></div>`;
+  head.style.position = 'relative';
+  head.style.overflow = 'visible';
+  head.innerHTML = `
+    <div style="position:absolute;top:14px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10;">
+      <div style="width:6px;height:7px;background:#1a1010;border-radius:50%;position:relative;">
+        <div style="position:absolute;top:1px;left:1px;width:2px;height:2px;background:rgba(255,255,255,0.7);border-radius:50%;"></div>
+      </div>
+      <div style="width:6px;height:7px;background:#1a1010;border-radius:50%;position:relative;">
+        <div style="position:absolute;top:1px;left:1px;width:2px;height:2px;background:rgba(255,255,255,0.7);border-radius:50%;"></div>
+      </div>
+    </div>
+    <div style="position:absolute;top:26px;left:50%;transform:translateX(-50%);width:10px;height:5px;border-bottom:2px solid rgba(0,0,0,0.35);border-radius:0 0 6px 6px;z-index:10;"></div>
+  `;
+
   const neck = document.createElement('div');
   neck.className = 'av-neck';
   neck.style.background = SKIN_COLORS[skin];
+
   const body = document.createElement('div');
   body.className = 'av-body' + (isFemale ? ' female' : '');
   body.style.background = `linear-gradient(180deg,${OUTFIT_COLORS[outfit][0]},${OUTFIT_COLORS[outfit][1]})`;
+
   const legs = document.createElement('div');
   legs.className = 'av-legs';
   for (let i = 0; i < 2; i++) {
@@ -360,6 +377,7 @@ function buildAvatarEl(skin, hair, outfit, pants, gender) {
     leg.style.background = PANTS_COLORS[pants];
     legs.appendChild(leg);
   }
+
   wrap.appendChild(hairEl);
   wrap.appendChild(head);
   wrap.appendChild(neck);
