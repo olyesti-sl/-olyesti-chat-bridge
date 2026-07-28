@@ -29,7 +29,6 @@ body {
   background: url('lounge.jpg') center center / cover no-repeat;
   filter: brightness(0.75);
 }
-
 #bg::after {
   content: '';
   position: absolute;
@@ -53,100 +52,213 @@ body {
 }
 #stage::-webkit-scrollbar { display: none; }
 
-
 .character {
   display: flex;
   flex-direction: column;
   align-items: center;
   animation: float 3s ease-in-out infinite;
+  flex-shrink: 0;
 }
 .character:nth-child(2) { animation-delay: 0.5s; }
 .character:nth-child(3) { animation-delay: 1s; }
 .character:nth-child(4) { animation-delay: 1.5s; }
 .character:nth-child(5) { animation-delay: 2s; }
+.character:nth-child(6) { animation-delay: 2.5s; }
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-7px); }
 }
 
+/* Speech bubble */
 .char-bubble {
-  background: rgba(10,8,20,0.88);
-  border: 1px solid rgba(255,220,100,0.2);
+  background: rgba(10,8,20,0.9);
+  border: 1px solid rgba(255,220,100,0.25);
   border-radius: 12px;
-  padding: 6px 11px;
-  font-size: 0.72rem;
+  padding: 7px 12px;
+  font-size: 0.82rem;
   color: #e8d8b0;
   max-width: 260px;
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   opacity: 0;
   transition: opacity 0.3s;
-  line-height: 1.35;
+  line-height: 1.4;
   word-break: break-word;
   position: relative;
+  pointer-events: none;
 }
 .char-bubble.visible { opacity: 1; }
 .char-bubble::after {
   content: '';
   position: absolute;
-  bottom: -6px; left: 50%;
+  bottom: -7px; left: 50%;
   transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: rgba(255,220,100,0.2);
+  border: 7px solid transparent;
+  border-top-color: rgba(255,220,100,0.25);
   border-bottom: none;
 }
 
-.char-body {
+/* 3D Avatar */
+.avatar {
+  position: relative;
+  width: 60px;
+  height: 100px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.char-head {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.6rem;
-  border: 2px solid rgba(255,200,80,0.3);
-  box-shadow: 0 0 18px rgba(200,140,40,0.3), 0 4px 12px rgba(0,0,0,0.5);
-  background: rgba(20,14,8,0.85);
+/* Hair */
+.av-hair {
+  position: absolute;
+  top: -6px;
+  width: 46px;
+  height: 28px;
+  border-radius: 50% 50% 0 0;
+  z-index: 3;
 }
 
-.char-torso {
-  width: 34px;
-  height: 38px;
-  border-radius: 8px 8px 4px 4px;
-  margin-top: -4px;
+/* Head */
+.av-head {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  position: relative;
+  z-index: 2;
+  margin-top: 4px;
+  box-shadow: inset -6px -4px 0 rgba(0,0,0,0.2), inset 4px 4px 0 rgba(255,255,255,0.08);
+}
+
+/* Eyes */
+.av-eyes {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 4;
+}
+.av-eye {
+  width: 6px;
+  height: 7px;
+  background: #1a1010;
+  border-radius: 50%;
+  position: relative;
+}
+.av-eye::after {
+  content: '';
+  position: absolute;
+  top: 1px; left: 1px;
+  width: 2px; height: 2px;
+  background: rgba(255,255,255,0.7);
+  border-radius: 50%;
+}
+
+/* Mouth */
+.av-mouth {
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 5px;
+  border-bottom: 2px solid rgba(0,0,0,0.3);
+  border-radius: 0 0 6px 6px;
+  z-index: 4;
+}
+
+/* Neck */
+.av-neck {
+  width: 14px;
+  height: 8px;
+  margin-top: -2px;
+  z-index: 1;
+}
+
+/* Body/torso */
+.av-body {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px 10px 6px 6px;
+  margin-top: -2px;
+  position: relative;
+  box-shadow: inset -5px -4px 0 rgba(0,0,0,0.2), inset 3px 3px 0 rgba(255,255,255,0.07);
+  z-index: 1;
+}
+
+/* Legs */
+.av-legs {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+}
+.av-leg {
+  width: 14px;
+  height: 20px;
+  border-radius: 4px 4px 6px 6px;
+  box-shadow: inset -3px -2px 0 rgba(0,0,0,0.2);
 }
 
 .char-name {
   font-size: 0.65rem;
   color: rgba(255,220,140,0.7);
-  margin-top: 5px;
+  margin-top: 6px;
   letter-spacing: 0.06em;
   white-space: nowrap;
   text-shadow: 0 1px 6px rgba(0,0,0,1);
 }
 
 .char-shadow {
-  width: 38px; height: 8px;
-  background: rgba(0,0,0,0.5);
+  width: 44px; height: 8px;
+  background: rgba(0,0,0,0.45);
   border-radius: 50%;
-  filter: blur(4px);
+  filter: blur(5px);
   margin-top: 3px;
 }
 
-.color-0 { background: linear-gradient(180deg,#3d2a0a,#1e1205); }
-.color-1 { background: linear-gradient(180deg,#1a2a3d,#0a1220); }
-.color-2 { background: linear-gradient(180deg,#2d1a0a,#180d05); }
-.color-3 { background: linear-gradient(180deg,#1a3d2a,#0a2015); }
-.color-4 { background: linear-gradient(180deg,#3d1a2a,#200a15); }
-.color-5 { background: linear-gradient(180deg,#2a2a1a,#151508); }
+/* Skin tones */
+.skin-0 { background: #f5c9a0; }
+.skin-1 { background: #e8a87c; }
+.skin-2 { background: #c68642; }
+.skin-3 { background: #8d5524; }
+.skin-4 { background: #fde0c8; }
+.skin-5 { background: #d4956a; }
 
+/* Hair colors */
+.hair-0 { background: #2c1810; }
+.hair-1 { background: #8b4513; }
+.hair-2 { background: #f4d03f; }
+.hair-3 { background: #1a1a2e; }
+.hair-4 { background: #c0392b; }
+.hair-5 { background: #7f8c8d; }
+
+/* Outfit colors */
+.outfit-0 { background: linear-gradient(180deg,#2c3e50,#1a252f); }
+.outfit-1 { background: linear-gradient(180deg,#6b2d0e,#3d1a08); }
+.outfit-2 { background: linear-gradient(180deg,#1a3a2a,#0d1f15); }
+.outfit-3 { background: linear-gradient(180deg,#2d1a4e,#180d2a); }
+.outfit-4 { background: linear-gradient(180deg,#3a2a0a,#1e1505); }
+.outfit-5 { background: linear-gradient(180deg,#1a2a4e,#0d1528); }
+
+/* Pants */
+.pants-0 { background: #1a1a2e; }
+.pants-1 { background: #2c1810; }
+.pants-2 { background: #0d2a1a; }
+.pants-3 { background: #2a1a0d; }
+.pants-4 { background: #1a0d2a; }
+.pants-5 { background: #0d1a2a; }
+
+/* Neck skin match */
+.neck-0 { background: #f5c9a0; }
+.neck-1 { background: #e8a87c; }
+.neck-2 { background: #c68642; }
+.neck-3 { background: #8d5524; }
+.neck-4 { background: #fde0c8; }
+.neck-5 { background: #d4956a; }
+
+/* Footer */
 footer {
   background: rgba(6,4,2,0.96);
   border-top: 1px solid rgba(255,200,80,0.12);
@@ -189,6 +301,7 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
 }
 #sendBtn:hover { background: rgba(180,120,20,0.4); color: #ffcc60; }
 
+/* Modal */
 #modal {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.92);
@@ -215,13 +328,6 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
   font-family: inherit;
   width: 100%;
 }
-.icon-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 8px; }
-.icon-opt {
-  font-size: 1.4rem; text-align: center; cursor: pointer;
-  padding: 6px; border-radius: 8px;
-  border: 2px solid transparent; transition: border-color 0.15s;
-}
-.icon-opt.selected { border-color: rgba(255,200,80,0.4); background: #1a1408; }
 .modal-btns { display: flex; gap: 8px; }
 .modal-btns button {
   flex: 1; padding: 10px; border-radius: 8px;
@@ -238,9 +344,8 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
 <div id="modal">
   <div id="modalBox">
     <h2>Welcome to Olyesti</h2>
-    <p>Choose your avatar name and icon — saved for future visits.</p>
+    <p>Enter your display name to join the lounge.</p>
     <input id="nameInput" type="text" placeholder="Your display name" maxlength="32" />
-    <div class="icon-grid" id="iconGrid"></div>
     <div class="modal-btns">
       <button id="guestBtn">Join as Guest</button>
       <button id="saveBtn">Save & Enter</button>
@@ -253,9 +358,17 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
   <div id="stage">
     <div class="character" id="char-sl">
       <div class="char-bubble visible" id="bubble-sl">Connected to Second Life</div>
-      <div class="char-body">
-        <div class="char-head">🌐</div>
-        <div class="char-torso color-1"></div>
+      <div class="avatar" id="avatar-sl">
+        <div class="av-hair hair-3"></div>
+        <div class="av-head skin-0" style="background:#0d1a2e;box-shadow:inset -6px -4px 0 rgba(0,0,0,0.3);">
+          <div class="av-eyes"><div class="av-eye" style="background:#00aaff;"></div><div class="av-eye" style="background:#00aaff;"></div></div>
+        </div>
+        <div class="av-neck neck-0" style="background:#0d1a2e;"></div>
+        <div class="av-body outfit-5"></div>
+        <div class="av-legs">
+          <div class="av-leg pants-0"></div>
+          <div class="av-leg pants-0"></div>
+        </div>
       </div>
       <div class="char-name">SL Relay</div>
       <div class="char-shadow"></div>
@@ -265,7 +378,7 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
 
 <footer>
   <div id="identityBar">
-    <span id="myAvatar"></span>
+    <span id="myAvatar">👤</span>
     <span id="myName"></span>
     <span id="changeId">change</span>
   </div>
@@ -276,10 +389,44 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
 </footer>
 
 <script>
-const ICONS = ['☕','🌿','🦋','🌙','⭐','🔥','🌸','🍵','🦊','🐺','🌊','💎','🎭','🪐','🌺','🦁','🐉','✨','🍂','🌴'];
-const COLORS = ['color-0','color-1','color-2','color-3','color-4','color-5'];
+const SKIN = ['skin-0','skin-1','skin-2','skin-3','skin-4','skin-5'];
+const HAIR = ['hair-0','hair-1','hair-2','hair-3','hair-4','hair-5'];
+const OUTFIT = ['outfit-0','outfit-1','outfit-2','outfit-3','outfit-4','outfit-5'];
+const PANTS = ['pants-0','pants-1','pants-2','pants-3','pants-4','pants-5'];
+const NECK = ['neck-0','neck-1','neck-2','neck-3','neck-4','neck-5'];
 
-const iconGrid = document.getElementById('iconGrid');
+function hash(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) & 0xfffff;
+  return h;
+}
+
+function buildAvatar(name) {
+  const h = hash(name);
+  const skin = SKIN[h % 6];
+  const hair = HAIR[(h >> 3) % 6];
+  const outfit = OUTFIT[(h >> 6) % 6];
+  const pants = PANTS[(h >> 9) % 6];
+  const neck = NECK[h % 6];
+
+  const wrap = document.createElement('div');
+  wrap.className = 'avatar';
+  wrap.innerHTML = `
+    <div class="av-hair ${hair}"></div>
+    <div class="av-head ${skin}">
+      <div class="av-eyes"><div class="av-eye"></div><div class="av-eye"></div></div>
+      <div class="av-mouth"></div>
+    </div>
+    <div class="av-neck ${neck}"></div>
+    <div class="av-body ${outfit}"></div>
+    <div class="av-legs">
+      <div class="av-leg ${pants}"></div>
+      <div class="av-leg ${pants}"></div>
+    </div>
+  `;
+  return wrap;
+}
+
 const nameInput = document.getElementById('nameInput');
 const modal = document.getElementById('modal');
 const stage = document.getElementById('stage');
@@ -287,83 +434,55 @@ const msgInput = document.getElementById('msgInput');
 const myNameEl = document.getElementById('myName');
 const myAvatarEl = document.getElementById('myAvatar');
 
-let selectedIcon = ICONS[0];
 let identity = null;
 const activeChars = {};
 
-ICONS.forEach((ic, i) => {
-  const d = document.createElement('div');
-  d.className = 'icon-opt' + (i === 0 ? ' selected' : '');
-  d.textContent = ic;
-  d.onclick = () => {
-    document.querySelectorAll('.icon-opt').forEach(x => x.classList.remove('selected'));
-    d.classList.add('selected');
-    selectedIcon = ic;
-  };
-  iconGrid.appendChild(d);
-});
-
-function colorForName(name) {
-  let h = 0;
-  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffff;
-  return COLORS[h % COLORS.length];
-}
-
-function iconForName(name) {
-  let h = 0;
-  for (let i = 0; i < name.length; i++) h = (h * 17 + name.charCodeAt(i)) & 0xffff;
-  return ICONS[h % ICONS.length];
-}
-
-function getOrCreateChar(key, icon, name, colorClass) {
+function getOrCreateChar(key, name) {
   if (activeChars[key]) return activeChars[key];
+
   const char = document.createElement('div');
   char.className = 'character';
   char.style.animationDelay = (Object.keys(activeChars).length * 0.4) + 's';
+
   const bubble = document.createElement('div');
   bubble.className = 'char-bubble';
-  const body = document.createElement('div');
-  body.className = 'char-body';
-  const head = document.createElement('div');
-  head.className = 'char-head';
-  head.textContent = icon;
-  const torso = document.createElement('div');
-  torso.className = 'char-torso ' + colorClass;
+
+  const avatar = buildAvatar(name);
+
   const nameEl = document.createElement('div');
   nameEl.className = 'char-name';
   nameEl.textContent = name;
+
   const shadow = document.createElement('div');
   shadow.className = 'char-shadow';
-  body.appendChild(head);
-  body.appendChild(torso);
+
   char.appendChild(bubble);
-  char.appendChild(body);
+  char.appendChild(avatar);
   char.appendChild(nameEl);
   char.appendChild(shadow);
   stage.appendChild(char);
+
   activeChars[key] = { el: char, bubbleEl: bubble, timer: null };
   return activeChars[key];
 }
 
-function showMessage(key, icon, name, colorClass, text) {
-  const ch = getOrCreateChar(key, icon, name, colorClass);
-  ch.bubbleEl.textContent = text.slice(0, 80);
+function showMessage(key, name, text) {
+  const ch = getOrCreateChar(key, name);
+  ch.bubbleEl.textContent = text.slice(0, 120);
   ch.bubbleEl.classList.add('visible');
   if (ch.timer) clearTimeout(ch.timer);
-  ch.timer = setTimeout(() => ch.bubbleEl.classList.remove('visible'), 6000);
+  ch.timer = setTimeout(() => ch.bubbleEl.classList.remove('visible'), 7000);
 }
 
 function handleMessage(msg) {
   const slBubble = document.getElementById('bubble-sl');
   if (msg.source === 'secondlife') {
-    const key = 'sl_' + msg.speaker;
-    showMessage(key, iconForName(msg.speaker), msg.speaker, colorForName(msg.speaker), msg.text);
-    slBubble.textContent = msg.speaker + ': ' + msg.text.slice(0, 60);
+    showMessage('sl_' + msg.speaker, msg.speaker, msg.text);
+    slBubble.textContent = msg.speaker + ': ' + msg.text.slice(0, 80);
     slBubble.classList.add('visible');
     setTimeout(() => slBubble.classList.remove('visible'), 5000);
   } else {
-    const key = 'web_' + msg.speaker;
-    showMessage(key, iconForName(msg.speaker), msg.speaker, colorForName(msg.speaker), msg.text);
+    showMessage('web_' + msg.speaker, msg.speaker, msg.text);
   }
 }
 
@@ -377,22 +496,21 @@ function loadIdentity() {
 }
 
 function applyIdentity() {
-  myAvatarEl.textContent = identity.icon;
   myNameEl.textContent = identity.name;
-  getOrCreateChar('me', identity.icon, identity.name, colorForName(identity.name));
+  getOrCreateChar('me', identity.name);
 }
 
 document.getElementById('saveBtn').onclick = () => {
   const name = nameInput.value.trim();
   if (!name) { nameInput.focus(); return; }
-  identity = { name, icon: selectedIcon, guest: false };
+  identity = { name, guest: false };
   localStorage.setItem('olyesti_identity', JSON.stringify(identity));
   applyIdentity();
   modal.style.display = 'none';
 };
 
 document.getElementById('guestBtn').onclick = () => {
-  identity = { name: 'Guest' + Math.floor(Math.random()*9000+1000), icon: '👤', guest: true };
+  identity = { name: 'Guest' + Math.floor(Math.random()*9000+1000), guest: true };
   applyIdentity();
   modal.style.display = 'none';
 };
