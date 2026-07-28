@@ -1,3 +1,345 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Olyesti Live Chat</title><link rel="stylesheet" href="/style.css"></head>
-<body><main><h1>Olyesti Live Chat</h1><p>Connected to the Olyesti relay in Second Life.</p><section id="messages" aria-live="polite" aria-label="Live chat messages"></section><form id="chat"><label>Display name<input id="name" maxlength="32" autocomplete="name" required></label><label class="message-label">Message<input id="text" maxlength="300" autocomplete="off" required></label><button type="submit">Send</button></form></main><script src="/socket.io/socket.io.js"></script><script src="/app.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Olyesti Live Chat</title>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0a0a0a;
+    color: #e8e8e8;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  header {
+    width: 100%;
+    max-width: 700px;
+    padding: 18px 20px 12px;
+    border-bottom: 1px solid #222;
+  }
+  header h1 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: #fff;
+  }
+  header p {
+    font-size: 0.78rem;
+    color: #666;
+    margin-top: 2px;
+  }
+  #chat {
+    flex: 1;
+    width: 100%;
+    max-width: 700px;
+    overflow-y: auto;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .msg {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .msg.web { flex-direction: row-reverse; }
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .bubble {
+    max-width: 75%;
+    padding: 9px 13px;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+  .msg.sl .bubble {
+    background: #1a1a2e;
+    border-bottom-left-radius: 4px;
+    color: #c8d8ff;
+  }
+  .msg.web .bubble {
+    background: #1a2e1a;
+    border-bottom-right-radius: 4px;
+    color: #c8ffc8;
+  }
+  .msg.mine .bubble {
+    background: #2a1f3d;
+    border-bottom-right-radius: 4px;
+    color: #e8d8ff;
+  }
+  .meta {
+    font-size: 0.7rem;
+    color: #555;
+    margin-top: 3px;
+  }
+  .bubble-wrap { display: flex; flex-direction: column; }
+  .msg.web .bubble-wrap, .msg.mine .bubble-wrap { align-items: flex-end; }
+  footer {
+    width: 100%;
+    max-width: 700px;
+    padding: 12px 20px 20px;
+    border-top: 1px solid #222;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  #compose {
+    display: flex;
+    gap: 8px;
+  }
+  input, button {
+    font-family: inherit;
+    font-size: 0.9rem;
+    border: none;
+    outline: none;
+  }
+  #msgInput {
+    flex: 1;
+    background: #161616;
+    color: #e8e8e8;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    padding: 10px 14px;
+  }
+  #msgInput:focus { border-color: #444; }
+  #sendBtn {
+    background: #2d2d2d;
+    color: #fff;
+    border-radius: 10px;
+    padding: 10px 18px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  #sendBtn:hover { background: #3a3a3a; }
+
+  /* Identity modal */
+  #modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  #modalBox {
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    padding: 28px 24px;
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  #modalBox h2 { font-size: 1.1rem; color: #fff; }
+  #modalBox p { font-size: 0.8rem; color: #666; }
+  #nameInput {
+    background: #1a1a1a;
+    color: #e8e8e8;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    width: 100%;
+  }
+  .icon-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+  }
+  .icon-opt {
+    font-size: 1.4rem;
+    text-align: center;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    transition: border-color 0.15s;
+  }
+  .icon-opt.selected { border-color: #666; background: #1e1e1e; }
+  .modal-btns { display: flex; gap: 8px; }
+  .modal-btns button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+  }
+  #guestBtn { background: #1a1a1a; color: #aaa; border: 1px solid #2a2a2a; }
+  #saveBtn { background: #2d2d2d; color: #fff; border: 1px solid #3a3a3a; }
+  #guestBtn:hover { background: #222; }
+  #saveBtn:hover { background: #3a3a3a; }
+  #identityBar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: #555;
+  }
+  #identityBar span { cursor: pointer; color: #444; text-decoration: underline; }
+  #identityBar span:hover { color: #888; }
+</style>
+</head>
+<body>
+
+<div id="modal">
+  <div id="modalBox">
+    <h2>Welcome to Olyesti Live Chat</h2>
+    <p>Choose a name and avatar to use across visits, or join as a guest.</p>
+    <input id="nameInput" type="text" placeholder="Your display name" maxlength="32" />
+    <div class="icon-grid" id="iconGrid"></div>
+    <div class="modal-btns">
+      <button id="guestBtn">Guest</button>
+      <button id="saveBtn">Save & Join</button>
+    </div>
+  </div>
+</div>
+
+<header>
+  <h1>Olyesti Live Chat</h1>
+  <p>Connected to the Olyesti relay in Second Life.</p>
+</header>
+
+<div id="chat"></div>
+
+<footer>
+  <div id="identityBar">
+    <span id="myAvatar"></span>
+    <span id="myName"></span>
+    <span id="changeId">change</span>
+  </div>
+  <div id="compose">
+    <input id="msgInput" type="text" placeholder="Message…" maxlength="300" />
+    <button id="sendBtn">Send</button>
+  </div>
+</footer>
+
+<script>
+const ICONS = ['☕','🌿','🦋','🌙','⭐','🔥','🌸','🍵','🦊','🐺','🌊','💎','🎭','🪐','🌺','🦁','🐉','✨','🍂','🌴'];
+const iconGrid = document.getElementById('iconGrid');
+const nameInput = document.getElementById('nameInput');
+const modal = document.getElementById('modal');
+const chat = document.getElementById('chat');
+const msgInput = document.getElementById('msgInput');
+const myNameEl = document.getElementById('myName');
+const myAvatarEl = document.getElementById('myAvatar');
+
+let selectedIcon = ICONS[0];
+let identity = { name: '', icon: ICONS[0], guest: false };
+
+// Build icon grid
+ICONS.forEach((ic, i) => {
+  const d = document.createElement('div');
+  d.className = 'icon-opt' + (i === 0 ? ' selected' : '');
+  d.textContent = ic;
+  d.onclick = () => {
+    document.querySelectorAll('.icon-opt').forEach(x => x.classList.remove('selected'));
+    d.classList.add('selected');
+    selectedIcon = ic;
+  };
+  iconGrid.appendChild(d);
+});
+
+function loadIdentity() {
+  const saved = localStorage.getItem('olyesti_identity');
+  if (saved) {
+    identity = JSON.parse(saved);
+    applyIdentity();
+    modal.style.display = 'none';
+  }
+}
+
+function applyIdentity() {
+  myAvatarEl.textContent = identity.icon;
+  myNameEl.textContent = identity.guest ? 'Guest' : identity.name;
+}
+
+document.getElementById('saveBtn').onclick = () => {
+  const name = nameInput.value.trim();
+  if (!name) { nameInput.focus(); return; }
+  identity = { name, icon: selectedIcon, guest: false };
+  localStorage.setItem('olyesti_identity', JSON.stringify(identity));
+  applyIdentity();
+  modal.style.display = 'none';
+};
+
+document.getElementById('guestBtn').onclick = () => {
+  identity = { name: 'Guest' + Math.floor(Math.random()*9000+1000), icon: '👤', guest: true };
+  applyIdentity();
+  modal.style.display = 'none';
+};
+
+document.getElementById('changeId').onclick = () => {
+  nameInput.value = identity.guest ? '' : identity.name;
+  modal.style.display = 'flex';
+};
+
+function timeStr(ts) {
+  return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function addMessage(msg, mine = false) {
+  const isSL = msg.source === 'secondlife';
+  const div = document.createElement('div');
+  div.className = 'msg ' + (mine ? 'mine' : isSL ? 'sl' : 'web');
+
+  const icon = isSL ? '🌐' : (mine ? identity.icon : '💬');
+  const av = document.createElement('div');
+  av.className = 'avatar';
+  av.style.background = isSL ? '#0d0d1a' : mine ? '#1a0d2e' : '#0d1a0d';
+  av.textContent = icon;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'bubble-wrap';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.textContent = (isSL ? '' : '') + msg.text;
+
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  meta.textContent = msg.speaker + ' · ' + timeStr(msg.at);
+
+  wrap.appendChild(bubble);
+  wrap.appendChild(meta);
+  div.appendChild(av);
+  div.appendChild(wrap);
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+const socket = io();
+socket.on('history', msgs => msgs.forEach(m => addMessage(m)));
+socket.on('message', msg => addMessage(msg));
+
+function send() {
+  const text = msgInput.value.trim();
+  if (!text) return;
+  socket.emit('web-message', { name: identity.guest ? identity.name : identity.name, text });
+  msgInput.value = '';
+}
+
+document.getElementById('sendBtn').onclick = send;
+msgInput.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+
+loadIdentity();
+</script>
+</body>
+</html>
