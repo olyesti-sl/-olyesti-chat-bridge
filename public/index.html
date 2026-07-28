@@ -44,9 +44,15 @@ body {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: 60px;
+  gap: 20px;
   z-index: 10;
+  overflow-x: auto;
+  padding: 0 16px;
+  flex-wrap: nowrap;
+  scrollbar-width: none;
 }
+#stage::-webkit-scrollbar { display: none; }
+
 
 .character {
   display: flex;
