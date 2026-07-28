@@ -96,12 +96,65 @@ body {
   background: inherit;
   z-index: -1;
 }
-.av-head { width: 42px; height: 42px; border-radius: 50%; position: relative; z-index: 2; margin-top: 4px; box-shadow: inset -6px -4px 0 rgba(0,0,0,0.2), inset 4px 4px 0 rgba(255,255,255,0.08); }
-.av-eyes { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 4; }
-.av-eye { width: 6px; height: 7px; background: #1a1010; border-radius: 50%; position: relative; }
-.av-eye::after { content: ''; position: absolute; top: 1px; left: 1px; width: 2px; height: 2px; background: rgba(255,255,255,0.7); border-radius: 50%; }
-.av-mouth { position: absolute; top: 28px; left: 50%; transform: translateX(-50%); width: 10px; height: 5px; border-bottom: 2px solid rgba(0,0,0,0.3); border-radius: 0 0 6px 6px; z-index: 4; }
-.av-neck { width: 14px; height: 8px; margin-top: -2px; z-index: 1; }
+.av-head {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  position: relative;
+  z-index: 2;
+  margin-top: 4px;
+  overflow: visible;
+  box-shadow: inset -6px -4px 0 rgba(0,0,0,0.2), inset 4px 4px 0 rgba(255,255,255,0.08);
+}
+
+.av-eyes {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.av-eye {
+  width: 6px;
+  height: 7px;
+  background: #1a1010;
+  border-radius: 50%;
+  position: relative;
+}
+
+.av-eye::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 2px;
+  height: 2px;
+  background: rgba(255,255,255,0.7);
+  border-radius: 50%;
+}
+
+.av-mouth {
+  position: absolute;
+  top: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 5px;
+  border-bottom: 2px solid rgba(0,0,0,0.35);
+  border-radius: 0 0 6px 6px;
+  z-index: 10;
+}
+
+.av-neck {
+  width: 14px;
+  height: 8px;
+  margin-top: -2px;
+  z-index: 1;
+}
+
 
 /* Male body */
 .av-body { width: 44px; height: 44px; border-radius: 10px 10px 6px 6px; margin-top: -2px; position: relative; box-shadow: inset -5px -4px 0 rgba(0,0,0,0.2), inset 3px 3px 0 rgba(255,255,255,0.07); z-index: 1; }
