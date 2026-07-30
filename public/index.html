@@ -143,7 +143,7 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
   background: #0d0a06;
   border: 1px solid rgba(255,200,80,0.15);
   border-radius: 16px;
-  padding: 24px 20px; width: 340px;
+  padding: 24px 20px; width: 360px;
   display: flex; flex-direction: column; gap: 14px;
 }
 #modalBox h2 { font-size: 1.1rem; color: #e8c870; }
@@ -153,14 +153,7 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
   border-radius: 8px; padding: 10px 12px;
   font-size: 0.9rem; font-family: inherit; width: 100%;
 }
-.picker-label { font-size: 0.72rem; color: #7a6a4a; margin-bottom: 4px; }
-.swatch-row { display: flex; gap: 8px; flex-wrap: wrap; }
-.swatch {
-  width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
-  border: 2px solid transparent; transition: border-color 0.15s, transform 0.15s;
-}
-.swatch:hover { transform: scale(1.15); }
-.swatch.selected { border-color: #e8c870; }
+.picker-label { font-size: 0.72rem; color: #7a6a4a; margin-bottom: 6px; }
 
 .gender-row { display: flex; gap: 8px; }
 .gender-btn {
@@ -170,6 +163,28 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
   border: 2px solid transparent; transition: all 0.15s;
 }
 .gender-btn.selected { border-color: rgba(255,200,80,0.4); color: #e8c870; background: #1a1408; }
+
+/* Avatar grid picker */
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.avatar-option {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  cursor: pointer; padding: 6px 4px; border-radius: 8px;
+  border: 2px solid transparent; transition: all 0.15s;
+  background: #100e08;
+}
+.avatar-option:hover { border-color: rgba(255,200,80,0.2); }
+.avatar-option.selected { border-color: #e8c870; background: #1a1408; }
+.avatar-option img {
+  width: 48px; height: 72px;
+  object-fit: contain; object-position: center bottom;
+}
+.avatar-option span {
+  font-size: 0.55rem; color: #7a6a4a; text-align: center; line-height: 1.2;
+}
 
 #previewWrap { display: flex; justify-content: center; padding: 8px 0; }
 
@@ -190,18 +205,22 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
   <div id="modalBox">
     <h2>Welcome to Olyesti</h2>
     <input id="nameInput" type="text" placeholder="Your display name" maxlength="32" />
+
     <div>
       <div class="picker-label">Gender</div>
       <div class="gender-row">
+        <button class="gender-btn" data-gender="female">♀ Female</button>
         <button class="gender-btn" data-gender="male">♂ Male</button>
-        <button class="gender-btn selected" data-gender="female">♀ Female</button>
       </div>
     </div>
+
     <div>
-      <div class="picker-label">Outfit tint</div>
-      <div class="swatch-row" id="tintPicker"></div>
+      <div class="picker-label">Choose your avatar</div>
+      <div class="avatar-grid" id="avatarPicker"></div>
     </div>
+
     <div id="previewWrap"></div>
+
     <div class="modal-btns">
       <button id="guestBtn">Join as Guest</button>
       <button id="saveBtn">Save & Enter</button>
@@ -215,7 +234,7 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
     <div class="character" id="char-sl" data-key="char-sl">
       <div class="char-bubble visible" id="bubble-sl">Connected to Second Life</div>
       <div style="position:relative;width:80px;">
-        <img src="avatar-male.png" style="width:80px;height:120px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.6));" alt="SL Relay" />
+        <img src="avatar-m1.png" style="width:80px;height:120px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.6));" alt="SL Relay" />
       </div>
       <div class="char-name">SL Relay</div>
       <div class="char-shadow"></div>
@@ -235,68 +254,90 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
 </footer>
 
 <script>
-const TINT_COLORS = [
-  'transparent',
-  'rgba(180,30,30,0.45)',
-  'rgba(30,80,180,0.45)',
-  'rgba(30,140,80,0.45)',
-  'rgba(140,30,140,0.45)',
-  'rgba(200,140,20,0.45)',
-  'rgba(20,160,180,0.45)',
-  'rgba(180,80,20,0.45)'
+const FEMALE_AVATARS = [
+  { file: 'avatar-f1.png', label: 'Hispanic' },
+  { file: 'avatar-f2.png', label: 'Black' },
+  { file: 'avatar-f3.png', label: 'White' },
+  { file: 'avatar-f4.png', label: 'Asian' },
+  { file: 'avatar-f5.png', label: 'Hispanic 50+' },
+  { file: 'avatar-f6.png', label: 'Black 50+' },
+  { file: 'avatar-f7.png', label: 'White 50+' },
+  { file: 'avatar-f8.png', label: 'Asian 50+' },
 ];
-const TINT_DISPLAY = ['#888','#b41e1e','#1e50b4','#1e8c50','#8c1e8c','#c88c14','#14a0b4','#b45014'];
-const TINT_LABELS = ['Original','Red','Blue','Green','Purple','Gold','Teal','Orange'];
+
+const MALE_AVATARS = [
+  { file: 'avatar-m1.png', label: 'Hispanic' },
+  { file: 'avatar-m2.png', label: 'Black' },
+  { file: 'avatar-m3.png', label: 'White' },
+  { file: 'avatar-m4.png', label: 'Asian' },
+  { file: 'avatar-m5.png', label: 'Hispanic 50+' },
+  { file: 'avatar-m6.png', label: 'Black 50+' },
+  { file: 'avatar-m7.png', label: 'White 50+' },
+  { file: 'avatar-m8.png', label: 'Asian 50+' },
+];
 
 let selGender = 'female';
-let selTint = 0;
+let selAvatar = 'avatar-f1.png';
+
+const avatarPicker = document.getElementById('avatarPicker');
+
+function buildAvatarPicker(gender) {
+  avatarPicker.innerHTML = '';
+  const list = gender === 'female' ? FEMALE_AVATARS : MALE_AVATARS;
+  list.forEach(av => {
+    const opt = document.createElement('div');
+    opt.className = 'avatar-option' + (av.file === selAvatar ? ' selected' : '');
+    opt.dataset.file = av.file;
+    const img = document.createElement('img');
+    img.src = av.file;
+    img.alt = av.label;
+    const lbl = document.createElement('span');
+    lbl.textContent = av.label;
+    opt.appendChild(img);
+    opt.appendChild(lbl);
+    opt.onclick = () => {
+      avatarPicker.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      selAvatar = av.file;
+      updatePreview();
+    };
+    avatarPicker.appendChild(opt);
+  });
+}
 
 document.querySelectorAll('.gender-btn').forEach(btn => {
   btn.onclick = () => {
     document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
     selGender = btn.dataset.gender;
+    // Reset to first avatar of new gender
+    selAvatar = selGender === 'female' ? 'avatar-f1.png' : 'avatar-m1.png';
+    buildAvatarPicker(selGender);
     updatePreview();
   };
 });
 
-const tintPicker = document.getElementById('tintPicker');
-TINT_DISPLAY.forEach((c, i) => {
-  const s = document.createElement('div');
-  s.className = 'swatch' + (i === 0 ? ' selected' : '');
-  s.style.background = c;
-  s.title = TINT_LABELS[i];
-  s.onclick = () => {
-    tintPicker.querySelectorAll('.swatch').forEach(x => x.classList.remove('selected'));
-    s.classList.add('selected');
-    selTint = i;
-    updatePreview();
-  };
-  tintPicker.appendChild(s);
-});
-
-function buildAvatarEl(gender, name, tintIndex) {
+function buildAvatarEl(avatarFile, name) {
   const wrap = document.createElement('div');
   wrap.style.cssText = 'position:relative;width:80px;flex-shrink:0;';
   const img = document.createElement('img');
-  img.src = gender === 'female' ? 'avatar-female.png' : 'avatar-male.png';
+  img.src = avatarFile;
   img.style.cssText = 'width:80px;height:120px;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.6));display:block;';
-  img.alt = name || gender;
+  img.alt = name || 'avatar';
   wrap.appendChild(img);
-  const t = tintIndex !== undefined ? tintIndex : 0;
-  if (t > 0) {
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;mix-blend-mode:color;pointer-events:none;border-radius:4px;background:' + TINT_COLORS[t] + ';';
-    wrap.appendChild(overlay);
-  }
   return wrap;
 }
 
 function updatePreview() {
   const pw = document.getElementById('previewWrap');
   pw.innerHTML = '';
-  pw.appendChild(buildAvatarEl(selGender, 'Preview', selTint));
+  pw.appendChild(buildAvatarEl(selAvatar, 'Preview'));
 }
+
+// Init picker and preview
+buildAvatarPicker(selGender);
+// Select first female by default
+document.querySelector('.gender-btn[data-gender="female"]').classList.add('selected');
 updatePreview();
 
 const nameInput = document.getElementById('nameInput');
@@ -308,7 +349,7 @@ const myNameEl = document.getElementById('myName');
 let identity = null;
 const activeChars = {};
 
-function getOrCreateChar(key, name, gender, tint) {
+function getOrCreateChar(key, name, avatarFile) {
   if (activeChars[key]) return activeChars[key];
   const existing = stage.querySelector(`[data-key="${key}"]`);
   if (existing) stage.removeChild(existing);
@@ -318,7 +359,7 @@ function getOrCreateChar(key, name, gender, tint) {
   char.style.animationDelay = (Object.keys(activeChars).length * 0.4) + 's';
   const bubble = document.createElement('div');
   bubble.className = 'char-bubble';
-  const avatar = buildAvatarEl(gender || 'female', name, tint || 0);
+  const avatar = buildAvatarEl(avatarFile || 'avatar-m1.png', name);
   const nameEl = document.createElement('div');
   nameEl.className = 'char-name';
   nameEl.textContent = name;
@@ -333,8 +374,8 @@ function getOrCreateChar(key, name, gender, tint) {
   return activeChars[key];
 }
 
-function showMessage(key, name, text, gender, tint) {
-  const ch = getOrCreateChar(key, name, gender, tint);
+function showMessage(key, name, text, avatarFile) {
+  const ch = getOrCreateChar(key, name, avatarFile);
   ch.bubbleEl.textContent = text.slice(0, 120);
   ch.bubbleEl.classList.add('visible');
   if (ch.timer) clearTimeout(ch.timer);
@@ -344,12 +385,12 @@ function showMessage(key, name, text, gender, tint) {
 function handleMessage(msg) {
   const slBubble = document.getElementById('bubble-sl');
   if (msg.source === 'secondlife') {
-    showMessage('sl_' + msg.speaker, msg.speaker, msg.text, 'male', 0);
+    showMessage('sl_' + msg.speaker, msg.speaker, msg.text, 'avatar-m1.png');
     slBubble.textContent = msg.speaker + ': ' + msg.text.slice(0, 80);
     slBubble.classList.add('visible');
     setTimeout(() => slBubble.classList.remove('visible'), 5000);
   } else {
-    showMessage('web_' + msg.speaker, msg.speaker, msg.text, msg.gender, msg.tint);
+    showMessage('web_' + msg.speaker, msg.speaker, msg.text, msg.avatar);
   }
 }
 
@@ -358,12 +399,14 @@ function loadIdentity() {
   if (saved) {
     identity = JSON.parse(saved);
     selGender = identity.gender || 'female';
-    selTint = identity.tint || 0;
+    selAvatar = identity.avatar || 'avatar-f1.png';
     document.querySelectorAll('.gender-btn').forEach(b => {
       b.classList.toggle('selected', b.dataset.gender === selGender);
     });
-    tintPicker.querySelectorAll('.swatch').forEach((s, i) => {
-      s.classList.toggle('selected', i === selTint);
+    buildAvatarPicker(selGender);
+    // Highlight saved avatar
+    avatarPicker.querySelectorAll('.avatar-option').forEach(o => {
+      o.classList.toggle('selected', o.dataset.file === selAvatar);
     });
     updatePreview();
     applyIdentity();
@@ -373,21 +416,21 @@ function loadIdentity() {
 
 function applyIdentity() {
   myNameEl.textContent = identity.name;
-  getOrCreateChar('web_' + identity.name, identity.name, identity.gender, identity.tint);
+  getOrCreateChar('web_' + identity.name, identity.name, identity.avatar);
 }
-
 
 document.getElementById('saveBtn').onclick = () => {
   const name = nameInput.value.trim();
   if (!name) { nameInput.focus(); return; }
-  identity = { name, gender: selGender, tint: selTint, guest: false };
+  identity = { name, gender: selGender, avatar: selAvatar, guest: false };
   localStorage.setItem('olyesti_identity', JSON.stringify(identity));
   applyIdentity();
   modal.style.display = 'none';
 };
 
 document.getElementById('guestBtn').onclick = () => {
-  identity = { name: 'Guest' + Math.floor(Math.random()*9000+1000), gender: selGender, tint: selTint, guest: true };
+  const defaultAvatar = selGender === 'female' ? 'avatar-f1.png' : 'avatar-m1.png';
+  identity = { name: 'Guest' + Math.floor(Math.random()*9000+1000), gender: selGender, avatar: selAvatar || defaultAvatar, guest: true };
   applyIdentity();
   modal.style.display = 'none';
 };
@@ -396,12 +439,13 @@ document.getElementById('changeId').onclick = () => {
   if (identity) {
     nameInput.value = identity.guest ? '' : identity.name;
     selGender = identity.gender || 'female';
-    selTint = identity.tint || 0;
+    selAvatar = identity.avatar || 'avatar-f1.png';
     document.querySelectorAll('.gender-btn').forEach(b => {
       b.classList.toggle('selected', b.dataset.gender === selGender);
     });
-    tintPicker.querySelectorAll('.swatch').forEach((s, i) => {
-      s.classList.toggle('selected', i === selTint);
+    buildAvatarPicker(selGender);
+    avatarPicker.querySelectorAll('.avatar-option').forEach(o => {
+      o.classList.toggle('selected', o.dataset.file === selAvatar);
     });
     updatePreview();
   }
@@ -413,11 +457,11 @@ socket.on('history', msgs => msgs.slice(-5).forEach(m => handleMessage(m)));
 socket.on('message', msg => handleMessage(msg));
 
 socket.on('presence-init', users => {
-  users.forEach(u => getOrCreateChar('web_' + u.name, u.name, u.gender, u.tint));
+  users.forEach(u => getOrCreateChar('web_' + u.name, u.name, u.avatar));
 });
 
 socket.on('user-joined', u => {
-  getOrCreateChar('web_' + u.name, u.name, u.gender, u.tint);
+  getOrCreateChar('web_' + u.name, u.name, u.avatar);
 });
 
 socket.on('user-left', u => {
@@ -431,7 +475,7 @@ socket.on('user-left', u => {
 function send() {
   const text = msgInput.value.trim();
   if (!text || !identity) return;
-  socket.emit('web-message', { name: identity.name, text, gender: identity.gender, tint: identity.tint });
+  socket.emit('web-message', { name: identity.name, text, gender: identity.gender, avatar: identity.avatar });
   msgInput.value = '';
 }
 
