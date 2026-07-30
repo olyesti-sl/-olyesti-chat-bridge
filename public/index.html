@@ -373,8 +373,9 @@ function loadIdentity() {
 
 function applyIdentity() {
   myNameEl.textContent = identity.name;
-  getOrCreateChar('me', identity.name, identity.gender, identity.tint);
+  getOrCreateChar('web_' + identity.name, identity.name, identity.gender, identity.tint);
 }
+
 
 document.getElementById('saveBtn').onclick = () => {
   const name = nameInput.value.trim();
