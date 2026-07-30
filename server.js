@@ -11,9 +11,7 @@ const server = createServer(app);
 const io = new Server(server, { cors: { origin: false } });
 const recentMessages = [];
 const messagesForSecondLife = [];
-
-// FIX: Track connected web users by socket ID
-const connectedUsers = new Map(); // socketId → { name, gender, tint }
+const connectedUsers = new Map();
 
 app.use(express.static('public'));
 app.use('/api/secondlife', express.text({ type: 'application/json', limit: '8kb' }));
@@ -40,7 +38,6 @@ function publish(message) {
   io.emit('message', message);
 }
 
-// Called by the LSL object whenever it hears nearby public chat.
 app.post('/api/secondlife/incoming', (req, res) => {
   if (!relayIsAuthorized(req)) return res.sendStatus(401);
   const body = parseJson(req, res);
@@ -53,7 +50,6 @@ app.post('/api/secondlife/incoming', (req, res) => {
   res.json({ ok: true });
 });
 
-// Called by the LSL object every few seconds.
 app.post('/api/secondlife/outgoing', (req, res) => {
   if (!relayIsAuthorized(req)) return res.sendStatus(401);
   const body = parseJson(req, res);
@@ -62,10 +58,9 @@ app.post('/api/secondlife/outgoing', (req, res) => {
 });
 
 io.on('connection', socket => {
-  // Send recent message history to the new connection
   socket.emit('history', recentMessages);
 
-  // FIX: Send current online users to the newly connected client
+  // Send current online users to the newly connected client
   const currentUsers = Array.from(connectedUsers.values());
   if (currentUsers.length > 0) {
     socket.emit('presence-init', currentUsers);
@@ -78,10 +73,9 @@ io.on('connection', socket => {
     const tint = Number.isInteger(payload?.tint) ? payload.tint : 0;
     if (!speaker || !messageText) return;
 
-    // FIX: Register user presence on first message if not already tracked
+    // Register user presence on first message
     if (!connectedUsers.has(socket.id)) {
       connectedUsers.set(socket.id, { name: speaker, gender, tint });
-      // Broadcast this user's arrival to all OTHER clients
       socket.broadcast.emit('user-joined', { name: speaker, gender, tint });
     }
 
@@ -99,16 +93,14 @@ io.on('connection', socket => {
     publish(message);
   });
 
-  // FIX: When a socket disconnects, remove them and notify all clients
+  // Remove user and notify all clients on disconnect
   socket.on('disconnect', () => {
     const user = connectedUsers.get(socket.id);
     if (user) {
       connectedUsers.delete(socket.id);
-      // Tell all clients to remove this avatar
       io.emit('user-left', { name: user.name });
     }
   });
 });
 
 server.listen(process.env.PORT || 3000, () => console.log('Olyesti chat bridge is running.'));
-
