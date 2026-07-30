@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -110,3 +110,344 @@ footer {
   z-index: 20;
   display: flex; flex-direction: column; gap: 8px;
 }
+#identityBar {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.75rem; color: #555;
+}
+#identityBar #myName { color: #7a6a4a; }
+#changeId { cursor: pointer; color: #3a3020; text-decoration: underline; font-size: 0.7rem; }
+#changeId:hover { color: #aa9060; }
+#compose { display: flex; gap: 8px; }
+input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: none; }
+#msgInput {
+  flex: 1; background: #100e08; color: #e8d8b0;
+  border: 1px solid rgba(255,200,80,0.15);
+  border-radius: 10px; padding: 10px 14px;
+}
+#msgInput:focus { border-color: rgba(255,200,80,0.35); }
+#sendBtn {
+  background: rgba(180,120,20,0.25); color: #d4a840;
+  border: 1px solid rgba(255,200,80,0.2);
+  border-radius: 10px; padding: 10px 18px;
+  cursor: pointer; transition: background 0.2s;
+}
+#sendBtn:hover { background: rgba(180,120,20,0.4); color: #ffcc60; }
+
+#modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.92);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; overflow-y: auto; padding: 20px;
+}
+#modalBox {
+  background: #0d0a06;
+  border: 1px solid rgba(255,200,80,0.15);
+  border-radius: 16px;
+  padding: 24px 20px; width: 340px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+#modalBox h2 { font-size: 1.1rem; color: #e8c870; }
+#nameInput {
+  background: #100e08; color: #e8d8b0;
+  border: 1px solid rgba(255,200,80,0.2);
+  border-radius: 8px; padding: 10px 12px;
+  font-size: 0.9rem; font-family: inherit; width: 100%;
+}
+.picker-label { font-size: 0.72rem; color: #7a6a4a; margin-bottom: 4px; }
+.swatch-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.swatch {
+  width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+  border: 2px solid transparent; transition: border-color 0.15s, transform 0.15s;
+}
+.swatch:hover { transform: scale(1.15); }
+.swatch.selected { border-color: #e8c870; }
+
+.gender-row { display: flex; gap: 8px; }
+.gender-btn {
+  flex: 1; padding: 8px; border-radius: 8px; cursor: pointer;
+  font-family: inherit; font-size: 0.85rem;
+  background: #100e08; color: #7a6a4a;
+  border: 2px solid transparent; transition: all 0.15s;
+}
+.gender-btn.selected { border-color: rgba(255,200,80,0.4); color: #e8c870; background: #1a1408; }
+
+#previewWrap { display: flex; justify-content: center; padding: 8px 0; }
+
+.modal-btns { display: flex; gap: 8px; }
+.modal-btns button {
+  flex: 1; padding: 10px; border-radius: 8px;
+  cursor: pointer; font-family: inherit; font-size: 0.85rem;
+}
+#guestBtn { background: #100e08; color: #7a6a4a; border: 1px solid rgba(255,200,80,0.1); }
+#saveBtn { background: rgba(180,120,20,0.3); color: #e8c870; border: 1px solid rgba(255,200,80,0.25); }
+#guestBtn:hover { background: #181408; }
+#saveBtn:hover { background: rgba(180,120,20,0.5); }
+</style>
+</head>
+<body>
+
+<div id="modal">
+  <div id="modalBox">
+    <h2>Welcome to Olyesti</h2>
+    <input id="nameInput" type="text" placeholder="Your display name" maxlength="32" />
+
+    <div>
+      <div class="picker-label">Gender</div>
+      <div class="gender-row">
+        <!-- FIX 4: Female is now the default selected gender -->
+        <button class="gender-btn" data-gender="male">♂ Male</button>
+        <button class="gender-btn selected" data-gender="female">♀ Female</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="picker-label">Outfit tint</div>
+      <div class="swatch-row" id="tintPicker"></div>
+    </div>
+
+    <div id="previewWrap"></div>
+
+    <div class="modal-btns">
+      <button id="guestBtn">Join as Guest</button>
+      <button id="saveBtn">Save & Enter</button>
+    </div>
+  </div>
+</div>
+
+<div id="scene">
+  <div id="bg"></div>
+  <div id="stage">
+    <div class="character" id="char-sl" data-key="char-sl">
+      <div class="char-bubble visible" id="bubble-sl">Connected to Second Life</div>
+      <div style="position:relative;width:80px;">
+        <img src="avatar-male.png" style="width:80px;height:120px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.6));" alt="SL Relay" />
+      </div>
+      <div class="char-name">SL Relay</div>
+      <div class="char-shadow"></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div id="identityBar">
+    <span id="myName">Not joined</span>
+    <span id="changeId">change</span>
+  </div>
+  <div id="compose">
+    <input id="msgInput" type="text" placeholder="Message…" maxlength="300" />
+    <button id="sendBtn">Send</button>
+  </div>
+</footer>
+
+<script>
+const TINT_COLORS = [
+  'transparent',
+  'rgba(180,30,30,0.45)',
+  'rgba(30,80,180,0.45)',
+  'rgba(30,140,80,0.45)',
+  'rgba(140,30,140,0.45)',
+  'rgba(200,140,20,0.45)',
+  'rgba(20,160,180,0.45)',
+  'rgba(180,80,20,0.45)'
+];
+const TINT_DISPLAY = ['#888','#b41e1e','#1e50b4','#1e8c50','#8c1e8c','#c88c14','#14a0b4','#b45014'];
+const TINT_LABELS = ['Original','Red','Blue','Green','Purple','Gold','Teal','Orange'];
+
+// FIX 4: Default gender is now female
+let selGender = 'female';
+let selTint = 0;
+
+document.querySelectorAll('.gender-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selGender = btn.dataset.gender;
+    updatePreview();
+  };
+});
+
+const tintPicker = document.getElementById('tintPicker');
+TINT_DISPLAY.forEach((c, i) => {
+  const s = document.createElement('div');
+  s.className = 'swatch' + (i === 0 ? ' selected' : '');
+  s.style.background = c;
+  s.title = TINT_LABELS[i];
+  s.onclick = () => {
+    tintPicker.querySelectorAll('.swatch').forEach(x => x.classList.remove('selected'));
+    s.classList.add('selected');
+    selTint = i;
+    updatePreview();
+  };
+  tintPicker.appendChild(s);
+});
+
+function buildAvatarEl(gender, name, tintIndex) {
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:relative;width:80px;flex-shrink:0;';
+
+  const img = document.createElement('img');
+  img.src = gender === 'female' ? 'avatar-female.png' : 'avatar-male.png';
+  img.style.cssText = 'width:80px;height:120px;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.6));display:block;';
+  img.alt = name || gender;
+
+  wrap.appendChild(img);
+
+  const t = tintIndex !== undefined ? tintIndex : 0;
+  if (t > 0) {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;mix-blend-mode:color;pointer-events:none;border-radius:4px;background:' + TINT_COLORS[t] + ';';
+    wrap.appendChild(overlay);
+  }
+
+  return wrap;
+}
+
+function updatePreview() {
+  const pw = document.getElementById('previewWrap');
+  pw.innerHTML = '';
+  pw.appendChild(buildAvatarEl(selGender, 'Preview', selTint));
+}
+updatePreview();
+
+const nameInput = document.getElementById('nameInput');
+const modal = document.getElementById('modal');
+const stage = document.getElementById('stage');
+const msgInput = document.getElementById('msgInput');
+const myNameEl = document.getElementById('myName');
+
+let identity = null;
+const activeChars = {};
+
+// FIX 1: Check for stale DOM duplicates before creating a new character
+function getOrCreateChar(key, name, gender, tint) {
+  if (activeChars[key]) return activeChars[key];
+
+  // Remove any stale DOM element with this key from a previous session
+  const existing = stage.querySelector(`[data-key="${key}"]`);
+  if (existing) stage.removeChild(existing);
+
+  const char = document.createElement('div');
+  char.className = 'character';
+  char.dataset.key = key; // tag the element so we can find it later
+  char.style.animationDelay = (Object.keys(activeChars).length * 0.4) + 's';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'char-bubble';
+
+  const avatar = buildAvatarEl(gender || 'female', name, tint || 0);
+
+  const nameEl = document.createElement('div');
+  nameEl.className = 'char-name';
+  nameEl.textContent = name;
+
+  const shadow = document.createElement('div');
+  shadow.className = 'char-shadow';
+
+  char.appendChild(bubble);
+  char.appendChild(avatar);
+  char.appendChild(nameEl);
+  char.appendChild(shadow);
+  stage.appendChild(char);
+
+  activeChars[key] = { el: char, bubbleEl: bubble, timer: null };
+  return activeChars[key];
+}
+
+function showMessage(key, name, text, gender, tint) {
+  const ch = getOrCreateChar(key, name, gender, tint);
+  ch.bubbleEl.textContent = text.slice(0, 120);
+  ch.bubbleEl.classList.add('visible');
+  if (ch.timer) clearTimeout(ch.timer);
+  ch.timer = setTimeout(() => ch.bubbleEl.classList.remove('visible'), 7000);
+}
+
+function handleMessage(msg) {
+  const slBubble = document.getElementById('bubble-sl');
+  if (msg.source === 'secondlife') {
+    // SL avatars keep male as default since SL doesn't send gender
+    showMessage('sl_' + msg.speaker, msg.speaker, msg.text, 'male', 0);
+    slBubble.textContent = msg.speaker + ': ' + msg.text.slice(0, 80);
+    slBubble.classList.add('visible');
+    setTimeout(() => slBubble.classList.remove('visible'), 5000);
+  } else {
+    showMessage('web_' + msg.speaker, msg.speaker, msg.text, msg.gender, msg.tint);
+  }
+}
+
+// FIX 3: Restore gender UI state when loading saved identity
+function loadIdentity() {
+  const saved = localStorage.getItem('olyesti_identity');
+  if (saved) {
+    identity = JSON.parse(saved);
+    // Restore selGender and selTint from saved identity
+    selGender = identity.gender || 'female';
+    selTint = identity.tint || 0;
+    // Sync gender buttons to saved state
+    document.querySelectorAll('.gender-btn').forEach(b => {
+      b.classList.toggle('selected', b.dataset.gender === selGender);
+    });
+    // Sync tint swatches to saved state
+    tintPicker.querySelectorAll('.swatch').forEach((s, i) => {
+      s.classList.toggle('selected', i === selTint);
+    });
+    updatePreview();
+    applyIdentity();
+    modal.style.display = 'none';
+  }
+}
+
+function applyIdentity() {
+  myNameEl.textContent = identity.name;
+  getOrCreateChar('me', identity.name, identity.gender, identity.tint);
+}
+
+document.getElementById('saveBtn').onclick = () => {
+  const name = nameInput.value.trim();
+  if (!name) { nameInput.focus(); return; }
+  identity = { name, gender: selGender, tint: selTint, guest: false };
+  localStorage.setItem('olyesti_identity', JSON.stringify(identity));
+  applyIdentity();
+  modal.style.display = 'none';
+};
+
+// FIX 2: Guest now uses selGender/selTint instead of hardcoded male/0
+document.getElementById('guestBtn').onclick = () => {
+  identity = { name: 'Guest' + Math.floor(Math.random()*9000+1000), gender: selGender, tint: selTint, guest: true };
+  applyIdentity();
+  modal.style.display = 'none';
+};
+
+document.getElementById('changeId').onclick = () => {
+  if (identity) {
+    nameInput.value = identity.guest ? '' : identity.name;
+    selGender = identity.gender || 'female';
+    selTint = identity.tint || 0;
+    document.querySelectorAll('.gender-btn').forEach(b => {
+      b.classList.toggle('selected', b.dataset.gender === selGender);
+    });
+    tintPicker.querySelectorAll('.swatch').forEach((s, i) => {
+      s.classList.toggle('selected', i === selTint);
+    });
+    updatePreview();
+  }
+  modal.style.display = 'flex';
+};
+
+const socket = io();
+socket.on('history', msgs => msgs.slice(-5).forEach(m => handleMessage(m)));
+socket.on('message', msg => handleMessage(msg));
+
+function send() {
+  const text = msgInput.value.trim();
+  if (!text || !identity) return;
+  socket.emit('web-message', { name: identity.name, text, gender: identity.gender, tint: identity.tint });
+  msgInput.value = '';
+}
+
+document.getElementById('sendBtn').onclick = send;
+msgInput.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+
+loadIdentity();
+</script>
+</body>
+</html>
