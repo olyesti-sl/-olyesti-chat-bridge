@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -190,23 +190,18 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
   <div id="modalBox">
     <h2>Welcome to Olyesti</h2>
     <input id="nameInput" type="text" placeholder="Your display name" maxlength="32" />
-
     <div>
       <div class="picker-label">Gender</div>
       <div class="gender-row">
-        <!-- FIX 4: Female is now the default selected gender -->
         <button class="gender-btn" data-gender="male">♂ Male</button>
         <button class="gender-btn selected" data-gender="female">♀ Female</button>
       </div>
     </div>
-
     <div>
       <div class="picker-label">Outfit tint</div>
       <div class="swatch-row" id="tintPicker"></div>
     </div>
-
     <div id="previewWrap"></div>
-
     <div class="modal-btns">
       <button id="guestBtn">Join as Guest</button>
       <button id="saveBtn">Save & Enter</button>
@@ -253,7 +248,6 @@ const TINT_COLORS = [
 const TINT_DISPLAY = ['#888','#b41e1e','#1e50b4','#1e8c50','#8c1e8c','#c88c14','#14a0b4','#b45014'];
 const TINT_LABELS = ['Original','Red','Blue','Green','Purple','Gold','Teal','Orange'];
 
-// FIX 4: Default gender is now female
 let selGender = 'female';
 let selTint = 0;
 
@@ -284,21 +278,17 @@ TINT_DISPLAY.forEach((c, i) => {
 function buildAvatarEl(gender, name, tintIndex) {
   const wrap = document.createElement('div');
   wrap.style.cssText = 'position:relative;width:80px;flex-shrink:0;';
-
   const img = document.createElement('img');
   img.src = gender === 'female' ? 'avatar-female.png' : 'avatar-male.png';
   img.style.cssText = 'width:80px;height:120px;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.6));display:block;';
   img.alt = name || gender;
-
   wrap.appendChild(img);
-
   const t = tintIndex !== undefined ? tintIndex : 0;
   if (t > 0) {
     const overlay = document.createElement('div');
     overlay.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;mix-blend-mode:color;pointer-events:none;border-radius:4px;background:' + TINT_COLORS[t] + ';';
     wrap.appendChild(overlay);
   }
-
   return wrap;
 }
 
@@ -318,37 +308,27 @@ const myNameEl = document.getElementById('myName');
 let identity = null;
 const activeChars = {};
 
-// FIX 1: Check for stale DOM duplicates before creating a new character
 function getOrCreateChar(key, name, gender, tint) {
   if (activeChars[key]) return activeChars[key];
-
-  // Remove any stale DOM element with this key from a previous session
   const existing = stage.querySelector(`[data-key="${key}"]`);
   if (existing) stage.removeChild(existing);
-
   const char = document.createElement('div');
   char.className = 'character';
-  char.dataset.key = key; // tag the element so we can find it later
+  char.dataset.key = key;
   char.style.animationDelay = (Object.keys(activeChars).length * 0.4) + 's';
-
   const bubble = document.createElement('div');
   bubble.className = 'char-bubble';
-
   const avatar = buildAvatarEl(gender || 'female', name, tint || 0);
-
   const nameEl = document.createElement('div');
   nameEl.className = 'char-name';
   nameEl.textContent = name;
-
   const shadow = document.createElement('div');
   shadow.className = 'char-shadow';
-
   char.appendChild(bubble);
   char.appendChild(avatar);
   char.appendChild(nameEl);
   char.appendChild(shadow);
   stage.appendChild(char);
-
   activeChars[key] = { el: char, bubbleEl: bubble, timer: null };
   return activeChars[key];
 }
@@ -364,7 +344,6 @@ function showMessage(key, name, text, gender, tint) {
 function handleMessage(msg) {
   const slBubble = document.getElementById('bubble-sl');
   if (msg.source === 'secondlife') {
-    // SL avatars keep male as default since SL doesn't send gender
     showMessage('sl_' + msg.speaker, msg.speaker, msg.text, 'male', 0);
     slBubble.textContent = msg.speaker + ': ' + msg.text.slice(0, 80);
     slBubble.classList.add('visible');
@@ -374,19 +353,15 @@ function handleMessage(msg) {
   }
 }
 
-// FIX 3: Restore gender UI state when loading saved identity
 function loadIdentity() {
   const saved = localStorage.getItem('olyesti_identity');
   if (saved) {
     identity = JSON.parse(saved);
-    // Restore selGender and selTint from saved identity
     selGender = identity.gender || 'female';
     selTint = identity.tint || 0;
-    // Sync gender buttons to saved state
     document.querySelectorAll('.gender-btn').forEach(b => {
       b.classList.toggle('selected', b.dataset.gender === selGender);
     });
-    // Sync tint swatches to saved state
     tintPicker.querySelectorAll('.swatch').forEach((s, i) => {
       s.classList.toggle('selected', i === selTint);
     });
@@ -410,7 +385,6 @@ document.getElementById('saveBtn').onclick = () => {
   modal.style.display = 'none';
 };
 
-// FIX 2: Guest now uses selGender/selTint instead of hardcoded male/0
 document.getElementById('guestBtn').onclick = () => {
   identity = { name: 'Guest' + Math.floor(Math.random()*9000+1000), gender: selGender, tint: selTint, guest: true };
   applyIdentity();
@@ -436,6 +410,22 @@ document.getElementById('changeId').onclick = () => {
 const socket = io();
 socket.on('history', msgs => msgs.slice(-5).forEach(m => handleMessage(m)));
 socket.on('message', msg => handleMessage(msg));
+
+socket.on('presence-init', users => {
+  users.forEach(u => getOrCreateChar('web_' + u.name, u.name, u.gender, u.tint));
+});
+
+socket.on('user-joined', u => {
+  getOrCreateChar('web_' + u.name, u.name, u.gender, u.tint);
+});
+
+socket.on('user-left', u => {
+  const key = 'web_' + u.name;
+  if (activeChars[key]) {
+    activeChars[key].el.remove();
+    delete activeChars[key];
+  }
+});
 
 function send() {
   const text = msgInput.value.trim();
