@@ -32,28 +32,19 @@ body {
 #stage {
   position: absolute;
   bottom: 10%; left: 0; right: 0;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 20px;
+  height: 180px;
   z-index: 10;
-  overflow-x: auto;
-  padding: 0 16px;
-  flex-wrap: nowrap;
-  scrollbar-width: none;
+  overflow: hidden;
 }
-#stage::-webkit-scrollbar { display: none; }
 
 .character {
-  display: flex; flex-direction: column; align-items: center;
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   animation: float 3s ease-in-out infinite;
-  flex-shrink: 0;
 }
-.character:nth-child(2) { animation-delay: 0.5s; }
-.character:nth-child(3) { animation-delay: 1s; }
-.character:nth-child(4) { animation-delay: 1.5s; }
-.character:nth-child(5) { animation-delay: 2s; }
-.character:nth-child(6) { animation-delay: 2.5s; }
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
@@ -67,7 +58,7 @@ body {
   padding: 7px 12px;
   font-size: 0.82rem;
   color: #e8d8b0;
-  max-width: 260px;
+  max-width: 200px;
   text-align: center;
   margin-bottom: 10px;
   opacity: 0;
@@ -76,6 +67,7 @@ body {
   word-break: break-word;
   position: relative;
   pointer-events: none;
+  white-space: nowrap;
 }
 .char-bubble.visible { opacity: 1; }
 .char-bubble::after {
@@ -164,7 +156,6 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
 }
 .gender-btn.selected { border-color: rgba(255,200,80,0.4); color: #e8c870; background: #1a1408; }
 
-/* Avatar grid picker */
 .avatar-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -181,6 +172,7 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
 .avatar-option img {
   width: 48px; height: 72px;
   object-fit: contain; object-position: center bottom;
+  mix-blend-mode: multiply;
 }
 .avatar-option span {
   font-size: 0.55rem; color: #7a6a4a; text-align: center; line-height: 1.2;
@@ -205,22 +197,18 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
   <div id="modalBox">
     <h2>Welcome to Olyesti</h2>
     <input id="nameInput" type="text" placeholder="Your display name" maxlength="32" />
-
     <div>
       <div class="picker-label">Gender</div>
       <div class="gender-row">
-        <button class="gender-btn" data-gender="female">♀ Female</button>
+        <button class="gender-btn selected" data-gender="female">♀ Female</button>
         <button class="gender-btn" data-gender="male">♂ Male</button>
       </div>
     </div>
-
     <div>
       <div class="picker-label">Choose your avatar</div>
       <div class="avatar-grid" id="avatarPicker"></div>
     </div>
-
     <div id="previewWrap"></div>
-
     <div class="modal-btns">
       <button id="guestBtn">Join as Guest</button>
       <button id="saveBtn">Save & Enter</button>
@@ -231,10 +219,11 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
 <div id="scene">
   <div id="bg"></div>
   <div id="stage">
-    <div class="character" id="char-sl" data-key="char-sl">
+    <!-- SL Relay is static, not a wandering character -->
+    <div class="character" id="char-sl" data-key="char-sl" style="position:absolute;bottom:0;left:20px;">
       <div class="char-bubble visible" id="bubble-sl">Connected to Second Life</div>
       <div style="position:relative;width:80px;">
-        <img src="avatar-m1.png" style="width:80px;height:120px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.6));" alt="SL Relay" />
+        <img src="avatar-m1.png" style="width:80px;height:120px;object-fit:contain;mix-blend-mode:multiply;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.6));" alt="SL Relay" />
       </div>
       <div class="char-name">SL Relay</div>
       <div class="char-shadow"></div>
@@ -310,7 +299,6 @@ document.querySelectorAll('.gender-btn').forEach(btn => {
     document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
     selGender = btn.dataset.gender;
-    // Reset to first avatar of new gender
     selAvatar = selGender === 'female' ? 'avatar-f1.png' : 'avatar-m1.png';
     buildAvatarPicker(selGender);
     updatePreview();
@@ -321,9 +309,10 @@ function buildAvatarEl(avatarFile, name) {
   const wrap = document.createElement('div');
   wrap.style.cssText = 'position:relative;width:80px;flex-shrink:0;';
   const img = document.createElement('img');
-  img.src = avatarFile;
-  img.style.cssText = 'width:80px;height:120px;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.6));display:block;';
+  img.src = avatarFile || 'avatar-f1.png';
+  img.style.cssText = 'width:80px;height:120px;object-fit:contain;object-position:center bottom;mix-blend-mode:multiply;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.6));display:block;transition:transform 0.1s;';
   img.alt = name || 'avatar';
+  img.dataset.avatarImg = 'true';
   wrap.appendChild(img);
   return wrap;
 }
@@ -334,10 +323,7 @@ function updatePreview() {
   pw.appendChild(buildAvatarEl(selAvatar, 'Preview'));
 }
 
-// Init picker and preview
 buildAvatarPicker(selGender);
-// Select first female by default
-document.querySelector('.gender-btn[data-gender="female"]').classList.add('selected');
 updatePreview();
 
 const nameInput = document.getElementById('nameInput');
@@ -353,25 +339,74 @@ function getOrCreateChar(key, name, avatarFile) {
   if (activeChars[key]) return activeChars[key];
   const existing = stage.querySelector(`[data-key="${key}"]`);
   if (existing) stage.removeChild(existing);
+
+  const stageW = stage.offsetWidth || window.innerWidth;
+  const startX = 60 + Math.random() * (stageW - 160);
+
   const char = document.createElement('div');
   char.className = 'character';
   char.dataset.key = key;
-  char.style.animationDelay = (Object.keys(activeChars).length * 0.4) + 's';
+  char.style.cssText = `position:absolute;bottom:0;left:${startX}px;display:flex;flex-direction:column;align-items:center;animation:float 3s ease-in-out infinite;transition:left 0ms linear;`;
+
   const bubble = document.createElement('div');
   bubble.className = 'char-bubble';
-  const avatar = buildAvatarEl(avatarFile || 'avatar-m1.png', name);
+
+  const avatarWrap = buildAvatarEl(avatarFile || 'avatar-f1.png', name);
+  const imgEl = avatarWrap.querySelector('img');
+
   const nameEl = document.createElement('div');
   nameEl.className = 'char-name';
   nameEl.textContent = name;
+
   const shadow = document.createElement('div');
   shadow.className = 'char-shadow';
+
   char.appendChild(bubble);
-  char.appendChild(avatar);
+  char.appendChild(avatarWrap);
   char.appendChild(nameEl);
   char.appendChild(shadow);
   stage.appendChild(char);
-  activeChars[key] = { el: char, bubbleEl: bubble, timer: null };
-  return activeChars[key];
+
+  const charObj = {
+    el: char,
+    bubbleEl: bubble,
+    imgEl: imgEl,
+    timer: null,
+    wanderTimer: null,
+    currentX: startX
+  };
+  activeChars[key] = charObj;
+  startWander(key);
+  return charObj;
+}
+
+function startWander(key) {
+  const ch = activeChars[key];
+  if (!ch) return;
+
+  function wander() {
+    if (!activeChars[key]) return;
+    const stageW = stage.offsetWidth || window.innerWidth;
+    const targetX = 60 + Math.random() * (stageW - 160);
+    const currentX = ch.currentX;
+    const distance = Math.abs(targetX - currentX);
+    const duration = Math.max(1000, distance * 6);
+
+    // Flip sprite to face walking direction
+    ch.imgEl.style.transform = targetX > currentX ? 'scaleX(1)' : 'scaleX(-1)';
+
+    // Walk smoothly
+    ch.el.style.transition = `left ${duration}ms linear`;
+    ch.el.style.left = targetX + 'px';
+    ch.currentX = targetX;
+
+    // Pause then wander again
+    const pause = 2000 + Math.random() * 4000;
+    ch.wanderTimer = setTimeout(wander, duration + pause);
+  }
+
+  // Stagger start so not everyone moves at once
+  ch.wanderTimer = setTimeout(wander, Math.random() * 4000);
 }
 
 function showMessage(key, name, text, avatarFile) {
@@ -404,7 +439,6 @@ function loadIdentity() {
       b.classList.toggle('selected', b.dataset.gender === selGender);
     });
     buildAvatarPicker(selGender);
-    // Highlight saved avatar
     avatarPicker.querySelectorAll('.avatar-option').forEach(o => {
       o.classList.toggle('selected', o.dataset.file === selAvatar);
     });
@@ -467,6 +501,8 @@ socket.on('user-joined', u => {
 socket.on('user-left', u => {
   const key = 'web_' + u.name;
   if (activeChars[key]) {
+    clearTimeout(activeChars[key].wanderTimer);
+    clearTimeout(activeChars[key].timer);
     activeChars[key].el.remove();
     delete activeChars[key];
   }
