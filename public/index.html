@@ -160,25 +160,33 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
 }
+
 .avatar-option {
   display: flex; flex-direction: column; align-items: center; gap: 4px;
   cursor: pointer; padding: 6px 4px; border-radius: 8px;
   border: 2px solid transparent; transition: all 0.15s;
-  background: #100e08;
+  background: #1a1a1a; /* lighter so images are visible */
 }
 .avatar-option:hover { border-color: rgba(255,200,80,0.2); }
 .avatar-option.selected { border-color: #e8c870; background: #1a1408; }
 .avatar-option img {
   width: 48px; height: 72px;
   object-fit: contain; object-position: center bottom;
-  mix-blend-mode: multiply;
+  /* NO mix-blend-mode here — picker needs normal rendering */
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
 }
 .avatar-option span {
   font-size: 0.55rem; color: #7a6a4a; text-align: center; line-height: 1.2;
 }
 
 #previewWrap { display: flex; justify-content: center; padding: 8px 0; }
+#previewWrap img {
+  width: 80px; height: 120px; object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));
+}
 
 .modal-btns { display: flex; gap: 8px; }
 .modal-btns button {
@@ -189,6 +197,16 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
 #saveBtn { background: rgba(180,120,20,0.3); color: #e8c870; border: 1px solid rgba(255,200,80,0.25); }
 #guestBtn:hover { background: #181408; }
 #saveBtn:hover { background: rgba(180,120,20,0.5); }
+
+/* Stage avatar images use multiply to hide white backgrounds */
+.stage-avatar-img {
+  width: 80px; height: 120px;
+  object-fit: contain; object-position: center bottom;
+  mix-blend-mode: multiply;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));
+  display: block;
+  transition: transform 0.1s;
+}
 </style>
 </head>
 <body>
@@ -219,11 +237,10 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
 <div id="scene">
   <div id="bg"></div>
   <div id="stage">
-    <!-- SL Relay is static, not a wandering character -->
     <div class="character" id="char-sl" data-key="char-sl" style="position:absolute;bottom:0;left:20px;">
       <div class="char-bubble visible" id="bubble-sl">Connected to Second Life</div>
       <div style="position:relative;width:80px;">
-        <img src="avatar-m1.png" style="width:80px;height:120px;object-fit:contain;mix-blend-mode:multiply;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.6));" alt="SL Relay" />
+        <img src="avatar-m1.png" class="stage-avatar-img" alt="SL Relay" />
       </div>
       <div class="char-name">SL Relay</div>
       <div class="char-shadow"></div>
@@ -310,7 +327,7 @@ function buildAvatarEl(avatarFile, name) {
   wrap.style.cssText = 'position:relative;width:80px;flex-shrink:0;';
   const img = document.createElement('img');
   img.src = avatarFile || 'avatar-f1.png';
-  img.style.cssText = 'width:80px;height:120px;object-fit:contain;object-position:center bottom;mix-blend-mode:multiply;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.6));display:block;transition:transform 0.1s;';
+  img.className = 'stage-avatar-img'; /* uses mix-blend-mode:multiply for lounge */
   img.alt = name || 'avatar';
   img.dataset.avatarImg = 'true';
   wrap.appendChild(img);
@@ -320,7 +337,12 @@ function buildAvatarEl(avatarFile, name) {
 function updatePreview() {
   const pw = document.getElementById('previewWrap');
   pw.innerHTML = '';
-  pw.appendChild(buildAvatarEl(selAvatar, 'Preview'));
+  const img = document.createElement('img');
+  img.src = selAvatar;
+  img.alt = 'Preview';
+  /* No mix-blend-mode in preview — show true colors */
+  img.style.cssText = 'width:80px;height:120px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.6));';
+  pw.appendChild(img);
 }
 
 buildAvatarPicker(selGender);
@@ -392,20 +414,15 @@ function startWander(key) {
     const distance = Math.abs(targetX - currentX);
     const duration = Math.max(1000, distance * 6);
 
-    // Flip sprite to face walking direction
     ch.imgEl.style.transform = targetX > currentX ? 'scaleX(1)' : 'scaleX(-1)';
-
-    // Walk smoothly
     ch.el.style.transition = `left ${duration}ms linear`;
     ch.el.style.left = targetX + 'px';
     ch.currentX = targetX;
 
-    // Pause then wander again
     const pause = 2000 + Math.random() * 4000;
     ch.wanderTimer = setTimeout(wander, duration + pause);
   }
 
-  // Stagger start so not everyone moves at once
   ch.wanderTimer = setTimeout(wander, Math.random() * 4000);
 }
 
