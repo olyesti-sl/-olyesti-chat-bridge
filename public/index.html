@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -18,7 +18,6 @@ body {
   user-select: none;
 }
 
-/* ── SCENE ── */
 #scene {
   flex: 1;
   position: relative;
@@ -33,18 +32,7 @@ body {
 }
 #bg::after {
   content: ''; position: absolute; inset: 0;
-  background: linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.7) 100%);
-}
-
-/* Floor perspective grid overlay */
-#floor {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 55%;
-  background:
-    linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.25) 100%);
-  pointer-events: none;
-  z-index: 1;
+  background: linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.6) 100%);
 }
 
 #stage {
@@ -60,8 +48,7 @@ body {
   flex-direction: column;
   align-items: center;
   transform-origin: bottom center;
-  transition: left 0.05s linear, bottom 0.05s linear, transform 0.05s linear, filter 0.05s linear;
-  cursor: default;
+  pointer-events: none;
 }
 
 .char-bubble {
@@ -73,13 +60,12 @@ body {
   color: #e8d8b0;
   max-width: 180px;
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   opacity: 0;
   transition: opacity 0.3s;
   line-height: 1.4;
   word-break: break-word;
   position: relative;
-  pointer-events: none;
   white-space: nowrap;
 }
 .char-bubble.visible { opacity: 1; }
@@ -91,75 +77,64 @@ body {
   border-bottom: none;
 }
 
-/* Avatar wrapper — holds photo + CSS limbs */
 .av-wrap {
   position: relative;
-  width: 100px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-/* The actual avatar photo — head + torso only feel */
 .av-photo {
-  width: 100%;
   object-fit: contain;
   object-position: center bottom;
-  filter: drop-shadow(0 6px 16px rgba(0,0,0,0.7));
   display: block;
   transform-origin: bottom center;
 }
 
-/* CSS limb layers */
+/* CSS limbs — overlaid on photo */
 .av-limbs {
   position: absolute;
   bottom: 0; left: 0; right: 0;
   height: 100%;
   pointer-events: none;
 }
-
-/* Left arm */
 .av-arm-l {
   position: absolute;
-  width: 10px; height: 38px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+  width: 9px; height: 36px;
+  background: rgba(255,255,255,0.07);
   border-radius: 5px;
-  bottom: 38%; left: 8%;
+  bottom: 36%; left: 6%;
   transform-origin: top center;
   animation: arm-idle-l 2.5s ease-in-out infinite;
 }
-/* Right arm */
 .av-arm-r {
   position: absolute;
-  width: 10px; height: 38px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+  width: 9px; height: 36px;
+  background: rgba(255,255,255,0.07);
   border-radius: 5px;
-  bottom: 38%; right: 8%;
+  bottom: 36%; right: 6%;
   transform-origin: top center;
   animation: arm-idle-r 2.5s ease-in-out infinite;
 }
-/* Left leg */
 .av-leg-l {
   position: absolute;
-  width: 13px; height: 32px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  width: 12px; height: 30px;
+  background: rgba(255,255,255,0.05);
   border-radius: 5px;
-  bottom: 2%; left: 28%;
+  bottom: 2%; left: 26%;
   transform-origin: top center;
   animation: leg-idle 2.5s ease-in-out infinite;
 }
-/* Right leg */
 .av-leg-r {
   position: absolute;
-  width: 13px; height: 32px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  width: 12px; height: 30px;
+  background: rgba(255,255,255,0.05);
   border-radius: 5px;
-  bottom: 2%; right: 28%;
+  bottom: 2%; right: 26%;
   transform-origin: top center;
   animation: leg-idle 2.5s ease-in-out infinite 0.3s;
 }
 
-/* IDLE animations */
 @keyframes arm-idle-l {
   0%,100% { transform: rotate(-8deg); }
   50%      { transform: rotate(-14deg); }
@@ -172,49 +147,41 @@ body {
   0%,100% { transform: rotate(0deg); }
   50%      { transform: rotate(2deg); }
 }
-
-/* WALK animations */
 @keyframes arm-walk-l {
-  0%,100% { transform: rotate(-30deg); }
-  50%      { transform: rotate(30deg); }
+  0%,100% { transform: rotate(-32deg); }
+  50%      { transform: rotate(32deg); }
 }
 @keyframes arm-walk-r {
-  0%,100% { transform: rotate(30deg); }
-  50%      { transform: rotate(-30deg); }
+  0%,100% { transform: rotate(32deg); }
+  50%      { transform: rotate(-32deg); }
 }
 @keyframes leg-walk-l {
-  0%,100% { transform: rotate(-25deg); }
-  50%      { transform: rotate(25deg); }
+  0%,100% { transform: rotate(-28deg); }
+  50%      { transform: rotate(28deg); }
 }
 @keyframes leg-walk-r {
-  0%,100% { transform: rotate(25deg); }
-  50%      { transform: rotate(-25deg); }
+  0%,100% { transform: rotate(28deg); }
+  50%      { transform: rotate(-28deg); }
 }
-
-/* TALK animation */
 @keyframes av-talk {
   0%,100% { transform: translateY(0) scale(1); }
-  50%      { transform: translateY(-5px) scale(1.03); }
+  50%      { transform: translateY(-5px) scale(1.04); }
 }
-
-/* WAVE emote */
 @keyframes arm-wave {
   0%,100% { transform: rotate(-10deg); }
-  25%      { transform: rotate(-80deg); }
-  75%      { transform: rotate(-50deg); }
+  25%      { transform: rotate(-85deg); }
+  75%      { transform: rotate(-55deg); }
 }
-
-/* DANCE emote */
 @keyframes av-dance {
   0%,100% { transform: rotate(0deg) translateY(0); }
-  25%      { transform: rotate(-5deg) translateY(-8px); }
-  75%      { transform: rotate(5deg) translateY(-8px); }
+  25%      { transform: rotate(-6deg) translateY(-9px); }
+  75%      { transform: rotate(6deg) translateY(-9px); }
 }
 
 .char-name {
-  font-size: 0.65rem;
-  color: rgba(255,220,140,0.8);
-  margin-top: 4px;
+  font-size: 0.62rem;
+  color: rgba(255,220,140,0.85);
+  margin-top: 3px;
   letter-spacing: 0.06em;
   white-space: nowrap;
   text-shadow: 0 1px 6px rgba(0,0,0,1);
@@ -222,33 +189,33 @@ body {
 .char-shadow {
   border-radius: 50%;
   background: rgba(0,0,0,0.5);
-  filter: blur(6px);
+  filter: blur(5px);
   margin-top: 2px;
-  transition: width 0.1s, height 0.1s;
 }
 
-/* ── CONTROLS HUD ── */
+/* ── HUD ── */
 #hud {
   position: absolute;
-  bottom: 12px; right: 12px;
+  bottom: 14px; right: 14px;
   z-index: 50;
   display: flex; flex-direction: column; align-items: center; gap: 4px;
-  opacity: 0.7;
+  opacity: 0.75;
 }
 .hud-row { display: flex; gap: 4px; }
 .hud-key {
-  width: 32px; height: 32px;
-  background: rgba(255,200,80,0.12);
+  width: 30px; height: 30px;
+  background: rgba(255,200,80,0.1);
   border: 1px solid rgba(255,200,80,0.25);
   border-radius: 6px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 0.75rem; color: #e8c870;
+  font-size: 0.72rem; color: #e8c870;
 }
+.hud-hint { font-size: 0.58rem; color: #7a6a4a; margin-top: 2px; }
 
 /* ── EMOTE BAR ── */
 #emoteBar {
   position: absolute;
-  bottom: 12px; left: 12px;
+  bottom: 14px; left: 14px;
   z-index: 50;
   display: flex; gap: 6px;
 }
@@ -261,6 +228,7 @@ body {
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: background 0.15s;
+  pointer-events: all;
 }
 .emote-btn:hover { background: rgba(255,200,80,0.15); }
 
@@ -326,7 +294,7 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
 }
 .gender-btn.selected { border-color: rgba(255,200,80,0.4); color: #e8c870; background: #1a1408; }
 .avatar-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr);
+  display: grid; grid-template-columns: repeat(4,1fr);
   gap: 8px; max-height: 260px; overflow-y: auto;
 }
 .avatar-option {
@@ -346,11 +314,11 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
 #previewWrap { display: flex; justify-content: center; padding: 8px 0; }
 #previewWrap img { width: 80px; height: 120px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6)); }
 .modal-btns { display: flex; gap: 8px; }
-.modal-btns button { flex: 1; padding: 10px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 0.85rem; }
-#guestBtn { background: #100e08; color: #7a6a4a; border: 1px solid rgba(255,200,80,0.1); }
-#saveBtn  { background: rgba(180,120,20,0.3); color: #e8c870; border: 1px solid rgba(255,200,80,0.25); }
-#guestBtn:hover { background: #181408; }
-#saveBtn:hover  { background: rgba(180,120,20,0.5); }
+.modal-btns button { flex:1; padding:10px; border-radius:8px; cursor:pointer; font-family:inherit; font-size:0.85rem; }
+#guestBtn { background:#100e08; color:#7a6a4a; border:1px solid rgba(255,200,80,0.1); }
+#saveBtn  { background:rgba(180,120,20,0.3); color:#e8c870; border:1px solid rgba(255,200,80,0.25); }
+#guestBtn:hover { background:#181408; }
+#saveBtn:hover  { background:rgba(180,120,20,0.5); }
 </style>
 </head>
 <body>
@@ -380,10 +348,7 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
 
 <div id="scene">
   <div id="bg"></div>
-  <div id="floor"></div>
   <div id="stage"></div>
-
-  <!-- WASD HUD -->
   <div id="hud">
     <div class="hud-row"><div class="hud-key">W</div></div>
     <div class="hud-row">
@@ -391,14 +356,12 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
       <div class="hud-key">S</div>
       <div class="hud-key">D</div>
     </div>
-    <div class="hud-row" style="font-size:0.6rem;color:#7a6a4a;margin-top:2px;">or click floor</div>
+    <div class="hud-hint">or click floor</div>
   </div>
-
-  <!-- EMOTE BAR -->
   <div id="emoteBar">
-    <button class="emote-btn" data-emote="wave" title="Wave">👋</button>
+    <button class="emote-btn" data-emote="wave"  title="Wave">👋</button>
     <button class="emote-btn" data-emote="dance" title="Dance">💃</button>
-    <button class="emote-btn" data-emote="sit"  title="Sit">🪑</button>
+    <button class="emote-btn" data-emote="sit"   title="Sit">🪑</button>
   </div>
 </div>
 
@@ -414,9 +377,9 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
 </footer>
 
 <script>
-/* ═══════════════════════════════════════════
+/* ══════════════════════════════════════════
    AVATAR DATA
-═══════════════════════════════════════════ */
+══════════════════════════════════════════ */
 const FEMALE_AVATARS = [
   { file:'avatar-f1.png', label:'Hispanic' },
   { file:'avatar-f2.png', label:'Black' },
@@ -441,9 +404,9 @@ const MALE_AVATARS = [
 let selGender = 'female';
 let selAvatar  = 'avatar-f1.png';
 
-/* ═══════════════════════════════════════════
-   MODAL / PICKER
-═══════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   PICKER
+══════════════════════════════════════════ */
 const avatarPicker = document.getElementById('avatarPicker');
 
 function buildAvatarPicker(gender) {
@@ -491,32 +454,40 @@ function updatePreview() {
 buildAvatarPicker(selGender);
 updatePreview();
 
-/* ═══════════════════════════════════════════
-   3D STAGE — coordinate system
-   x: 0–100 (left to right %)
-   y: 0–100 (0=back of room, 100=front)
-═══════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   3D PERSPECTIVE
+   x: 0–100 (left→right)
+   y: 0–100 (0=back wall, 100=front/camera)
+
+   Tuned to your lounge.jpg:
+   - Back of room floor starts at ~45% screen height
+   - Front of room floor ends at ~88% screen height
+══════════════════════════════════════════ */
 const stage = document.getElementById('stage');
 
-// Convert logical x,y (0-100) to screen position + scale
 function project(x, y) {
   const sw = stage.offsetWidth  || window.innerWidth;
   const sh = stage.offsetHeight || window.innerHeight * 0.7;
 
-  // Perspective: y=0 is back (top of floor), y=100 is front (bottom)
-  const depthT   = 0.35 + (y / 100) * 0.65; // 0.35 at back, 1.0 at front
-  const screenY  = sh * (0.25 + (y / 100) * 0.55); // vertical position on screen
-  const screenX  = sw * 0.5 + (x - 50) / 50 * (sw * 0.45) * depthT;
-  const scale    = 0.45 + (y / 100) * 0.55; // 0.45 at back, 1.0 at front
-  const bright   = 0.5 + (y / 100) * 0.5;  // darker at back
-  const zIndex   = Math.round(y * 10);
+  // Vertical: back=45% of screen, front=88%
+  const screenYpct = 0.45 + (y / 100) * 0.43;
+  const screenY    = sh * screenYpct;
+
+  // Horizontal: perspective narrows toward back
+  const depthT  = 0.18 + (y / 100) * 0.82;
+  const screenX = sw * 0.5 + (x - 50) / 50 * (sw * 0.46) * depthT;
+
+  // Scale & brightness
+  const scale  = 0.28 + (y / 100) * 0.72; // 0.28 at back → 1.0 at front
+  const bright = 0.4  + (y / 100) * 0.6;
+  const zIndex = Math.round(y * 10);
 
   return { screenX, screenY, scale, bright, zIndex };
 }
 
-/* ═══════════════════════════════════════════
-   BUILD CHARACTER ELEMENT
-═══════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   BUILD CHARACTER
+══════════════════════════════════════════ */
 function buildCharEl(name, avatarFile) {
   const char = document.createElement('div');
   char.className = 'character';
@@ -524,7 +495,6 @@ function buildCharEl(name, avatarFile) {
   const bubble = document.createElement('div');
   bubble.className = 'char-bubble';
 
-  // Avatar wrap with photo + CSS limbs
   const avWrap = document.createElement('div');
   avWrap.className = 'av-wrap';
 
@@ -560,41 +530,53 @@ function buildCharEl(name, avatarFile) {
   return { char, bubble, photo, limbs, nameEl, shadow };
 }
 
-/* ═══════════════════════════════════════════
-   APPLY DEPTH TRANSFORM
-═══════════════════════════════════════════ */
-function applyDepth(charObj) {
-  const { screenX, screenY, scale, bright, zIndex } = project(charObj.x, charObj.y);
-  const BASE_H = 140; // px at full scale (front)
+/* ══════════════════════════════════════════
+   APPLY DEPTH — feet anchored to floor
+══════════════════════════════════════════ */
+function applyDepth(ch) {
+  const { screenX, screenY, scale, bright, zIndex } = project(ch.x, ch.y);
+  const BASE_H = 150; // px at full scale (y=100, front)
   const h = BASE_H * scale;
-  const w = h * 0.6;
+  const w = h * 0.58;
 
-  charObj.char.style.left    = screenX + 'px';
-  charObj.char.style.bottom  = (stage.offsetHeight - screenY) + 'px';
-  charObj.char.style.zIndex  = zIndex;
-  charObj.char.style.transform = `translateX(-50%)`;
+  // Position: feet land exactly at screenY
+  ch.char.style.position  = 'absolute';
+  ch.char.style.left      = screenX + 'px';
+  ch.char.style.top       = screenY + 'px';   // top of char div = foot position
+  ch.char.style.bottom    = 'auto';
+  ch.char.style.transform = 'translateX(-50%)'; // center horizontally
+  ch.char.style.zIndex    = zIndex;
 
-  charObj.photo.style.height = h + 'px';
-  charObj.photo.style.width  = w + 'px';
-  charObj.photo.style.filter = `drop-shadow(0 6px 16px rgba(0,0,0,0.7)) brightness(${bright})`;
+  // Flip column so feet are at top of div (bubble above, shadow below)
+  // Actually we want: shadow → nameEl → photo → bubble (bottom to top visually)
+  // char div grows DOWNWARD from top=screenY, so we need to offset upward by full height
+  // Use marginTop to pull the whole char up so feet sit at screenY
+  const totalH = h + 30 + 20; // photo + name + shadow approx
+  ch.char.style.marginTop = `-${totalH}px`;
 
-  // Scale shadow with depth
-  charObj.shadow.style.width  = (w * 0.8) + 'px';
-  charObj.shadow.style.height = Math.max(4, 8 * scale) + 'px';
+  ch.photo.style.width  = w + 'px';
+  ch.photo.style.height = h + 'px';
+  ch.photo.style.filter = `drop-shadow(0 4px 14px rgba(0,0,0,0.8)) brightness(${bright})`;
 
-  // Scale limbs
-  charObj.limbs.style.transform = `scale(${scale})`;
+  ch.shadow.style.width  = (w * 0.75) + 'px';
+  ch.shadow.style.height = Math.max(3, 7 * scale) + 'px';
 }
 
-/* ═══════════════════════════════════════════
+/* ══════════════════════════════════════════
    ANIMATION STATES
-═══════════════════════════════════════════ */
+══════════════════════════════════════════ */
+function getLimbs(ch) {
+  return {
+    armL: ch.limbs.querySelector('.av-arm-l'),
+    armR: ch.limbs.querySelector('.av-arm-r'),
+    legL: ch.limbs.querySelector('.av-leg-l'),
+    legR: ch.limbs.querySelector('.av-leg-r'),
+  };
+}
+
 function setIdle(ch) {
+  const { armL, armR, legL, legR } = getLimbs(ch);
   ch.photo.style.animation = '';
-  const armL = ch.limbs.querySelector('.av-arm-l');
-  const armR = ch.limbs.querySelector('.av-arm-r');
-  const legL = ch.limbs.querySelector('.av-leg-l');
-  const legR = ch.limbs.querySelector('.av-leg-r');
   armL.style.animation = 'arm-idle-l 2.5s ease-in-out infinite';
   armR.style.animation = 'arm-idle-r 2.5s ease-in-out infinite';
   legL.style.animation = 'leg-idle 2.5s ease-in-out infinite';
@@ -603,15 +585,11 @@ function setIdle(ch) {
 }
 
 function setWalk(ch, goRight) {
-  const armL = ch.limbs.querySelector('.av-arm-l');
-  const armR = ch.limbs.querySelector('.av-arm-r');
-  const legL = ch.limbs.querySelector('.av-leg-l');
-  const legR = ch.limbs.querySelector('.av-leg-r');
-  armL.style.animation = 'arm-walk-l 0.45s ease-in-out infinite';
-  armR.style.animation = 'arm-walk-r 0.45s ease-in-out infinite';
-  legL.style.animation = 'leg-walk-l 0.45s ease-in-out infinite';
-  legR.style.animation = 'leg-walk-r 0.45s ease-in-out infinite 0.225s';
-  // Flip photo to face direction
+  const { armL, armR, legL, legR } = getLimbs(ch);
+  armL.style.animation = 'arm-walk-l 0.42s ease-in-out infinite';
+  armR.style.animation = 'arm-walk-r 0.42s ease-in-out infinite';
+  legL.style.animation = 'leg-walk-l 0.42s ease-in-out infinite';
+  legR.style.animation = 'leg-walk-r 0.42s ease-in-out infinite 0.21s';
   ch.photo.style.transform = goRight ? 'scaleX(1)' : 'scaleX(-1)';
   ch.state = 'walk';
 }
@@ -622,23 +600,22 @@ function setTalk(ch) {
 }
 
 function setWave(ch) {
-  const armR = ch.limbs.querySelector('.av-arm-r');
+  const { armR } = getLimbs(ch);
   armR.style.animation = 'arm-wave 0.5s ease-in-out infinite';
   ch.state = 'wave';
 }
 
 function setDance(ch) {
+  const { armL, armR } = getLimbs(ch);
   ch.photo.style.animation = 'av-dance 0.5s ease-in-out infinite';
-  const armL = ch.limbs.querySelector('.av-arm-l');
-  const armR = ch.limbs.querySelector('.av-arm-r');
   armL.style.animation = 'arm-walk-l 0.5s ease-in-out infinite';
   armR.style.animation = 'arm-walk-r 0.5s ease-in-out infinite';
   ch.state = 'dance';
 }
 
-/* ═══════════════════════════════════════════
+/* ══════════════════════════════════════════
    ACTIVE CHARACTERS
-═══════════════════════════════════════════ */
+══════════════════════════════════════════ */
 const activeChars = {};
 
 function getOrCreateChar(key, name, avatarFile, startX, startY) {
@@ -676,12 +653,10 @@ function removeChar(key) {
   delete activeChars[key];
 }
 
-/* ═══════════════════════════════════════════
-   SMOOTH MOVEMENT ENGINE
-   Moves a character toward targetX/targetY
-   at a fixed speed, updating depth each frame
-═══════════════════════════════════════════ */
-const MOVE_SPEED = 0.4; // units per frame (0-100 scale)
+/* ══════════════════════════════════════════
+   SMOOTH MOVEMENT ENGINE (~60fps)
+══════════════════════════════════════════ */
+const MOVE_SPEED = 0.35;
 
 function startMoving(key) {
   const ch = activeChars[key];
@@ -691,12 +666,11 @@ function startMoving(key) {
   ch.moveInterval = setInterval(() => {
     if (!activeChars[key]) { clearInterval(ch.moveInterval); return; }
 
-    const dx = ch.targetX - ch.x;
-    const dy = ch.targetY - ch.y;
-    const dist = Math.sqrt(dx*dx + dy*dy);
+    const dx   = ch.targetX - ch.x;
+    const dy   = ch.targetY - ch.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
 
     if (dist < MOVE_SPEED) {
-      // Arrived
       ch.x = ch.targetX;
       ch.y = ch.targetY;
       applyDepth(ch);
@@ -713,20 +687,22 @@ function startMoving(key) {
     ch.x += (dx / dist) * MOVE_SPEED;
     ch.y += (dy / dist) * MOVE_SPEED;
     applyDepth(ch);
-  }, 16); // ~60fps
+  }, 16);
 }
 
-/* ═══════════════════════════════════════════
-   PLAYER CONTROLS
-═══════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   PLAYER CONTROLS — WASD
+══════════════════════════════════════════ */
 const keys = {};
-let myKey = null;
+let myKey    = null;
 let moveLoop = null;
-const PLAYER_SPEED = 0.6;
+const PLAYER_SPEED = 0.55;
 
 document.addEventListener('keydown', e => {
-  if (!myKey || !activeChars[myKey]) return;
-  if (['w','a','s','d','W','A','S','D'].includes(e.key)) {
+  if (!myKey) return;
+  // Don't capture keys when typing in chat
+  if (document.activeElement === document.getElementById('msgInput')) return;
+  if (['w','a','s','d'].includes(e.key.toLowerCase())) {
     e.preventDefault();
     keys[e.key.toLowerCase()] = true;
     if (!moveLoop) startPlayerLoop();
@@ -750,53 +726,54 @@ function startPlayerLoop() {
     let dx = 0, dy = 0;
     if (keys.a) dx -= PLAYER_SPEED;
     if (keys.d) dx += PLAYER_SPEED;
-    if (keys.w) dy -= PLAYER_SPEED; // W = toward back (y decreases)
-    if (keys.s) dy += PLAYER_SPEED; // S = toward front (y increases)
+    if (keys.w) dy -= PLAYER_SPEED; // toward back
+    if (keys.s) dy += PLAYER_SPEED; // toward front
 
-    const newX = Math.max(2, Math.min(98, ch.x + dx));
-    const newY = Math.max(5, Math.min(95, ch.y + dy));
+    if (dx === 0 && dy === 0) return;
+
+    const newX = Math.max(2,  Math.min(98, ch.x + dx));
+    const newY = Math.max(5,  Math.min(95, ch.y + dy));
 
     if (newX !== ch.x || newY !== ch.y) {
-      const goRight = dx >= 0;
-      if (ch.state !== 'walk') setWalk(ch, goRight);
-      else if (dx !== 0) ch.photo.style.transform = goRight ? 'scaleX(1)' : 'scaleX(-1)';
-      ch.x = newX; ch.y = newY;
+      if (ch.state !== 'walk') setWalk(ch, dx >= 0);
+      else if (dx !== 0) ch.photo.style.transform = dx > 0 ? 'scaleX(1)' : 'scaleX(-1)';
+      ch.x = newX;
+      ch.y = newY;
       applyDepth(ch);
-      // Broadcast position
       socket.emit('position', { x: ch.x, y: ch.y });
     }
   }, 16);
 }
 
-// Mouse click to move
+/* ══════════════════════════════════════════
+   MOUSE CLICK TO WALK
+══════════════════════════════════════════ */
 document.getElementById('scene').addEventListener('click', e => {
   if (!myKey || !activeChars[myKey]) return;
   if (e.target.closest('#hud') || e.target.closest('#emoteBar')) return;
 
-  const rect = stage.getBoundingClientRect();
-  const clickX = e.clientX - rect.left;
-  const clickY = e.clientY - rect.top;
-  const sw = stage.offsetWidth;
-  const sh = stage.offsetHeight;
+  const rect     = stage.getBoundingClientRect();
+  const clickX   = e.clientX - rect.left;
+  const clickY   = e.clientY - rect.top;
+  const sw       = stage.offsetWidth;
+  const sh       = stage.offsetHeight;
 
-  // Convert screen click to logical x,y
-  // Approximate inverse of project()
-  const rawY = ((clickY / sh) - 0.25) / 0.55 * 100;
+  // Inverse of project() — screen → logical coords
+  const rawY     = ((clickY / sh) - 0.45) / 0.43 * 100;
   const clampedY = Math.max(5, Math.min(95, rawY));
-  const depthT = 0.35 + (clampedY / 100) * 0.65;
-  const rawX = 50 + ((clickX - sw * 0.5) / (sw * 0.45 * depthT)) * 50;
+  const depthT   = 0.18 + (clampedY / 100) * 0.82;
+  const rawX     = 50 + ((clickX - sw * 0.5) / (sw * 0.46 * depthT)) * 50;
   const clampedX = Math.max(2, Math.min(98, rawX));
 
   const ch = activeChars[myKey];
   ch.targetX = clampedX;
   ch.targetY = clampedY;
   startMoving(myKey);
-  socket.emit('position', { x: ch.x, y: ch.y });
 });
 
-/* ═══════════════════════════════════════════
+/* ══════════════════════════════════════════
    EMOTES
-═══════════════════════════════════════════ */
+══════════════════════════════════════════ */
 document.querySelectorAll('.emote-btn').forEach(btn => {
   btn.onclick = () => {
     if (!myKey || !activeChars[myKey]) return;
@@ -804,17 +781,13 @@ document.querySelectorAll('.emote-btn').forEach(btn => {
     const emote = btn.dataset.emote;
     if (emote === 'wave')  { setWave(ch);  setTimeout(() => setIdle(ch), 3000); }
     if (emote === 'dance') { setDance(ch); setTimeout(() => setIdle(ch), 5000); }
-    if (emote === 'sit')   {
-      ch.y = Math.min(95, ch.y + 5);
-      applyDepth(ch);
-      setIdle(ch);
-    }
+    if (emote === 'sit')   { ch.y = Math.min(95, ch.y + 3); applyDepth(ch); }
   };
 });
 
-/* ═══════════════════════════════════════════
+/* ══════════════════════════════════════════
    AI WANDER (other users)
-═══════════════════════════════════════════ */
+══════════════════════════════════════════ */
 function startWander(key) {
   const ch = activeChars[key];
   if (!ch) return;
@@ -822,41 +795,38 @@ function startWander(key) {
   function wander() {
     if (!activeChars[key]) return;
     ch.targetX = 10 + Math.random() * 80;
-    ch.targetY = 10 + Math.random() * 80;
+    ch.targetY = 15 + Math.random() * 70;
     startMoving(key);
-    const pause = 3000 + Math.random() * 5000;
-    ch.wanderTimer = setTimeout(wander, pause + 2000);
+    ch.wanderTimer = setTimeout(wander, 4000 + Math.random() * 5000);
   }
   ch.wanderTimer = setTimeout(wander, Math.random() * 3000);
 }
 
-/* ═══════════════════════════════════════════
+/* ══════════════════════════════════════════
    MESSAGES
-═══════════════════════════════════════════ */
+══════════════════════════════════════════ */
 function showMessage(key, name, text, avatarFile, x, y) {
   const ch = getOrCreateChar(key, name, avatarFile, x, y);
   ch.bubble.textContent = text.slice(0, 120);
   ch.bubble.classList.add('visible');
   setTalk(ch);
   if (ch.talkTimer) clearTimeout(ch.talkTimer);
-  ch.talkTimer = setTimeout(() => {
-    if (activeChars[key]) setIdle(ch);
-  }, 7000);
+  ch.talkTimer = setTimeout(() => { if (activeChars[key]) setIdle(ch); }, 7000);
   if (ch.timer) clearTimeout(ch.timer);
   ch.timer = setTimeout(() => ch.bubble.classList.remove('visible'), 7000);
 }
 
 function handleMessage(msg) {
   if (msg.source === 'secondlife') {
-    showMessage('sl_' + msg.speaker, msg.speaker, msg.text, 'avatar-m1.png', 8, 60);
+    showMessage('sl_' + msg.speaker, msg.speaker, msg.text, 'avatar-m1.png', 8, 55);
   } else {
-    showMessage('web_' + msg.speaker, msg.speaker, msg.text, msg.avatar, msg.x || 50, msg.y || 50);
+    showMessage('web_' + msg.speaker, msg.speaker, msg.text, msg.avatar, msg.x || 50, msg.y || 70);
   }
 }
 
-/* ═══════════════════════════════════════════
+/* ══════════════════════════════════════════
    IDENTITY
-═══════════════════════════════════════════ */
+══════════════════════════════════════════ */
 const nameInput = document.getElementById('nameInput');
 const modal     = document.getElementById('modal');
 const msgInput  = document.getElementById('msgInput');
@@ -866,9 +836,13 @@ let identity    = null;
 function applyIdentity() {
   myNameEl.textContent = identity.name;
   myKey = 'web_' + identity.name;
-  const ch = getOrCreateChar(myKey, identity.name, identity.avatar, 50, 80);
-  // Player starts at front-center
-  socket.emit('user-join', { name: identity.name, avatar: identity.avatar, gender: identity.gender, x: 50, y: 80 });
+  getOrCreateChar(myKey, identity.name, identity.avatar, 50, 82);
+  socket.emit('user-join', {
+    name: identity.name,
+    avatar: identity.avatar,
+    gender: identity.gender,
+    x: 50, y: 82
+  });
 }
 
 document.getElementById('saveBtn').onclick = () => {
@@ -882,7 +856,12 @@ document.getElementById('saveBtn').onclick = () => {
 
 document.getElementById('guestBtn').onclick = () => {
   const def = selGender === 'female' ? 'avatar-f1.png' : 'avatar-m1.png';
-  identity = { name: 'Guest' + Math.floor(Math.random()*9000+1000), gender: selGender, avatar: selAvatar || def, guest: true };
+  identity = {
+    name: 'Guest' + Math.floor(Math.random() * 9000 + 1000),
+    gender: selGender,
+    avatar: selAvatar || def,
+    guest: true
+  };
   applyIdentity();
   modal.style.display = 'none';
 };
@@ -915,19 +894,19 @@ function loadIdentity() {
   }
 }
 
-/* ═══════════════════════════════════════════
+/* ══════════════════════════════════════════
    SOCKET
-═══════════════════════════════════════════ */
+══════════════════════════════════════════ */
 const socket = io();
 
-socket.on('history', msgs => msgs.slice(-5).forEach(m => handleMessage(m)));
-socket.on('message', msg  => handleMessage(msg));
+socket.on('history',       msgs  => msgs.slice(-5).forEach(m => handleMessage(m)));
+socket.on('message',       msg   => handleMessage(msg));
 
 socket.on('presence-init', users => {
   users.forEach(u => {
     const key = 'web_' + u.name;
     if (key === myKey) return;
-    const ch = getOrCreateChar(key, u.name, u.avatar, u.x || 50, u.y || 50);
+    getOrCreateChar(key, u.name, u.avatar, u.x || 50, u.y || 50);
     startWander(key);
   });
 });
@@ -935,7 +914,7 @@ socket.on('presence-init', users => {
 socket.on('user-joined', u => {
   const key = 'web_' + u.name;
   if (key === myKey) return;
-  const ch = getOrCreateChar(key, u.name, u.avatar, u.x || 50, u.y || 50);
+  getOrCreateChar(key, u.name, u.avatar, u.x || 50, u.y || 50);
   startWander(key);
 });
 
@@ -944,9 +923,7 @@ socket.on('user-moved', u => {
   if (key === myKey) return;
   const ch = activeChars[key];
   if (!ch) return;
-  // Clear AI wander when server sends real position
   clearTimeout(ch.wanderTimer);
-  clearInterval(ch.moveInterval);
   ch.targetX = u.x;
   ch.targetY = u.y;
   startMoving(key);
@@ -954,21 +931,28 @@ socket.on('user-moved', u => {
 
 socket.on('user-left', u => removeChar('web_' + u.name));
 
-/* ═══════════════════════════════════════════
+/* ══════════════════════════════════════════
    SEND MESSAGE
-═══════════════════════════════════════════ */
+══════════════════════════════════════════ */
 function send() {
   const text = msgInput.value.trim();
   if (!text || !identity) return;
-  socket.emit('web-message', { name: identity.name, text, gender: identity.gender, avatar: identity.avatar });
+  socket.emit('web-message', {
+    name: identity.name,
+    text,
+    gender: identity.gender,
+    avatar: identity.avatar
+  });
   msgInput.value = '';
 }
 document.getElementById('sendBtn').onclick = send;
-msgInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
+msgInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+});
 
-/* ═══════════════════════════════════════════
-   RESIZE — reproject all characters
-═══════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   RESIZE
+══════════════════════════════════════════ */
 window.addEventListener('resize', () => {
   Object.values(activeChars).forEach(ch => applyDepth(ch));
 });
