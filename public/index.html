@@ -15,9 +15,16 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  user-select: none;
 }
 
-#scene { flex: 1; position: relative; overflow: hidden; }
+/* ── SCENE ── */
+#scene {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  cursor: crosshair;
+}
 
 #bg {
   position: absolute; inset: 0;
@@ -26,35 +33,47 @@ body {
 }
 #bg::after {
   content: ''; position: absolute; inset: 0;
-  background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.65) 100%);
+  background: linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.7) 100%);
+}
+
+/* Floor perspective grid overlay */
+#floor {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 55%;
+  background:
+    linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.25) 100%);
+  pointer-events: none;
+  z-index: 1;
 }
 
 #stage {
   position: absolute;
-  bottom: 10%; left: 0; right: 0;
-  height: 180px;
+  inset: 0;
   z-index: 10;
-  overflow: hidden;
 }
 
+/* ── CHARACTER ── */
 .character {
   position: absolute;
-  bottom: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
+  transform-origin: bottom center;
+  transition: left 0.05s linear, bottom 0.05s linear, transform 0.05s linear, filter 0.05s linear;
+  cursor: default;
 }
 
 .char-bubble {
-  background: rgba(10,8,20,0.9);
-  border: 1px solid rgba(255,220,100,0.25);
+  background: rgba(10,8,20,0.92);
+  border: 1px solid rgba(255,220,100,0.3);
   border-radius: 12px;
-  padding: 7px 12px;
-  font-size: 0.82rem;
+  padding: 6px 11px;
+  font-size: 0.8rem;
   color: #e8d8b0;
-  max-width: 200px;
+  max-width: 180px;
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   opacity: 0;
   transition: opacity 0.3s;
   line-height: 1.4;
@@ -68,62 +87,184 @@ body {
   content: ''; position: absolute;
   bottom: -7px; left: 50%; transform: translateX(-50%);
   border: 7px solid transparent;
-  border-top-color: rgba(255,220,100,0.25);
+  border-top-color: rgba(255,220,100,0.3);
   border-bottom: none;
+}
+
+/* Avatar wrapper — holds photo + CSS limbs */
+.av-wrap {
+  position: relative;
+  width: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* The actual avatar photo — head + torso only feel */
+.av-photo {
+  width: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 6px 16px rgba(0,0,0,0.7));
+  display: block;
+  transform-origin: bottom center;
+}
+
+/* CSS limb layers */
+.av-limbs {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Left arm */
+.av-arm-l {
+  position: absolute;
+  width: 10px; height: 38px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+  border-radius: 5px;
+  bottom: 38%; left: 8%;
+  transform-origin: top center;
+  animation: arm-idle-l 2.5s ease-in-out infinite;
+}
+/* Right arm */
+.av-arm-r {
+  position: absolute;
+  width: 10px; height: 38px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+  border-radius: 5px;
+  bottom: 38%; right: 8%;
+  transform-origin: top center;
+  animation: arm-idle-r 2.5s ease-in-out infinite;
+}
+/* Left leg */
+.av-leg-l {
+  position: absolute;
+  width: 13px; height: 32px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  border-radius: 5px;
+  bottom: 2%; left: 28%;
+  transform-origin: top center;
+  animation: leg-idle 2.5s ease-in-out infinite;
+}
+/* Right leg */
+.av-leg-r {
+  position: absolute;
+  width: 13px; height: 32px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  border-radius: 5px;
+  bottom: 2%; right: 28%;
+  transform-origin: top center;
+  animation: leg-idle 2.5s ease-in-out infinite 0.3s;
+}
+
+/* IDLE animations */
+@keyframes arm-idle-l {
+  0%,100% { transform: rotate(-8deg); }
+  50%      { transform: rotate(-14deg); }
+}
+@keyframes arm-idle-r {
+  0%,100% { transform: rotate(8deg); }
+  50%      { transform: rotate(14deg); }
+}
+@keyframes leg-idle {
+  0%,100% { transform: rotate(0deg); }
+  50%      { transform: rotate(2deg); }
+}
+
+/* WALK animations */
+@keyframes arm-walk-l {
+  0%,100% { transform: rotate(-30deg); }
+  50%      { transform: rotate(30deg); }
+}
+@keyframes arm-walk-r {
+  0%,100% { transform: rotate(30deg); }
+  50%      { transform: rotate(-30deg); }
+}
+@keyframes leg-walk-l {
+  0%,100% { transform: rotate(-25deg); }
+  50%      { transform: rotate(25deg); }
+}
+@keyframes leg-walk-r {
+  0%,100% { transform: rotate(25deg); }
+  50%      { transform: rotate(-25deg); }
+}
+
+/* TALK animation */
+@keyframes av-talk {
+  0%,100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-5px) scale(1.03); }
+}
+
+/* WAVE emote */
+@keyframes arm-wave {
+  0%,100% { transform: rotate(-10deg); }
+  25%      { transform: rotate(-80deg); }
+  75%      { transform: rotate(-50deg); }
+}
+
+/* DANCE emote */
+@keyframes av-dance {
+  0%,100% { transform: rotate(0deg) translateY(0); }
+  25%      { transform: rotate(-5deg) translateY(-8px); }
+  75%      { transform: rotate(5deg) translateY(-8px); }
 }
 
 .char-name {
   font-size: 0.65rem;
-  color: rgba(255,220,140,0.7);
-  margin-top: 6px;
+  color: rgba(255,220,140,0.8);
+  margin-top: 4px;
   letter-spacing: 0.06em;
   white-space: nowrap;
   text-shadow: 0 1px 6px rgba(0,0,0,1);
 }
-
 .char-shadow {
-  width: 60px; height: 8px;
-  background: rgba(0,0,0,0.45);
   border-radius: 50%;
-  filter: blur(5px);
-  margin-top: 3px;
+  background: rgba(0,0,0,0.5);
+  filter: blur(6px);
+  margin-top: 2px;
+  transition: width 0.1s, height 0.1s;
 }
 
-/* Stage avatar — no mix-blend-mode since PNGs are now transparent */
-.stage-avatar-img {
-  width: 80px; height: 120px;
-  object-fit: contain; object-position: center bottom;
-  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));
-  display: block;
-  transform-origin: bottom center;
-  animation: idle-bob 2.5s ease-in-out infinite;
+/* ── CONTROLS HUD ── */
+#hud {
+  position: absolute;
+  bottom: 12px; right: 12px;
+  z-index: 50;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  opacity: 0.7;
+}
+.hud-row { display: flex; gap: 4px; }
+.hud-key {
+  width: 32px; height: 32px;
+  background: rgba(255,200,80,0.12);
+  border: 1px solid rgba(255,200,80,0.25);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; color: #e8c870;
 }
 
-@keyframes idle-bob {
-  0%, 100% { transform: scaleX(1) rotate(0deg) translateY(0); }
-  25%       { transform: scaleX(1) rotate(0.8deg) translateY(-2px); }
-  75%       { transform: scaleX(1) rotate(-0.8deg) translateY(-1px); }
+/* ── EMOTE BAR ── */
+#emoteBar {
+  position: absolute;
+  bottom: 12px; left: 12px;
+  z-index: 50;
+  display: flex; gap: 6px;
 }
-
-@keyframes walk-right {
-  0%, 100% { transform: scaleX(1) rotate(2deg) translateY(0); }
-  25%       { transform: scaleX(1) rotate(-1deg) translateY(-4px); }
-  50%       { transform: scaleX(1) rotate(2deg) translateY(0); }
-  75%       { transform: scaleX(1) rotate(-1deg) translateY(-4px); }
+.emote-btn {
+  width: 36px; height: 36px;
+  background: rgba(10,8,20,0.85);
+  border: 1px solid rgba(255,200,80,0.2);
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
 }
+.emote-btn:hover { background: rgba(255,200,80,0.15); }
 
-@keyframes walk-left {
-  0%, 100% { transform: scaleX(-1) rotate(-2deg) translateY(0); }
-  25%       { transform: scaleX(-1) rotate(1deg) translateY(-4px); }
-  50%       { transform: scaleX(-1) rotate(-2deg) translateY(0); }
-  75%       { transform: scaleX(-1) rotate(1deg) translateY(-4px); }
-}
-
-@keyframes talk-pulse {
-  0%, 100% { transform: scaleX(var(--face,1)) scale(1) translateY(0); }
-  50%       { transform: scaleX(var(--face,1)) scale(1.05) translateY(-4px); }
-}
-
+/* ── FOOTER ── */
 footer {
   background: rgba(6,4,2,0.96);
   border-top: 1px solid rgba(255,200,80,0.12);
@@ -154,7 +295,7 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
 }
 #sendBtn:hover { background: rgba(180,120,20,0.4); color: #ffcc60; }
 
-/* Modal */
+/* ── MODAL ── */
 #modal {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.92);
@@ -176,7 +317,6 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
   font-size: 0.9rem; font-family: inherit; width: 100%;
 }
 .picker-label { font-size: 0.72rem; color: #7a6a4a; margin-bottom: 6px; }
-
 .gender-row { display: flex; gap: 8px; }
 .gender-btn {
   flex: 1; padding: 8px; border-radius: 8px; cursor: pointer;
@@ -185,13 +325,9 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
   border: 2px solid transparent; transition: all 0.15s;
 }
 .gender-btn.selected { border-color: rgba(255,200,80,0.4); color: #e8c870; background: #1a1408; }
-
 .avatar-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  max-height: 260px;
-  overflow-y: auto;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 8px; max-height: 260px; overflow-y: auto;
 }
 .avatar-option {
   display: flex; flex-direction: column; align-items: center; gap: 4px;
@@ -206,21 +342,11 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
   object-fit: contain; object-position: center bottom;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
 }
-.avatar-option span {
-  font-size: 0.55rem; color: #7a6a4a; text-align: center; line-height: 1.2;
-}
-
+.avatar-option span { font-size: 0.55rem; color: #7a6a4a; text-align: center; line-height: 1.2; }
 #previewWrap { display: flex; justify-content: center; padding: 8px 0; }
-#previewWrap img {
-  width: 80px; height: 120px; object-fit: contain;
-  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));
-}
-
+#previewWrap img { width: 80px; height: 120px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6)); }
 .modal-btns { display: flex; gap: 8px; }
-.modal-btns button {
-  flex: 1; padding: 10px; border-radius: 8px;
-  cursor: pointer; font-family: inherit; font-size: 0.85rem;
-}
+.modal-btns button { flex: 1; padding: 10px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 0.85rem; }
 #guestBtn { background: #100e08; color: #7a6a4a; border: 1px solid rgba(255,200,80,0.1); }
 #saveBtn  { background: rgba(180,120,20,0.3); color: #e8c870; border: 1px solid rgba(255,200,80,0.25); }
 #guestBtn:hover { background: #181408; }
@@ -254,15 +380,25 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
 
 <div id="scene">
   <div id="bg"></div>
-  <div id="stage">
-    <div class="character" id="char-sl" data-key="char-sl" style="position:absolute;bottom:0;left:20px;">
-      <div class="char-bubble visible" id="bubble-sl">Connected to Second Life</div>
-      <div style="position:relative;width:80px;">
-        <img src="avatar-m1.png" class="stage-avatar-img" alt="SL Relay" />
-      </div>
-      <div class="char-name">SL Relay</div>
-      <div class="char-shadow"></div>
+  <div id="floor"></div>
+  <div id="stage"></div>
+
+  <!-- WASD HUD -->
+  <div id="hud">
+    <div class="hud-row"><div class="hud-key">W</div></div>
+    <div class="hud-row">
+      <div class="hud-key">A</div>
+      <div class="hud-key">S</div>
+      <div class="hud-key">D</div>
     </div>
+    <div class="hud-row" style="font-size:0.6rem;color:#7a6a4a;margin-top:2px;">or click floor</div>
+  </div>
+
+  <!-- EMOTE BAR -->
+  <div id="emoteBar">
+    <button class="emote-btn" data-emote="wave" title="Wave">👋</button>
+    <button class="emote-btn" data-emote="dance" title="Dance">💃</button>
+    <button class="emote-btn" data-emote="sit"  title="Sit">🪑</button>
   </div>
 </div>
 
@@ -272,37 +408,42 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
     <span id="changeId">change</span>
   </div>
   <div id="compose">
-    <input id="msgInput" type="text" placeholder="Message…" maxlength="300" />
+    <input id="msgInput" type="text" placeholder="Message… (Enter to send)" maxlength="300" />
     <button id="sendBtn">Send</button>
   </div>
 </footer>
 
 <script>
+/* ═══════════════════════════════════════════
+   AVATAR DATA
+═══════════════════════════════════════════ */
 const FEMALE_AVATARS = [
-  { file: 'avatar-f1.png', label: 'Hispanic' },
-  { file: 'avatar-f2.png', label: 'Black' },
-  { file: 'avatar-f3.png', label: 'White' },
-  { file: 'avatar-f4.png', label: 'Asian' },
-  { file: 'avatar-f5.png', label: 'Hispanic 50+' },
-  { file: 'avatar-f6.png', label: 'Black 50+' },
-  { file: 'avatar-f7.png', label: 'White 50+' },
-  { file: 'avatar-f8.png', label: 'Asian 50+' },
+  { file:'avatar-f1.png', label:'Hispanic' },
+  { file:'avatar-f2.png', label:'Black' },
+  { file:'avatar-f3.png', label:'White' },
+  { file:'avatar-f4.png', label:'Asian' },
+  { file:'avatar-f5.png', label:'Hispanic 50+' },
+  { file:'avatar-f6.png', label:'Black 50+' },
+  { file:'avatar-f7.png', label:'White 50+' },
+  { file:'avatar-f8.png', label:'Asian 50+' },
 ];
-
 const MALE_AVATARS = [
-  { file: 'avatar-m1.png', label: 'Hispanic' },
-  { file: 'avatar-m2.png', label: 'Black' },
-  { file: 'avatar-m3.png', label: 'White' },
-  { file: 'avatar-m4.png', label: 'Asian' },
-  { file: 'avatar-m5.png', label: 'Hispanic 50+' },
-  { file: 'avatar-m6.png', label: 'Black 50+' },
-  { file: 'avatar-m7.png', label: 'White 50+' },
-  { file: 'avatar-m8.png', label: 'Asian 50+' },
+  { file:'avatar-m1.png', label:'Hispanic' },
+  { file:'avatar-m2.png', label:'Black' },
+  { file:'avatar-m3.png', label:'White' },
+  { file:'avatar-m4.png', label:'Asian' },
+  { file:'avatar-m5.png', label:'Hispanic 50+' },
+  { file:'avatar-m6.png', label:'Black 50+' },
+  { file:'avatar-m7.png', label:'White 50+' },
+  { file:'avatar-m8.png', label:'Asian 50+' },
 ];
 
 let selGender = 'female';
 let selAvatar  = 'avatar-f1.png';
 
+/* ═══════════════════════════════════════════
+   MODAL / PICKER
+═══════════════════════════════════════════ */
 const avatarPicker = document.getElementById('avatarPicker');
 
 function buildAvatarPicker(gender) {
@@ -313,12 +454,10 @@ function buildAvatarPicker(gender) {
     opt.className = 'avatar-option' + (av.file === selAvatar ? ' selected' : '');
     opt.dataset.file = av.file;
     const img = document.createElement('img');
-    img.src = av.file;
-    img.alt = av.label;
+    img.src = av.file; img.alt = av.label;
     const lbl = document.createElement('span');
     lbl.textContent = av.label;
-    opt.appendChild(img);
-    opt.appendChild(lbl);
+    opt.appendChild(img); opt.appendChild(lbl);
     opt.onclick = () => {
       avatarPicker.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
@@ -340,24 +479,11 @@ document.querySelectorAll('.gender-btn').forEach(btn => {
   };
 });
 
-function buildAvatarEl(avatarFile, name) {
-  const wrap = document.createElement('div');
-  wrap.style.cssText = 'position:relative;width:80px;flex-shrink:0;';
-  const img = document.createElement('img');
-  img.src = avatarFile || 'avatar-f1.png';
-  img.className = 'stage-avatar-img';
-  img.alt = name || 'avatar';
-  img.dataset.avatarImg = 'true';
-  wrap.appendChild(img);
-  return wrap;
-}
-
 function updatePreview() {
   const pw = document.getElementById('previewWrap');
   pw.innerHTML = '';
   const img = document.createElement('img');
-  img.src = selAvatar;
-  img.alt = 'Preview';
+  img.src = selAvatar; img.alt = 'Preview';
   img.style.cssText = 'width:80px;height:120px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.6));';
   pw.appendChild(img);
 }
@@ -365,33 +491,59 @@ function updatePreview() {
 buildAvatarPicker(selGender);
 updatePreview();
 
-const nameInput = document.getElementById('nameInput');
-const modal     = document.getElementById('modal');
-const stage     = document.getElementById('stage');
-const msgInput  = document.getElementById('msgInput');
-const myNameEl  = document.getElementById('myName');
+/* ═══════════════════════════════════════════
+   3D STAGE — coordinate system
+   x: 0–100 (left to right %)
+   y: 0–100 (0=back of room, 100=front)
+═══════════════════════════════════════════ */
+const stage = document.getElementById('stage');
 
-let identity = null;
-const activeChars = {};
+// Convert logical x,y (0-100) to screen position + scale
+function project(x, y) {
+  const sw = stage.offsetWidth  || window.innerWidth;
+  const sh = stage.offsetHeight || window.innerHeight * 0.7;
 
-function getOrCreateChar(key, name, avatarFile) {
-  if (activeChars[key]) return activeChars[key];
-  const existing = stage.querySelector(`[data-key="${key}"]`);
-  if (existing) stage.removeChild(existing);
+  // Perspective: y=0 is back (top of floor), y=100 is front (bottom)
+  const depthT   = 0.35 + (y / 100) * 0.65; // 0.35 at back, 1.0 at front
+  const screenY  = sh * (0.25 + (y / 100) * 0.55); // vertical position on screen
+  const screenX  = sw * 0.5 + (x - 50) / 50 * (sw * 0.45) * depthT;
+  const scale    = 0.45 + (y / 100) * 0.55; // 0.45 at back, 1.0 at front
+  const bright   = 0.5 + (y / 100) * 0.5;  // darker at back
+  const zIndex   = Math.round(y * 10);
 
-  const stageW  = stage.offsetWidth || window.innerWidth;
-  const startX  = 60 + Math.random() * (stageW - 160);
+  return { screenX, screenY, scale, bright, zIndex };
+}
 
+/* ═══════════════════════════════════════════
+   BUILD CHARACTER ELEMENT
+═══════════════════════════════════════════ */
+function buildCharEl(name, avatarFile) {
   const char = document.createElement('div');
   char.className = 'character';
-  char.dataset.key = key;
-  char.style.cssText = `position:absolute;bottom:0;left:${startX}px;display:flex;flex-direction:column;align-items:center;transition:left 0ms linear;`;
 
   const bubble = document.createElement('div');
   bubble.className = 'char-bubble';
 
-  const avatarWrap = buildAvatarEl(avatarFile || 'avatar-f1.png', name);
-  const imgEl = avatarWrap.querySelector('img');
+  // Avatar wrap with photo + CSS limbs
+  const avWrap = document.createElement('div');
+  avWrap.className = 'av-wrap';
+
+  const photo = document.createElement('img');
+  photo.className = 'av-photo';
+  photo.src = avatarFile || 'avatar-f1.png';
+  photo.alt = name;
+
+  const limbs = document.createElement('div');
+  limbs.className = 'av-limbs';
+  limbs.innerHTML = `
+    <div class="av-arm-l"></div>
+    <div class="av-arm-r"></div>
+    <div class="av-leg-l"></div>
+    <div class="av-leg-r"></div>
+  `;
+
+  avWrap.appendChild(photo);
+  avWrap.appendChild(limbs);
 
   const nameEl = document.createElement('div');
   nameEl.className = 'char-name';
@@ -401,112 +553,322 @@ function getOrCreateChar(key, name, avatarFile) {
   shadow.className = 'char-shadow';
 
   char.appendChild(bubble);
-  char.appendChild(avatarWrap);
+  char.appendChild(avWrap);
   char.appendChild(nameEl);
   char.appendChild(shadow);
-  stage.appendChild(char);
 
-  const charObj = {
-    el: char,
-    bubbleEl: bubble,
-    imgEl: imgEl,
-    timer: null,
-    wanderTimer: null,
-    talkTimer: null,
-    currentX: startX,
-    facing: 1   // 1 = right, -1 = left
-  };
-  activeChars[key] = charObj;
-  startWander(key);
-  return charObj;
+  return { char, bubble, photo, limbs, nameEl, shadow };
 }
 
+/* ═══════════════════════════════════════════
+   APPLY DEPTH TRANSFORM
+═══════════════════════════════════════════ */
+function applyDepth(charObj) {
+  const { screenX, screenY, scale, bright, zIndex } = project(charObj.x, charObj.y);
+  const BASE_H = 140; // px at full scale (front)
+  const h = BASE_H * scale;
+  const w = h * 0.6;
+
+  charObj.char.style.left    = screenX + 'px';
+  charObj.char.style.bottom  = (stage.offsetHeight - screenY) + 'px';
+  charObj.char.style.zIndex  = zIndex;
+  charObj.char.style.transform = `translateX(-50%)`;
+
+  charObj.photo.style.height = h + 'px';
+  charObj.photo.style.width  = w + 'px';
+  charObj.photo.style.filter = `drop-shadow(0 6px 16px rgba(0,0,0,0.7)) brightness(${bright})`;
+
+  // Scale shadow with depth
+  charObj.shadow.style.width  = (w * 0.8) + 'px';
+  charObj.shadow.style.height = Math.max(4, 8 * scale) + 'px';
+
+  // Scale limbs
+  charObj.limbs.style.transform = `scale(${scale})`;
+}
+
+/* ═══════════════════════════════════════════
+   ANIMATION STATES
+═══════════════════════════════════════════ */
 function setIdle(ch) {
-  ch.imgEl.style.animation = 'idle-bob 2.5s ease-in-out infinite';
+  ch.photo.style.animation = '';
+  const armL = ch.limbs.querySelector('.av-arm-l');
+  const armR = ch.limbs.querySelector('.av-arm-r');
+  const legL = ch.limbs.querySelector('.av-leg-l');
+  const legR = ch.limbs.querySelector('.av-leg-r');
+  armL.style.animation = 'arm-idle-l 2.5s ease-in-out infinite';
+  armR.style.animation = 'arm-idle-r 2.5s ease-in-out infinite';
+  legL.style.animation = 'leg-idle 2.5s ease-in-out infinite';
+  legR.style.animation = 'leg-idle 2.5s ease-in-out infinite 0.3s';
+  ch.state = 'idle';
 }
 
+function setWalk(ch, goRight) {
+  const armL = ch.limbs.querySelector('.av-arm-l');
+  const armR = ch.limbs.querySelector('.av-arm-r');
+  const legL = ch.limbs.querySelector('.av-leg-l');
+  const legR = ch.limbs.querySelector('.av-leg-r');
+  armL.style.animation = 'arm-walk-l 0.45s ease-in-out infinite';
+  armR.style.animation = 'arm-walk-r 0.45s ease-in-out infinite';
+  legL.style.animation = 'leg-walk-l 0.45s ease-in-out infinite';
+  legR.style.animation = 'leg-walk-r 0.45s ease-in-out infinite 0.225s';
+  // Flip photo to face direction
+  ch.photo.style.transform = goRight ? 'scaleX(1)' : 'scaleX(-1)';
+  ch.state = 'walk';
+}
+
+function setTalk(ch) {
+  ch.photo.style.animation = 'av-talk 0.4s ease-in-out infinite';
+  ch.state = 'talk';
+}
+
+function setWave(ch) {
+  const armR = ch.limbs.querySelector('.av-arm-r');
+  armR.style.animation = 'arm-wave 0.5s ease-in-out infinite';
+  ch.state = 'wave';
+}
+
+function setDance(ch) {
+  ch.photo.style.animation = 'av-dance 0.5s ease-in-out infinite';
+  const armL = ch.limbs.querySelector('.av-arm-l');
+  const armR = ch.limbs.querySelector('.av-arm-r');
+  armL.style.animation = 'arm-walk-l 0.5s ease-in-out infinite';
+  armR.style.animation = 'arm-walk-r 0.5s ease-in-out infinite';
+  ch.state = 'dance';
+}
+
+/* ═══════════════════════════════════════════
+   ACTIVE CHARACTERS
+═══════════════════════════════════════════ */
+const activeChars = {};
+
+function getOrCreateChar(key, name, avatarFile, startX, startY) {
+  if (activeChars[key]) return activeChars[key];
+
+  const els = buildCharEl(name, avatarFile);
+  stage.appendChild(els.char);
+
+  const ch = {
+    ...els,
+    x: startX !== undefined ? startX : 50,
+    y: startY !== undefined ? startY : 50,
+    targetX: startX !== undefined ? startX : 50,
+    targetY: startY !== undefined ? startY : 50,
+    state: 'idle',
+    timer: null,
+    talkTimer: null,
+    wanderTimer: null,
+    moveInterval: null
+  };
+  activeChars[key] = ch;
+  applyDepth(ch);
+  setIdle(ch);
+  return ch;
+}
+
+function removeChar(key) {
+  const ch = activeChars[key];
+  if (!ch) return;
+  clearTimeout(ch.timer);
+  clearTimeout(ch.talkTimer);
+  clearTimeout(ch.wanderTimer);
+  clearInterval(ch.moveInterval);
+  ch.char.remove();
+  delete activeChars[key];
+}
+
+/* ═══════════════════════════════════════════
+   SMOOTH MOVEMENT ENGINE
+   Moves a character toward targetX/targetY
+   at a fixed speed, updating depth each frame
+═══════════════════════════════════════════ */
+const MOVE_SPEED = 0.4; // units per frame (0-100 scale)
+
+function startMoving(key) {
+  const ch = activeChars[key];
+  if (!ch) return;
+  if (ch.moveInterval) clearInterval(ch.moveInterval);
+
+  ch.moveInterval = setInterval(() => {
+    if (!activeChars[key]) { clearInterval(ch.moveInterval); return; }
+
+    const dx = ch.targetX - ch.x;
+    const dy = ch.targetY - ch.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+
+    if (dist < MOVE_SPEED) {
+      // Arrived
+      ch.x = ch.targetX;
+      ch.y = ch.targetY;
+      applyDepth(ch);
+      clearInterval(ch.moveInterval);
+      ch.moveInterval = null;
+      if (ch.state === 'walk') setIdle(ch);
+      return;
+    }
+
+    const goRight = dx > 0;
+    if (ch.state !== 'walk') setWalk(ch, goRight);
+    else ch.photo.style.transform = goRight ? 'scaleX(1)' : 'scaleX(-1)';
+
+    ch.x += (dx / dist) * MOVE_SPEED;
+    ch.y += (dy / dist) * MOVE_SPEED;
+    applyDepth(ch);
+  }, 16); // ~60fps
+}
+
+/* ═══════════════════════════════════════════
+   PLAYER CONTROLS
+═══════════════════════════════════════════ */
+const keys = {};
+let myKey = null;
+let moveLoop = null;
+const PLAYER_SPEED = 0.6;
+
+document.addEventListener('keydown', e => {
+  if (!myKey || !activeChars[myKey]) return;
+  if (['w','a','s','d','W','A','S','D'].includes(e.key)) {
+    e.preventDefault();
+    keys[e.key.toLowerCase()] = true;
+    if (!moveLoop) startPlayerLoop();
+  }
+});
+
+document.addEventListener('keyup', e => {
+  keys[e.key.toLowerCase()] = false;
+  if (!keys.w && !keys.a && !keys.s && !keys.d) {
+    if (moveLoop) { clearInterval(moveLoop); moveLoop = null; }
+    const ch = activeChars[myKey];
+    if (ch && ch.state === 'walk') setIdle(ch);
+  }
+});
+
+function startPlayerLoop() {
+  moveLoop = setInterval(() => {
+    const ch = activeChars[myKey];
+    if (!ch) return;
+
+    let dx = 0, dy = 0;
+    if (keys.a) dx -= PLAYER_SPEED;
+    if (keys.d) dx += PLAYER_SPEED;
+    if (keys.w) dy -= PLAYER_SPEED; // W = toward back (y decreases)
+    if (keys.s) dy += PLAYER_SPEED; // S = toward front (y increases)
+
+    const newX = Math.max(2, Math.min(98, ch.x + dx));
+    const newY = Math.max(5, Math.min(95, ch.y + dy));
+
+    if (newX !== ch.x || newY !== ch.y) {
+      const goRight = dx >= 0;
+      if (ch.state !== 'walk') setWalk(ch, goRight);
+      else if (dx !== 0) ch.photo.style.transform = goRight ? 'scaleX(1)' : 'scaleX(-1)';
+      ch.x = newX; ch.y = newY;
+      applyDepth(ch);
+      // Broadcast position
+      socket.emit('position', { x: ch.x, y: ch.y });
+    }
+  }, 16);
+}
+
+// Mouse click to move
+document.getElementById('scene').addEventListener('click', e => {
+  if (!myKey || !activeChars[myKey]) return;
+  if (e.target.closest('#hud') || e.target.closest('#emoteBar')) return;
+
+  const rect = stage.getBoundingClientRect();
+  const clickX = e.clientX - rect.left;
+  const clickY = e.clientY - rect.top;
+  const sw = stage.offsetWidth;
+  const sh = stage.offsetHeight;
+
+  // Convert screen click to logical x,y
+  // Approximate inverse of project()
+  const rawY = ((clickY / sh) - 0.25) / 0.55 * 100;
+  const clampedY = Math.max(5, Math.min(95, rawY));
+  const depthT = 0.35 + (clampedY / 100) * 0.65;
+  const rawX = 50 + ((clickX - sw * 0.5) / (sw * 0.45 * depthT)) * 50;
+  const clampedX = Math.max(2, Math.min(98, rawX));
+
+  const ch = activeChars[myKey];
+  ch.targetX = clampedX;
+  ch.targetY = clampedY;
+  startMoving(myKey);
+  socket.emit('position', { x: ch.x, y: ch.y });
+});
+
+/* ═══════════════════════════════════════════
+   EMOTES
+═══════════════════════════════════════════ */
+document.querySelectorAll('.emote-btn').forEach(btn => {
+  btn.onclick = () => {
+    if (!myKey || !activeChars[myKey]) return;
+    const ch = activeChars[myKey];
+    const emote = btn.dataset.emote;
+    if (emote === 'wave')  { setWave(ch);  setTimeout(() => setIdle(ch), 3000); }
+    if (emote === 'dance') { setDance(ch); setTimeout(() => setIdle(ch), 5000); }
+    if (emote === 'sit')   {
+      ch.y = Math.min(95, ch.y + 5);
+      applyDepth(ch);
+      setIdle(ch);
+    }
+  };
+});
+
+/* ═══════════════════════════════════════════
+   AI WANDER (other users)
+═══════════════════════════════════════════ */
 function startWander(key) {
   const ch = activeChars[key];
   if (!ch) return;
 
   function wander() {
     if (!activeChars[key]) return;
-    const stageW   = stage.offsetWidth || window.innerWidth;
-    const targetX  = 60 + Math.random() * (stageW - 160);
-    const currentX = ch.currentX;
-    const distance = Math.abs(targetX - currentX);
-    const duration = Math.max(1000, distance * 6);
-    const goRight  = targetX > currentX;
-
-    ch.facing = goRight ? 1 : -1;
-    ch.imgEl.style.animation = goRight ? 'walk-right 0.45s ease-in-out infinite' : 'walk-left 0.45s ease-in-out infinite';
-
-    ch.el.style.transition = `left ${duration}ms linear`;
-    ch.el.style.left = targetX + 'px';
-    ch.currentX = targetX;
-
-    // Arrive → idle
-    ch.wanderTimer = setTimeout(() => {
-      if (!activeChars[key]) return;
-      setIdle(ch);
-      const pause = 2000 + Math.random() * 4000;
-      ch.wanderTimer = setTimeout(wander, pause);
-    }, duration);
+    ch.targetX = 10 + Math.random() * 80;
+    ch.targetY = 10 + Math.random() * 80;
+    startMoving(key);
+    const pause = 3000 + Math.random() * 5000;
+    ch.wanderTimer = setTimeout(wander, pause + 2000);
   }
-
-  ch.wanderTimer = setTimeout(wander, Math.random() * 4000);
+  ch.wanderTimer = setTimeout(wander, Math.random() * 3000);
 }
 
-function showMessage(key, name, text, avatarFile) {
-  const ch = getOrCreateChar(key, name, avatarFile);
-  ch.bubbleEl.textContent = text.slice(0, 120);
-  ch.bubbleEl.classList.add('visible');
-
-  // Talk animation — bounce while speaking
-  ch.imgEl.style.animation = 'talk-pulse 0.4s ease-in-out infinite';
+/* ═══════════════════════════════════════════
+   MESSAGES
+═══════════════════════════════════════════ */
+function showMessage(key, name, text, avatarFile, x, y) {
+  const ch = getOrCreateChar(key, name, avatarFile, x, y);
+  ch.bubble.textContent = text.slice(0, 120);
+  ch.bubble.classList.add('visible');
+  setTalk(ch);
   if (ch.talkTimer) clearTimeout(ch.talkTimer);
   ch.talkTimer = setTimeout(() => {
     if (activeChars[key]) setIdle(ch);
   }, 7000);
-
   if (ch.timer) clearTimeout(ch.timer);
-  ch.timer = setTimeout(() => ch.bubbleEl.classList.remove('visible'), 7000);
+  ch.timer = setTimeout(() => ch.bubble.classList.remove('visible'), 7000);
 }
 
 function handleMessage(msg) {
-  const slBubble = document.getElementById('bubble-sl');
   if (msg.source === 'secondlife') {
-    showMessage('sl_' + msg.speaker, msg.speaker, msg.text, 'avatar-m1.png');
-    slBubble.textContent = msg.speaker + ': ' + msg.text.slice(0, 80);
-    slBubble.classList.add('visible');
-    setTimeout(() => slBubble.classList.remove('visible'), 5000);
+    showMessage('sl_' + msg.speaker, msg.speaker, msg.text, 'avatar-m1.png', 8, 60);
   } else {
-    showMessage('web_' + msg.speaker, msg.speaker, msg.text, msg.avatar);
+    showMessage('web_' + msg.speaker, msg.speaker, msg.text, msg.avatar, msg.x || 50, msg.y || 50);
   }
 }
 
-function loadIdentity() {
-  const saved = localStorage.getItem('olyesti_identity');
-  if (saved) {
-    identity = JSON.parse(saved);
-    selGender = identity.gender || 'female';
-    selAvatar  = identity.avatar || 'avatar-f1.png';
-    document.querySelectorAll('.gender-btn').forEach(b => {
-      b.classList.toggle('selected', b.dataset.gender === selGender);
-    });
-    buildAvatarPicker(selGender);
-    avatarPicker.querySelectorAll('.avatar-option').forEach(o => {
-      o.classList.toggle('selected', o.dataset.file === selAvatar);
-    });
-    updatePreview();
-    applyIdentity();
-    modal.style.display = 'none';
-  }
-}
+/* ═══════════════════════════════════════════
+   IDENTITY
+═══════════════════════════════════════════ */
+const nameInput = document.getElementById('nameInput');
+const modal     = document.getElementById('modal');
+const msgInput  = document.getElementById('msgInput');
+const myNameEl  = document.getElementById('myName');
+let identity    = null;
 
 function applyIdentity() {
   myNameEl.textContent = identity.name;
-  getOrCreateChar('web_' + identity.name, identity.name, identity.avatar);
+  myKey = 'web_' + identity.name;
+  const ch = getOrCreateChar(myKey, identity.name, identity.avatar, 50, 80);
+  // Player starts at front-center
+  socket.emit('user-join', { name: identity.name, avatar: identity.avatar, gender: identity.gender, x: 50, y: 80 });
 }
 
 document.getElementById('saveBtn').onclick = () => {
@@ -519,13 +881,8 @@ document.getElementById('saveBtn').onclick = () => {
 };
 
 document.getElementById('guestBtn').onclick = () => {
-  const defaultAvatar = selGender === 'female' ? 'avatar-f1.png' : 'avatar-m1.png';
-  identity = {
-    name: 'Guest' + Math.floor(Math.random() * 9000 + 1000),
-    gender: selGender,
-    avatar: selAvatar || defaultAvatar,
-    guest: true
-  };
+  const def = selGender === 'female' ? 'avatar-f1.png' : 'avatar-m1.png';
+  identity = { name: 'Guest' + Math.floor(Math.random()*9000+1000), gender: selGender, avatar: selAvatar || def, guest: true };
   applyIdentity();
   modal.style.display = 'none';
 };
@@ -535,43 +892,86 @@ document.getElementById('changeId').onclick = () => {
     nameInput.value = identity.guest ? '' : identity.name;
     selGender = identity.gender || 'female';
     selAvatar  = identity.avatar || 'avatar-f1.png';
-    document.querySelectorAll('.gender-btn').forEach(b => {
-      b.classList.toggle('selected', b.dataset.gender === selGender);
-    });
+    document.querySelectorAll('.gender-btn').forEach(b => b.classList.toggle('selected', b.dataset.gender === selGender));
     buildAvatarPicker(selGender);
-    avatarPicker.querySelectorAll('.avatar-option').forEach(o => {
-      o.classList.toggle('selected', o.dataset.file === selAvatar);
-    });
+    avatarPicker.querySelectorAll('.avatar-option').forEach(o => o.classList.toggle('selected', o.dataset.file === selAvatar));
     updatePreview();
   }
   modal.style.display = 'flex';
 };
 
-const socket = io();
-socket.on('history',       msgs  => msgs.slice(-5).forEach(m => handleMessage(m)));
-socket.on('message',       msg   => handleMessage(msg));
-socket.on('presence-init', users => users.forEach(u => getOrCreateChar('web_' + u.name, u.name, u.avatar)));
-socket.on('user-joined',   u     => getOrCreateChar('web_' + u.name, u.name, u.avatar));
-socket.on('user-left',     u     => {
-  const key = 'web_' + u.name;
-  if (activeChars[key]) {
-    clearTimeout(activeChars[key].wanderTimer);
-    clearTimeout(activeChars[key].timer);
-    clearTimeout(activeChars[key].talkTimer);
-    activeChars[key].el.remove();
-    delete activeChars[key];
+function loadIdentity() {
+  const saved = localStorage.getItem('olyesti_identity');
+  if (saved) {
+    identity = JSON.parse(saved);
+    selGender = identity.gender || 'female';
+    selAvatar  = identity.avatar || 'avatar-f1.png';
+    document.querySelectorAll('.gender-btn').forEach(b => b.classList.toggle('selected', b.dataset.gender === selGender));
+    buildAvatarPicker(selGender);
+    avatarPicker.querySelectorAll('.avatar-option').forEach(o => o.classList.toggle('selected', o.dataset.file === selAvatar));
+    updatePreview();
+    applyIdentity();
+    modal.style.display = 'none';
   }
+}
+
+/* ═══════════════════════════════════════════
+   SOCKET
+═══════════════════════════════════════════ */
+const socket = io();
+
+socket.on('history', msgs => msgs.slice(-5).forEach(m => handleMessage(m)));
+socket.on('message', msg  => handleMessage(msg));
+
+socket.on('presence-init', users => {
+  users.forEach(u => {
+    const key = 'web_' + u.name;
+    if (key === myKey) return;
+    const ch = getOrCreateChar(key, u.name, u.avatar, u.x || 50, u.y || 50);
+    startWander(key);
+  });
 });
 
+socket.on('user-joined', u => {
+  const key = 'web_' + u.name;
+  if (key === myKey) return;
+  const ch = getOrCreateChar(key, u.name, u.avatar, u.x || 50, u.y || 50);
+  startWander(key);
+});
+
+socket.on('user-moved', u => {
+  const key = 'web_' + u.name;
+  if (key === myKey) return;
+  const ch = activeChars[key];
+  if (!ch) return;
+  // Clear AI wander when server sends real position
+  clearTimeout(ch.wanderTimer);
+  clearInterval(ch.moveInterval);
+  ch.targetX = u.x;
+  ch.targetY = u.y;
+  startMoving(key);
+});
+
+socket.on('user-left', u => removeChar('web_' + u.name));
+
+/* ═══════════════════════════════════════════
+   SEND MESSAGE
+═══════════════════════════════════════════ */
 function send() {
   const text = msgInput.value.trim();
   if (!text || !identity) return;
   socket.emit('web-message', { name: identity.name, text, gender: identity.gender, avatar: identity.avatar });
   msgInput.value = '';
 }
-
 document.getElementById('sendBtn').onclick = send;
-msgInput.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+msgInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
+
+/* ═══════════════════════════════════════════
+   RESIZE — reproject all characters
+═══════════════════════════════════════════ */
+window.addEventListener('resize', () => {
+  Object.values(activeChars).forEach(ch => applyDepth(ch));
+});
 
 loadIdentity();
 </script>
