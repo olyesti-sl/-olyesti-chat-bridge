@@ -1,106 +1,85 @@
-import crypto from 'node:crypto';
-import express from 'express';
-import { createServer } from 'node:http';
-import { Server } from 'socket.io';
-
-const relaySecret = process.env.RELAY_SECRET;
-if (!relaySecret) throw new Error('RELAY_SECRET must be set before starting the bridge.');
+ const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 
 const app = express();
-const server = createServer(app);
-const io = new Server(server, { cors: { origin: false } });
-const recentMessages = [];
-const messagesForSecondLife = [];
-const connectedUsers = new Map();
+const server = http.createServer(app);
+const io = new Server(server);
 
 app.use(express.static('public'));
-app.use('/api/secondlife', express.text({ type: 'application/json', limit: '8kb' }));
 
-function relayIsAuthorized(req) {
-  const supplied = req.get('X-olyesti-secret') || '';
-  const a = Buffer.from(supplied);
-  const b = Buffer.from(relaySecret);
-  return a.length === b.length && crypto.timingSafeEqual(a, b);
-}
-
-function parseJson(req, res) {
-  try { return req.body ? JSON.parse(req.body) : {}; }
-  catch { res.status(400).json({ error: 'Body must be valid JSON.' }); return null; }
-}
-
-function text(value, maximum) {
-  return typeof value === 'string' ? value.trim().slice(0, maximum) : '';
-}
-
-function publish(message) {
-  recentMessages.push(message);
-  if (recentMessages.length > 200) recentMessages.shift();
-  io.emit('message', message);
-}
-
-app.post('/api/secondlife/incoming', (req, res) => {
-  if (!relayIsAuthorized(req)) return res.sendStatus(401);
-  const body = parseJson(req, res);
-  if (!body) return;
-  const speaker = text(body.speaker, 64);
-  const messageText = text(body.text, 500);
-  const relay = text(body.relay, 64) || 'Olyesti';
-  if (!speaker || !messageText) return res.status(422).json({ error: 'speaker and text are required.' });
-  publish({ id: crypto.randomUUID(), source: 'secondlife', speaker, text: messageText, relay, at: Date.now() });
-  res.json({ ok: true });
-});
-
-app.post('/api/secondlife/outgoing', (req, res) => {
-  if (!relayIsAuthorized(req)) return res.sendStatus(401);
-  const body = parseJson(req, res);
-  if (!body) return;
-  res.json({ messages: messagesForSecondLife.splice(0, 10) });
-});
+const history = [];
+const users = {}; // key: socket.id → { name, avatar, gender, x, y }
 
 io.on('connection', socket => {
-  socket.emit('history', recentMessages);
+  console.log('connected:', socket.id);
 
-  // Send current online users to the newly connected client
-  const currentUsers = Array.from(connectedUsers.values());
-  if (currentUsers.length > 0) {
-    socket.emit('presence-init', currentUsers);
-  }
+  // Send chat history
+  socket.emit('history', history.slice(-20));
 
-  socket.on('web-message', payload => {
-    const speaker = text(payload?.name, 32);
-    const messageText = text(payload?.text, 300);
-    const gender = payload?.gender === 'female' ? 'female' : 'male';
-    const tint = Number.isInteger(payload?.tint) ? payload.tint : 0;
-    if (!speaker || !messageText) return;
+  // Send current users' positions
+  socket.emit('presence-init', Object.values(users));
 
-    // Register user presence on first message
-    if (!connectedUsers.has(socket.id)) {
-      connectedUsers.set(socket.id, { name: speaker, gender, tint });
-      socket.broadcast.emit('user-joined', { name: speaker, gender, tint });
-    }
-
-    const message = {
-      id: crypto.randomUUID(),
-      source: 'web',
-      speaker,
-      text: messageText,
-      gender,
-      tint,
-      relay: 'Olyesti.com',
-      at: Date.now()
+  // User joins
+  socket.on('user-join', data => {
+    users[socket.id] = {
+      name: data.name,
+      avatar: data.avatar,
+      gender: data.gender,
+      x: data.x || 50,
+      y: data.y || 50
     };
-    messagesForSecondLife.push(message);
-    publish(message);
+    io.emit('user-joined', users[socket.id]);
   });
 
-  // Remove user and notify all clients on disconnect
-  socket.on('disconnect', () => {
-    const user = connectedUsers.get(socket.id);
-    if (user) {
-      connectedUsers.delete(socket.id);
-      io.emit('user-left', { name: user.name });
+  // Position update — broadcast to everyone else
+  socket.on('position', data => {
+    if (users[socket.id]) {
+      users[socket.id].x = data.x;
+      users[socket.id].y = data.y;
+      socket.broadcast.emit('user-moved', {
+        name: users[socket.id].name,
+        avatar: users[socket.id].avatar,
+        gender: users[socket.id].gender,
+        x: data.x,
+        y: data.y
+      });
     }
+  });
+
+  // Chat message
+  socket.on('web-message', data => {
+    const msg = {
+      source: 'web',
+      speaker: data.name,
+      text: data.text,
+      avatar: data.avatar,
+      gender: data.gender,
+      x: users[socket.id]?.x || 50,
+      y: users[socket.id]?.y || 50
+    };
+    history.push(msg);
+    if (history.length > 100) history.shift();
+    io.emit('message', msg);
+  });
+
+  // Second Life relay
+  socket.on('sl-message', data => {
+    const msg = { source: 'secondlife', speaker: data.speaker, text: data.text };
+    history.push(msg);
+    if (history.length > 100) history.shift();
+    io.emit('message', msg);
+  });
+
+  // Disconnect
+  socket.on('disconnect', () => {
+    if (users[socket.id]) {
+      io.emit('user-left', { name: users[socket.id].name });
+      delete users[socket.id];
+    }
+    console.log('disconnected:', socket.id);
   });
 });
 
-server.listen(process.env.PORT || 3000, () => console.log('Olyesti chat bridge is running.'));
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`Olyesti chat running on port ${PORT}`));
