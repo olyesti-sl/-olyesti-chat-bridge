@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -43,12 +43,6 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-7px); }
 }
 
 .char-bubble {
@@ -95,6 +89,41 @@ body {
   margin-top: 3px;
 }
 
+/* Stage avatar — no mix-blend-mode since PNGs are now transparent */
+.stage-avatar-img {
+  width: 80px; height: 120px;
+  object-fit: contain; object-position: center bottom;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));
+  display: block;
+  transform-origin: bottom center;
+  animation: idle-bob 2.5s ease-in-out infinite;
+}
+
+@keyframes idle-bob {
+  0%, 100% { transform: scaleX(1) rotate(0deg) translateY(0); }
+  25%       { transform: scaleX(1) rotate(0.8deg) translateY(-2px); }
+  75%       { transform: scaleX(1) rotate(-0.8deg) translateY(-1px); }
+}
+
+@keyframes walk-right {
+  0%, 100% { transform: scaleX(1) rotate(2deg) translateY(0); }
+  25%       { transform: scaleX(1) rotate(-1deg) translateY(-4px); }
+  50%       { transform: scaleX(1) rotate(2deg) translateY(0); }
+  75%       { transform: scaleX(1) rotate(-1deg) translateY(-4px); }
+}
+
+@keyframes walk-left {
+  0%, 100% { transform: scaleX(-1) rotate(-2deg) translateY(0); }
+  25%       { transform: scaleX(-1) rotate(1deg) translateY(-4px); }
+  50%       { transform: scaleX(-1) rotate(-2deg) translateY(0); }
+  75%       { transform: scaleX(-1) rotate(1deg) translateY(-4px); }
+}
+
+@keyframes talk-pulse {
+  0%, 100% { transform: scaleX(var(--face,1)) scale(1) translateY(0); }
+  50%       { transform: scaleX(var(--face,1)) scale(1.05) translateY(-4px); }
+}
+
 footer {
   background: rgba(6,4,2,0.96);
   border-top: 1px solid rgba(255,200,80,0.12);
@@ -125,6 +154,7 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
 }
 #sendBtn:hover { background: rgba(180,120,20,0.4); color: #ffcc60; }
 
+/* Modal */
 #modal {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.92);
@@ -163,19 +193,17 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
   max-height: 260px;
   overflow-y: auto;
 }
-
 .avatar-option {
   display: flex; flex-direction: column; align-items: center; gap: 4px;
   cursor: pointer; padding: 6px 4px; border-radius: 8px;
   border: 2px solid transparent; transition: all 0.15s;
-  background: #1a1a1a; /* lighter so images are visible */
+  background: #1a1a1a;
 }
 .avatar-option:hover { border-color: rgba(255,200,80,0.2); }
 .avatar-option.selected { border-color: #e8c870; background: #1a1408; }
 .avatar-option img {
   width: 48px; height: 72px;
   object-fit: contain; object-position: center bottom;
-  /* NO mix-blend-mode here — picker needs normal rendering */
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
 }
 .avatar-option span {
@@ -194,19 +222,9 @@ input, button { font-family: inherit; font-size: 0.9rem; border: none; outline: 
   cursor: pointer; font-family: inherit; font-size: 0.85rem;
 }
 #guestBtn { background: #100e08; color: #7a6a4a; border: 1px solid rgba(255,200,80,0.1); }
-#saveBtn { background: rgba(180,120,20,0.3); color: #e8c870; border: 1px solid rgba(255,200,80,0.25); }
+#saveBtn  { background: rgba(180,120,20,0.3); color: #e8c870; border: 1px solid rgba(255,200,80,0.25); }
 #guestBtn:hover { background: #181408; }
-#saveBtn:hover { background: rgba(180,120,20,0.5); }
-
-/* Stage avatar images use multiply to hide white backgrounds */
-.stage-avatar-img {
-  width: 80px; height: 120px;
-  object-fit: contain; object-position: center bottom;
-  mix-blend-mode: multiply;
-  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));
-  display: block;
-  transition: transform 0.1s;
-}
+#saveBtn:hover  { background: rgba(180,120,20,0.5); }
 </style>
 </head>
 <body>
@@ -283,7 +301,7 @@ const MALE_AVATARS = [
 ];
 
 let selGender = 'female';
-let selAvatar = 'avatar-f1.png';
+let selAvatar  = 'avatar-f1.png';
 
 const avatarPicker = document.getElementById('avatarPicker');
 
@@ -316,7 +334,7 @@ document.querySelectorAll('.gender-btn').forEach(btn => {
     document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
     selGender = btn.dataset.gender;
-    selAvatar = selGender === 'female' ? 'avatar-f1.png' : 'avatar-m1.png';
+    selAvatar  = selGender === 'female' ? 'avatar-f1.png' : 'avatar-m1.png';
     buildAvatarPicker(selGender);
     updatePreview();
   };
@@ -327,7 +345,7 @@ function buildAvatarEl(avatarFile, name) {
   wrap.style.cssText = 'position:relative;width:80px;flex-shrink:0;';
   const img = document.createElement('img');
   img.src = avatarFile || 'avatar-f1.png';
-  img.className = 'stage-avatar-img'; /* uses mix-blend-mode:multiply for lounge */
+  img.className = 'stage-avatar-img';
   img.alt = name || 'avatar';
   img.dataset.avatarImg = 'true';
   wrap.appendChild(img);
@@ -340,7 +358,6 @@ function updatePreview() {
   const img = document.createElement('img');
   img.src = selAvatar;
   img.alt = 'Preview';
-  /* No mix-blend-mode in preview — show true colors */
   img.style.cssText = 'width:80px;height:120px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.6));';
   pw.appendChild(img);
 }
@@ -349,10 +366,10 @@ buildAvatarPicker(selGender);
 updatePreview();
 
 const nameInput = document.getElementById('nameInput');
-const modal = document.getElementById('modal');
-const stage = document.getElementById('stage');
-const msgInput = document.getElementById('msgInput');
-const myNameEl = document.getElementById('myName');
+const modal     = document.getElementById('modal');
+const stage     = document.getElementById('stage');
+const msgInput  = document.getElementById('msgInput');
+const myNameEl  = document.getElementById('myName');
 
 let identity = null;
 const activeChars = {};
@@ -362,13 +379,13 @@ function getOrCreateChar(key, name, avatarFile) {
   const existing = stage.querySelector(`[data-key="${key}"]`);
   if (existing) stage.removeChild(existing);
 
-  const stageW = stage.offsetWidth || window.innerWidth;
-  const startX = 60 + Math.random() * (stageW - 160);
+  const stageW  = stage.offsetWidth || window.innerWidth;
+  const startX  = 60 + Math.random() * (stageW - 160);
 
   const char = document.createElement('div');
   char.className = 'character';
   char.dataset.key = key;
-  char.style.cssText = `position:absolute;bottom:0;left:${startX}px;display:flex;flex-direction:column;align-items:center;animation:float 3s ease-in-out infinite;transition:left 0ms linear;`;
+  char.style.cssText = `position:absolute;bottom:0;left:${startX}px;display:flex;flex-direction:column;align-items:center;transition:left 0ms linear;`;
 
   const bubble = document.createElement('div');
   bubble.className = 'char-bubble';
@@ -395,11 +412,17 @@ function getOrCreateChar(key, name, avatarFile) {
     imgEl: imgEl,
     timer: null,
     wanderTimer: null,
-    currentX: startX
+    talkTimer: null,
+    currentX: startX,
+    facing: 1   // 1 = right, -1 = left
   };
   activeChars[key] = charObj;
   startWander(key);
   return charObj;
+}
+
+function setIdle(ch) {
+  ch.imgEl.style.animation = 'idle-bob 2.5s ease-in-out infinite';
 }
 
 function startWander(key) {
@@ -408,19 +431,27 @@ function startWander(key) {
 
   function wander() {
     if (!activeChars[key]) return;
-    const stageW = stage.offsetWidth || window.innerWidth;
-    const targetX = 60 + Math.random() * (stageW - 160);
+    const stageW   = stage.offsetWidth || window.innerWidth;
+    const targetX  = 60 + Math.random() * (stageW - 160);
     const currentX = ch.currentX;
     const distance = Math.abs(targetX - currentX);
     const duration = Math.max(1000, distance * 6);
+    const goRight  = targetX > currentX;
 
-    ch.imgEl.style.transform = targetX > currentX ? 'scaleX(1)' : 'scaleX(-1)';
+    ch.facing = goRight ? 1 : -1;
+    ch.imgEl.style.animation = goRight ? 'walk-right 0.45s ease-in-out infinite' : 'walk-left 0.45s ease-in-out infinite';
+
     ch.el.style.transition = `left ${duration}ms linear`;
     ch.el.style.left = targetX + 'px';
     ch.currentX = targetX;
 
-    const pause = 2000 + Math.random() * 4000;
-    ch.wanderTimer = setTimeout(wander, duration + pause);
+    // Arrive → idle
+    ch.wanderTimer = setTimeout(() => {
+      if (!activeChars[key]) return;
+      setIdle(ch);
+      const pause = 2000 + Math.random() * 4000;
+      ch.wanderTimer = setTimeout(wander, pause);
+    }, duration);
   }
 
   ch.wanderTimer = setTimeout(wander, Math.random() * 4000);
@@ -430,6 +461,14 @@ function showMessage(key, name, text, avatarFile) {
   const ch = getOrCreateChar(key, name, avatarFile);
   ch.bubbleEl.textContent = text.slice(0, 120);
   ch.bubbleEl.classList.add('visible');
+
+  // Talk animation — bounce while speaking
+  ch.imgEl.style.animation = 'talk-pulse 0.4s ease-in-out infinite';
+  if (ch.talkTimer) clearTimeout(ch.talkTimer);
+  ch.talkTimer = setTimeout(() => {
+    if (activeChars[key]) setIdle(ch);
+  }, 7000);
+
   if (ch.timer) clearTimeout(ch.timer);
   ch.timer = setTimeout(() => ch.bubbleEl.classList.remove('visible'), 7000);
 }
@@ -451,7 +490,7 @@ function loadIdentity() {
   if (saved) {
     identity = JSON.parse(saved);
     selGender = identity.gender || 'female';
-    selAvatar = identity.avatar || 'avatar-f1.png';
+    selAvatar  = identity.avatar || 'avatar-f1.png';
     document.querySelectorAll('.gender-btn').forEach(b => {
       b.classList.toggle('selected', b.dataset.gender === selGender);
     });
@@ -481,7 +520,12 @@ document.getElementById('saveBtn').onclick = () => {
 
 document.getElementById('guestBtn').onclick = () => {
   const defaultAvatar = selGender === 'female' ? 'avatar-f1.png' : 'avatar-m1.png';
-  identity = { name: 'Guest' + Math.floor(Math.random()*9000+1000), gender: selGender, avatar: selAvatar || defaultAvatar, guest: true };
+  identity = {
+    name: 'Guest' + Math.floor(Math.random() * 9000 + 1000),
+    gender: selGender,
+    avatar: selAvatar || defaultAvatar,
+    guest: true
+  };
   applyIdentity();
   modal.style.display = 'none';
 };
@@ -490,7 +534,7 @@ document.getElementById('changeId').onclick = () => {
   if (identity) {
     nameInput.value = identity.guest ? '' : identity.name;
     selGender = identity.gender || 'female';
-    selAvatar = identity.avatar || 'avatar-f1.png';
+    selAvatar  = identity.avatar || 'avatar-f1.png';
     document.querySelectorAll('.gender-btn').forEach(b => {
       b.classList.toggle('selected', b.dataset.gender === selGender);
     });
@@ -504,22 +548,16 @@ document.getElementById('changeId').onclick = () => {
 };
 
 const socket = io();
-socket.on('history', msgs => msgs.slice(-5).forEach(m => handleMessage(m)));
-socket.on('message', msg => handleMessage(msg));
-
-socket.on('presence-init', users => {
-  users.forEach(u => getOrCreateChar('web_' + u.name, u.name, u.avatar));
-});
-
-socket.on('user-joined', u => {
-  getOrCreateChar('web_' + u.name, u.name, u.avatar);
-});
-
-socket.on('user-left', u => {
+socket.on('history',       msgs  => msgs.slice(-5).forEach(m => handleMessage(m)));
+socket.on('message',       msg   => handleMessage(msg));
+socket.on('presence-init', users => users.forEach(u => getOrCreateChar('web_' + u.name, u.name, u.avatar)));
+socket.on('user-joined',   u     => getOrCreateChar('web_' + u.name, u.name, u.avatar));
+socket.on('user-left',     u     => {
   const key = 'web_' + u.name;
   if (activeChars[key]) {
     clearTimeout(activeChars[key].wanderTimer);
     clearTimeout(activeChars[key].timer);
+    clearTimeout(activeChars[key].talkTimer);
     activeChars[key].el.remove();
     delete activeChars[key];
   }
