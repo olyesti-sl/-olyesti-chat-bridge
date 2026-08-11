@@ -9,14 +9,18 @@ const io = new Server(server);
 app.use(express.static('public'));
 
 const history = [];
-const users = {};
+const users = {}; // key: socket.id → { name, avatar, gender, x, y }
 
 io.on('connection', socket => {
   console.log('connected:', socket.id);
 
+  // Send chat history to new user
   socket.emit('history', history.slice(-20));
+
+  // Send current users' positions to new user
   socket.emit('presence-init', Object.values(users));
 
+  // User joins
   socket.on('user-join', data => {
     users[socket.id] = {
       name: data.name,
@@ -28,6 +32,7 @@ io.on('connection', socket => {
     io.emit('user-joined', users[socket.id]);
   });
 
+  // Position update — broadcast to everyone else
   socket.on('position', data => {
     if (users[socket.id]) {
       users[socket.id].x = data.x;
@@ -42,6 +47,7 @@ io.on('connection', socket => {
     }
   });
 
+  // Chat message from web user
   socket.on('web-message', data => {
     const msg = {
       source: 'web',
@@ -57,6 +63,7 @@ io.on('connection', socket => {
     io.emit('message', msg);
   });
 
+  // Message relayed from Second Life
   socket.on('sl-message', data => {
     const msg = { source: 'secondlife', speaker: data.speaker, text: data.text };
     history.push(msg);
@@ -64,6 +71,7 @@ io.on('connection', socket => {
     io.emit('message', msg);
   });
 
+  // Disconnect
   socket.on('disconnect', () => {
     if (users[socket.id]) {
       io.emit('user-left', { name: users[socket.id].name });
