@@ -91,7 +91,6 @@ body {
   transform-origin: bottom center;
 }
 
-/* CSS limbs — overlaid on photo */
 .av-limbs {
   position: absolute;
   bottom: 0; left: 0; right: 0;
@@ -405,7 +404,7 @@ let selGender = 'female';
 let selAvatar  = 'avatar-f1.png';
 
 /* ══════════════════════════════════════════
-   PICKER
+   AVATAR PICKER
 ══════════════════════════════════════════ */
 const avatarPicker = document.getElementById('avatarPicker');
 
@@ -456,12 +455,8 @@ updatePreview();
 
 /* ══════════════════════════════════════════
    3D PERSPECTIVE
-   x: 0–100 (left→right)
-   y: 0–100 (0=back wall, 100=front/camera)
-
-   Tuned to your lounge.jpg:
-   - Back of room floor starts at ~45% screen height
-   - Front of room floor ends at ~88% screen height
+   x: 0–100 (left → right)
+   y: 0–100 (0 = back wall, 100 = front/camera)
 ══════════════════════════════════════════ */
 const stage = document.getElementById('stage');
 
@@ -469,11 +464,12 @@ function project(x, y) {
   const sw = stage.offsetWidth  || window.innerWidth;
   const sh = stage.offsetHeight || window.innerHeight * 0.7;
 
-  // Vertical: back=45% of screen, front=88%
+  // Back of room floor starts at ~45% screen height
+  // Front of room floor ends at ~88% screen height
   const screenYpct = 0.45 + (y / 100) * 0.43;
   const screenY    = sh * screenYpct;
 
-  // Horizontal: perspective narrows toward back
+  // Perspective narrows toward back
   const depthT  = 0.18 + (y / 100) * 0.82;
   const screenX = sw * 0.5 + (x - 50) / 50 * (sw * 0.46) * depthT;
 
@@ -486,7 +482,7 @@ function project(x, y) {
 }
 
 /* ══════════════════════════════════════════
-   BUILD CHARACTER
+   BUILD CHARACTER ELEMENT
 ══════════════════════════════════════════ */
 function buildCharEl(name, avatarFile) {
   const char = document.createElement('div');
@@ -535,23 +531,18 @@ function buildCharEl(name, avatarFile) {
 ══════════════════════════════════════════ */
 function applyDepth(ch) {
   const { screenX, screenY, scale, bright, zIndex } = project(ch.x, ch.y);
-  const BASE_H = 150; // px at full scale (y=100, front)
+  const BASE_H = 150;
   const h = BASE_H * scale;
   const w = h * 0.58;
 
-  // Position: feet land exactly at screenY
   ch.char.style.position  = 'absolute';
   ch.char.style.left      = screenX + 'px';
-  ch.char.style.top       = screenY + 'px';   // top of char div = foot position
+  ch.char.style.top       = screenY + 'px';
   ch.char.style.bottom    = 'auto';
-  ch.char.style.transform = 'translateX(-50%)'; // center horizontally
+  ch.char.style.transform = 'translateX(-50%)';
   ch.char.style.zIndex    = zIndex;
 
-  // Flip column so feet are at top of div (bubble above, shadow below)
-  // Actually we want: shadow → nameEl → photo → bubble (bottom to top visually)
-  // char div grows DOWNWARD from top=screenY, so we need to offset upward by full height
-  // Use marginTop to pull the whole char up so feet sit at screenY
-  const totalH = h + 30 + 20; // photo + name + shadow approx
+  const totalH = h + 30 + 20;
   ch.char.style.marginTop = `-${totalH}px`;
 
   ch.photo.style.width  = w + 'px';
@@ -700,7 +691,6 @@ const PLAYER_SPEED = 0.55;
 
 document.addEventListener('keydown', e => {
   if (!myKey) return;
-  // Don't capture keys when typing in chat
   if (document.activeElement === document.getElementById('msgInput')) return;
   if (['w','a','s','d'].includes(e.key.toLowerCase())) {
     e.preventDefault();
@@ -758,7 +748,7 @@ document.getElementById('scene').addEventListener('click', e => {
   const sw       = stage.offsetWidth;
   const sh       = stage.offsetHeight;
 
-  // Inverse of project() — screen → logical coords
+  // Inverse of project()
   const rawY     = ((clickY / sh) - 0.45) / 0.43 * 100;
   const clampedY = Math.max(5, Math.min(95, rawY));
   const depthT   = 0.18 + (clampedY / 100) * 0.82;
