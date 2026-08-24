@@ -125,20 +125,20 @@ body {
 .emote-btn:hover { background: rgba(255,200,80,0.15); }
 
 .furniture-spot {
-  position: absolute; transform: translate(-50%,-50%); z-index: 5;
+  position: absolute; transform: translate(-50%,-50%); z-index: 15;
   cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px;
   pointer-events: all;
 }
 .furniture-ring {
-  border-radius: 50%; border: 2px solid rgba(100,200,255,0.5);
-  background: rgba(100,200,255,0.08); transition: all 0.2s;
+  border-radius: 50%; border: 2px solid rgba(100,200,255,0.6);
+  background: rgba(100,200,255,0.1); transition: all 0.2s;
   animation: ring-pulse 2s ease-in-out infinite;
 }
-.furniture-spot:hover .furniture-ring { border-color: rgba(100,200,255,0.9); background: rgba(100,200,255,0.2); }
-.furniture-spot.occupied .furniture-ring { border-color: rgba(255,100,100,0.5); background: rgba(255,100,100,0.08); animation: none; }
-.furniture-label { font-size: 0.5rem; color: rgba(100,200,255,0.7); letter-spacing: 0.05em; white-space: nowrap; text-shadow: 0 1px 4px rgba(0,0,0,1); }
-.furniture-spot.occupied .furniture-label { color: rgba(255,100,100,0.6); }
-@keyframes ring-pulse { 0%,100%{opacity:0.6;transform:scaleX(1)} 50%{opacity:1;transform:scaleX(1.08)} }
+.furniture-spot:hover .furniture-ring { border-color: rgba(100,200,255,1); background: rgba(100,200,255,0.25); }
+.furniture-spot.occupied .furniture-ring { border-color: rgba(255,100,100,0.6); background: rgba(255,100,100,0.1); animation: none; }
+.furniture-label { font-size: 0.55rem; color: rgba(180,230,255,0.9); letter-spacing: 0.05em; white-space: nowrap; text-shadow: 0 1px 4px rgba(0,0,0,1); font-weight:600; }
+.furniture-spot.occupied .furniture-label { color: rgba(255,150,150,0.8); }
+@keyframes ring-pulse { 0%,100%{opacity:0.7;transform:scaleX(1)} 50%{opacity:1;transform:scaleX(1.1)} }
 
 .character {
   position: absolute; display: flex; flex-direction: column; align-items: center;
@@ -242,7 +242,7 @@ body {
 </div>
 
 <div id="moveMode">🕹 MOVE MODE — WASD or click floor</div>
-<div id="standHint">Press Space or click yourself to stand up</div>
+<div id="standHint">Press Space to stand up</div>
 
 <div id="hud">
   <div class="hud-row"><div class="hud-key">W</div></div>
@@ -279,23 +279,27 @@ body {
 </div>
 
 <script>
-/* ══ FURNITURE — mapped to actual lounge image ══ */
+/* ══ FURNITURE — precisely mapped to lounge photo ══
+   x = left/right percent (0=far left, 50=center, 100=far right)
+   y = depth percent (30=far back, 75=near front)
+*/
 const FURNITURE=[
-  // Sofas left and right
-  {id:'sofa-l',label:'Sofa',x:8,y:70,action:'sit'},
-  {id:'sofa-r',label:'Sofa',x:92,y:70,action:'sit'},
-  // Round tables left side
-  {id:'table-l1',label:'Chair',x:12,y:62,action:'sit'},
-  {id:'table-l2',label:'Chair',x:18,y:58,action:'sit'},
-  // Round tables right side
-  {id:'table-r1',label:'Chair',x:88,y:62,action:'sit'},
-  {id:'table-r2',label:'Chair',x:82,y:58,action:'sit'},
-  // Bar stools at circular bar
-  {id:'bar-l',label:'Bar Stool',x:42,y:60,action:'sit'},
-  {id:'bar-r',label:'Bar Stool',x:58,y:60,action:'sit'},
-  {id:'bar-c',label:'Bar Stool',x:50,y:62,action:'sit'},
-  // Coffee interaction at bar
-  {id:'coffee',label:'☕ Order',x:50,y:55,action:'coffee'},
+  // Left sofa (gold sofa far left)
+  {id:'sofa-l',   label:'Sofa',      x:10, y:52, action:'sit'},
+  // Right sofa (gold sofa far right)
+  {id:'sofa-r',   label:'Sofa',      x:90, y:52, action:'sit'},
+  // Left round table chairs
+  {id:'tbl-l1',   label:'Chair',     x:18, y:48, action:'sit'},
+  {id:'tbl-l2',   label:'Chair',     x:24, y:44, action:'sit'},
+  // Right round table chairs
+  {id:'tbl-r1',   label:'Chair',     x:82, y:48, action:'sit'},
+  {id:'tbl-r2',   label:'Chair',     x:76, y:44, action:'sit'},
+  // Bar stools around circular bar
+  {id:'bar-l',    label:'Bar Stool', x:40, y:50, action:'sit'},
+  {id:'bar-r',    label:'Bar Stool', x:60, y:50, action:'sit'},
+  {id:'bar-c',    label:'Bar Stool', x:50, y:53, action:'sit'},
+  // Coffee order spot at bar
+  {id:'coffee',   label:'☕ Order',  x:50, y:46, action:'coffee'},
 ];
 const seatOccupants={};
 
@@ -349,6 +353,10 @@ buildAvatarPicker(selGender);updatePreview();
 /* ══ MOVE MODE ══ */
 let moveModeActive=false;
 const moveModeEl=document.getElementById('moveMode');
+const keys={};
+let myKey=null,moveLoop=null;
+const activeChars={};
+
 function enterMoveMode(){moveModeActive=true;moveModeEl.classList.add('active');}
 function exitMoveMode(){
   moveModeActive=false;moveModeEl.classList.remove('active');
@@ -357,33 +365,42 @@ function exitMoveMode(){
   const ch=activeChars[myKey];if(ch&&ch.state==='walk')setIdle(ch);
 }
 
-/* ══ FIXED: scene click only triggers on background, not furniture ══ */
 document.getElementById('scene').addEventListener('mousedown',e=>{
-  if(e.target.closest('.furniture-spot')) return;
-  if(e.target.closest('.character')) return;
-  if(!moveModeActive) enterMoveMode();
+  if(e.target.closest('.furniture-spot'))return;
+  if(e.target.closest('.character'))return;
+  if(!moveModeActive)enterMoveMode();
 });
-document.getElementById('chatPanel').addEventListener('mousedown',e=>{e.stopPropagation();if(moveModeActive)exitMoveMode();});
-document.getElementById('identityBar').addEventListener('mousedown',e=>{e.stopPropagation();if(moveModeActive)exitMoveMode();});
-document.getElementById('emoteBar').addEventListener('mousedown',e=>{e.stopPropagation();});
-document.getElementById('chatToggleBar').addEventListener('click',()=>{document.getElementById('chatPanel').classList.toggle('collapsed');});
+document.getElementById('chatPanel').addEventListener('mousedown',e=>{
+  e.stopPropagation();if(moveModeActive)exitMoveMode();
+});
+document.getElementById('identityBar').addEventListener('mousedown',e=>{
+  e.stopPropagation();if(moveModeActive)exitMoveMode();
+});
+document.getElementById('emoteBar').addEventListener('mousedown',e=>e.stopPropagation());
+document.getElementById('hud').addEventListener('mousedown',e=>e.stopPropagation());
+document.getElementById('chatToggleBar').addEventListener('click',()=>{
+  document.getElementById('chatPanel').classList.toggle('collapsed');
+});
 
+/* ══ PROJECTION ══ */
 const stage=document.getElementById('stage');
 const furnitureLayer=document.getElementById('furnitureLayer');
 
 function project(x,y){
   const sw=stage.offsetWidth||window.innerWidth;
   const sh=stage.offsetHeight||window.innerHeight;
-  const screenYpct=0.65+(y/100)*0.27;
-  const screenY=sh*screenYpct;
-  const depthT=0.15+(y/100)*0.85;
-  const screenX=sw*0.5+(x-50)/50*(sw*0.44)*depthT;
-  const scale=0.22+(y/100)*0.78;
-  const bright=0.45+(y/100)*0.55;
+  // y=30 is far back, y=80 is near front
+  const yNorm=(y-30)/50; // 0=back, 1=front
+  const screenY=sh*(0.45+yNorm*0.38);
+  const depthT=0.2+yNorm*0.8;
+  const screenX=sw*0.5+(x-50)/50*(sw*0.46)*depthT;
+  const scale=0.18+yNorm*0.82;
+  const bright=0.4+yNorm*0.6;
   const zIndex=Math.round(y*10);
   return{screenX,screenY,scale,bright,zIndex};
 }
 
+/* ══ FURNITURE ══ */
 function renderFurniture(){
   furnitureLayer.innerHTML='';
   furnitureLayer.style.cssText='position:absolute;inset:0;z-index:6;pointer-events:none;';
@@ -394,8 +411,8 @@ function renderFurniture(){
     spot.style.left=screenX+'px';spot.style.top=screenY+'px';
     spot.style.pointerEvents='all';
     const ring=document.createElement('div');ring.className='furniture-ring';
-    ring.style.width=Math.max(24,44*scale)+'px';
-    ring.style.height=Math.max(8,16*scale)+'px';
+    ring.style.width=Math.max(20,48*scale)+'px';
+    ring.style.height=Math.max(7,18*scale)+'px';
     const label=document.createElement('div');label.className='furniture-label';
     label.textContent=f.label;
     spot.appendChild(ring);spot.appendChild(label);
@@ -415,6 +432,7 @@ function updateFurnitureOccupancy(){
   });
 }
 
+/* ══ CHARACTER ══ */
 function buildCharEl(name,avatarFile){
   const char=document.createElement('div');char.className='character';
   const bubble=document.createElement('div');bubble.className='char-bubble';
@@ -491,11 +509,10 @@ function setSip(ch){
   setTimeout(()=>{if(ch.state==='sip'){ch.item.classList.remove('visible');setSit(ch);}},3800);
 }
 
-const activeChars={};
 function getOrCreateChar(key,name,avatarFile,startX,startY){
   if(activeChars[key])return activeChars[key];
   const els=buildCharEl(name,avatarFile);stage.appendChild(els.char);
-  const ch={...els,x:startX??50,y:startY??50,targetX:startX??50,targetY:startY??50,
+  const ch={...els,x:startX??50,y:startY??62,targetX:startX??50,targetY:startY??62,
     state:'idle',seat:null,timer:null,talkTimer:null,wanderTimer:null,moveInterval:null};
   activeChars[key]=ch;applyDepth(ch);setIdle(ch);return ch;
 }
@@ -506,7 +523,8 @@ function removeChar(key){
   ch.char.remove();delete activeChars[key];
 }
 
-const MOVE_SPEED=0.35;
+/* ══ MOVEMENT ══ */
+const MOVE_SPEED=0.3;
 function startMoving(key,onArrive){
   const ch=activeChars[key];if(!ch)return;
   if(ch.moveInterval)clearInterval(ch.moveInterval);
@@ -564,20 +582,21 @@ function showToast(msg){
   clearTimeout(t._timer);t._timer=setTimeout(()=>t.style.opacity='0',2500);
 }
 
-const keys={};let myKey=null,moveLoop=null;
-const PLAYER_SPEED=0.55;
-
+/* ══ WASD ══ */
+const PLAYER_SPEED=0.4;
 document.addEventListener('keydown',e=>{
   if(!myKey||!moveModeActive)return;
   if(e.key===' '){e.preventDefault();const ch=activeChars[myKey];if(ch&&ch.seat){standUp();return;}}
   const ch=activeChars[myKey];if(ch&&ch.seat)return;
-  if(['w','a','s','d'].includes(e.key.toLowerCase())){
-    e.preventDefault();keys[e.key.toLowerCase()]=true;
+  const k=e.key.toLowerCase();
+  if(['w','a','s','d'].includes(k)){
+    e.preventDefault();keys[k]=true;
     if(!moveLoop)startPlayerLoop();
   }
 });
 document.addEventListener('keyup',e=>{
-  keys[e.key.toLowerCase()]=false;
+  const k=e.key.toLowerCase();
+  keys[k]=false;
   if(!keys.w&&!keys.a&&!keys.s&&!keys.d){
     if(moveLoop){clearInterval(moveLoop);moveLoop=null;}
     const ch=activeChars[myKey];if(ch&&ch.state==='walk')setIdle(ch);
@@ -590,8 +609,8 @@ function startPlayerLoop(){
     if(keys.a)dx-=PLAYER_SPEED;if(keys.d)dx+=PLAYER_SPEED;
     if(keys.w)dy-=PLAYER_SPEED;if(keys.s)dy+=PLAYER_SPEED;
     if(dx===0&&dy===0)return;
-    const newX=Math.max(2,Math.min(98,ch.x+dx));
-    const newY=Math.max(5,Math.min(95,ch.y+dy));
+    const newX=Math.max(5,Math.min(95,ch.x+dx));
+    const newY=Math.max(32,Math.min(78,ch.y+dy));
     if(newX!==ch.x||newY!==ch.y){
       if(ch.state!=='walk')setWalk(ch,dx>=0);
       else if(dx!==0)ch.photo.style.transform=dx>0?'scaleX(1)':'scaleX(-1)';
@@ -601,23 +620,29 @@ function startPlayerLoop(){
   },16);
 }
 
+/* ══ CLICK TO WALK ══ */
 document.getElementById('scene').addEventListener('click',e=>{
   if(!myKey||!activeChars[myKey])return;
   if(e.target.closest('.furniture-spot'))return;
   if(e.target.closest('.character'))return;
   const ch=activeChars[myKey];
   if(ch.seat){standUp();return;}
+  // Convert screen click to world coords
   const rect=stage.getBoundingClientRect();
-  const clickX=e.clientX-rect.left,clickY=e.clientY-rect.top;
+  const clickX=e.clientX-rect.left;
+  const clickY=e.clientY-rect.top;
   const sw=stage.offsetWidth,sh=stage.offsetHeight;
-  const rawY=((clickY/sh)-0.65)/0.27*100;
-  const clampedY=Math.max(5,Math.min(95,rawY));
-  const depthT=0.15+(clampedY/100)*0.85;
-  const rawX=50+((clickX-sw*0.5)/(sw*0.44*depthT))*50;
-  const clampedX=Math.max(2,Math.min(98,rawX));
-  ch.targetX=clampedX;ch.targetY=clampedY;startMoving(myKey);
+  // Reverse the projection to get world y
+  const screenYRatio=clickY/sh;
+  const yNorm=(screenYRatio-0.45)/0.38;
+  const worldY=Math.max(32,Math.min(78,30+yNorm*50));
+  const depthT=0.2+((worldY-30)/50)*0.8;
+  const worldX=Math.max(5,Math.min(95,50+((clickX-sw*0.5)/(sw*0.46*depthT))*50));
+  ch.targetX=worldX;ch.targetY=worldY;
+  startMoving(myKey);
 });
 
+/* ══ EMOTES ══ */
 document.querySelectorAll('.emote-btn').forEach(btn=>{
   btn.onclick=()=>{
     if(!myKey||!activeChars[myKey])return;
@@ -629,17 +654,19 @@ document.querySelectorAll('.emote-btn').forEach(btn=>{
   };
 });
 
+/* ══ WANDER ══ */
 function startWander(key){
   const ch=activeChars[key];if(!ch)return;
   function wander(){
     if(!activeChars[key])return;
     if(activeChars[key].seat){activeChars[key].wanderTimer=setTimeout(wander,3000);return;}
-    ch.targetX=10+Math.random()*80;ch.targetY=15+Math.random()*70;
-    startMoving(key);ch.wanderTimer=setTimeout(wander,4000+Math.random()*5000);
+    ch.targetX=20+Math.random()*60;ch.targetY=35+Math.random()*35;
+    startMoving(key);ch.wanderTimer=setTimeout(wander,5000+Math.random()*6000);
   }
   ch.wanderTimer=setTimeout(wander,Math.random()*3000);
 }
 
+/* ══ CHAT LOG ══ */
 const msgLog=document.getElementById('msgLog');
 function addToLog(name,text,cls=''){
   const entry=document.createElement('div');
@@ -664,13 +691,14 @@ function showMessage(key,name,text,avatarFile,x,y){
 function handleMessage(msg){
   if(msg.source==='secondlife'){
     addToLog(msg.speaker,msg.text,'sl');
-    showMessage('sl_'+msg.speaker,msg.speaker,msg.text,'avatar-m1.png',8,55);
+    showMessage('sl_'+msg.speaker,msg.speaker,msg.text,'avatar-m1.png',15,50);
   }else{
     addToLog(msg.speaker,msg.text);
-    showMessage('web_'+msg.speaker,msg.speaker,msg.text,msg.avatar,msg.x||50,msg.y||70);
+    showMessage('web_'+msg.speaker,msg.speaker,msg.text,msg.avatar,msg.x||50,msg.y||62);
   }
 }
 
+/* ══ IDENTITY ══ */
 const nameInput=document.getElementById('nameInput');
 const modal=document.getElementById('modal');
 const msgInput=document.getElementById('msgInput');
@@ -679,8 +707,8 @@ let identity=null;
 
 function applyIdentity(){
   myNameEl.textContent=identity.name;myKey='web_'+identity.name;
-  getOrCreateChar(myKey,identity.name,identity.avatar,50,82);
-  socket.emit('user-join',{name:identity.name,avatar:identity.avatar,gender:identity.gender,x:50,y:82});
+  getOrCreateChar(myKey,identity.name,identity.avatar,50,65);
+  socket.emit('user-join',{name:identity.name,avatar:identity.avatar,gender:identity.gender,x:50,y:65});
   addToLog('System','You joined as '+identity.name,'sys');
 }
 document.getElementById('saveBtn').onclick=()=>{
@@ -716,18 +744,20 @@ function loadIdentity(){
   }
 }
 
+/* ══ SOCKET ══ */
 const socket=io();
 socket.on('history',msgs=>msgs.slice(-5).forEach(m=>handleMessage(m)));
 socket.on('message',msg=>handleMessage(msg));
 socket.on('seats-init',data=>{Object.assign(seatOccupants,data);updateFurnitureOccupancy();});
 socket.on('seat-update',({seatId,occupant})=>{if(occupant)seatOccupants[seatId]=occupant;else delete seatOccupants[seatId];updateFurnitureOccupancy();});
-socket.on('presence-init',users=>{users.forEach(u=>{const key='web_'+u.name;if(key===myKey)return;getOrCreateChar(key,u.name,u.avatar,u.x||50,u.y||50);startWander(key);});});
-socket.on('user-joined',u=>{const key='web_'+u.name;if(key===myKey)return;getOrCreateChar(key,u.name,u.avatar,u.x||50,u.y||50);startWander(key);addToLog('System',u.name+' joined','sys');});
+socket.on('presence-init',users=>{users.forEach(u=>{const key='web_'+u.name;if(key===myKey)return;getOrCreateChar(key,u.name,u.avatar,u.x||50,u.y||55);startWander(key);});});
+socket.on('user-joined',u=>{const key='web_'+u.name;if(key===myKey)return;getOrCreateChar(key,u.name,u.avatar,u.x||50,u.y||55);startWander(key);addToLog('System',u.name+' joined','sys');});
 socket.on('user-moved',u=>{const key='web_'+u.name;if(key===myKey)return;const ch=activeChars[key];if(!ch)return;clearTimeout(ch.wanderTimer);ch.targetX=u.x;ch.targetY=u.y;startMoving(key);});
 socket.on('user-sat',u=>{const key='web_'+u.name;if(key===myKey)return;const ch=activeChars[key];if(!ch)return;ch.seat=u.seatId;ch.targetX=u.x;ch.targetY=u.y;startMoving(key,()=>setSit(ch));});
 socket.on('user-stood',u=>{const key='web_'+u.name;if(key===myKey)return;const ch=activeChars[key];if(!ch)return;ch.seat=null;ch.char.classList.remove('seated');ch.item.classList.remove('visible');setIdle(ch);});
 socket.on('user-left',u=>{addToLog('System',u.name+' left','sys');removeChar('web_'+u.name);});
 
+/* ══ SEND ══ */
 function send(){
   const text=msgInput.value.trim();if(!text||!identity)return;
   socket.emit('web-message',{name:identity.name,text,gender:identity.gender,avatar:identity.avatar});
