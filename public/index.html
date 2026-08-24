@@ -127,6 +127,7 @@ body {
 .furniture-spot {
   position: absolute; transform: translate(-50%,-50%); z-index: 5;
   cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  pointer-events: all;
 }
 .furniture-ring {
   border-radius: 50%; border: 2px solid rgba(100,200,255,0.5);
@@ -278,16 +279,23 @@ body {
 </div>
 
 <script>
+/* ══ FURNITURE — mapped to actual lounge image ══ */
 const FURNITURE=[
-  {id:'sofa-l',label:'Sofa',x:14,y:72,action:'sit'},
-  {id:'sofa-r',label:'Sofa',x:86,y:72,action:'sit'},
-  {id:'chair-fl',label:'Chair',x:22,y:62,action:'sit'},
-  {id:'chair-fr',label:'Chair',x:78,y:62,action:'sit'},
-  {id:'chair-bl',label:'Chair',x:30,y:52,action:'sit'},
-  {id:'chair-br',label:'Chair',x:70,y:52,action:'sit'},
-  {id:'bar-l',label:'Bar Stool',x:44,y:55,action:'sit'},
-  {id:'bar-r',label:'Bar Stool',x:56,y:55,action:'sit'},
-  {id:'coffee',label:'☕ Coffee',x:50,y:50,action:'coffee'},
+  // Sofas left and right
+  {id:'sofa-l',label:'Sofa',x:8,y:70,action:'sit'},
+  {id:'sofa-r',label:'Sofa',x:92,y:70,action:'sit'},
+  // Round tables left side
+  {id:'table-l1',label:'Chair',x:12,y:62,action:'sit'},
+  {id:'table-l2',label:'Chair',x:18,y:58,action:'sit'},
+  // Round tables right side
+  {id:'table-r1',label:'Chair',x:88,y:62,action:'sit'},
+  {id:'table-r2',label:'Chair',x:82,y:58,action:'sit'},
+  // Bar stools at circular bar
+  {id:'bar-l',label:'Bar Stool',x:42,y:60,action:'sit'},
+  {id:'bar-r',label:'Bar Stool',x:58,y:60,action:'sit'},
+  {id:'bar-c',label:'Bar Stool',x:50,y:62,action:'sit'},
+  // Coffee interaction at bar
+  {id:'coffee',label:'☕ Order',x:50,y:55,action:'coffee'},
 ];
 const seatOccupants={};
 
@@ -338,6 +346,7 @@ function updatePreview(){
 }
 buildAvatarPicker(selGender);updatePreview();
 
+/* ══ MOVE MODE ══ */
 let moveModeActive=false;
 const moveModeEl=document.getElementById('moveMode');
 function enterMoveMode(){moveModeActive=true;moveModeEl.classList.add('active');}
@@ -348,7 +357,12 @@ function exitMoveMode(){
   const ch=activeChars[myKey];if(ch&&ch.state==='walk')setIdle(ch);
 }
 
-document.getElementById('scene').addEventListener('mousedown',()=>{if(!moveModeActive)enterMoveMode();});
+/* ══ FIXED: scene click only triggers on background, not furniture ══ */
+document.getElementById('scene').addEventListener('mousedown',e=>{
+  if(e.target.closest('.furniture-spot')) return;
+  if(e.target.closest('.character')) return;
+  if(!moveModeActive) enterMoveMode();
+});
 document.getElementById('chatPanel').addEventListener('mousedown',e=>{e.stopPropagation();if(moveModeActive)exitMoveMode();});
 document.getElementById('identityBar').addEventListener('mousedown',e=>{e.stopPropagation();if(moveModeActive)exitMoveMode();});
 document.getElementById('emoteBar').addEventListener('mousedown',e=>{e.stopPropagation();});
@@ -385,7 +399,7 @@ function renderFurniture(){
     const label=document.createElement('div');label.className='furniture-label';
     label.textContent=f.label;
     spot.appendChild(ring);spot.appendChild(label);
-    spot.onclick=()=>handleFurnitureClick(f);
+    spot.onclick=e=>{e.stopPropagation();handleFurnitureClick(f);};
     furnitureLayer.appendChild(spot);
   });
   updateFurnitureOccupancy();
@@ -590,9 +604,9 @@ function startPlayerLoop(){
 document.getElementById('scene').addEventListener('click',e=>{
   if(!myKey||!activeChars[myKey])return;
   if(e.target.closest('.furniture-spot'))return;
+  if(e.target.closest('.character'))return;
   const ch=activeChars[myKey];
-  if(ch.seat&&e.target.closest('.character.seated')){standUp();return;}
-  if(ch.seat)return;
+  if(ch.seat){standUp();return;}
   const rect=stage.getBoundingClientRect();
   const clickX=e.clientX-rect.left,clickY=e.clientY-rect.top;
   const sw=stage.offsetWidth,sh=stage.offsetHeight;
@@ -729,4 +743,3 @@ loadIdentity();
 </script>
 </body>
 </html>
-```
