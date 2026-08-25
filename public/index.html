@@ -1,4 +1,7 @@
- <!DOCTYPE html>
+ Easy fix! I'll add a **Clear** button to the chat. Here's the complete updated `index.html`:
+
+```html
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -68,7 +71,24 @@
       color: #c9a84c;
       text-transform: uppercase;
       flex-shrink: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
+
+    #clearBtn {
+      background: none;
+      border: 1px solid #3a2a0a;
+      color: #7a6a4a;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: Georgia, serif;
+      letter-spacing: 1px;
+    }
+
+    #clearBtn:hover { color: #c9a84c; border-color: #c9a84c; }
 
     #msgLog {
       flex: 1;
@@ -116,9 +136,7 @@
       width: 100%;
     }
 
-    #bottomRow {
-      display: flex;
-    }
+    #bottomRow { display: flex; }
 
     #msgInput {
       flex: 1;
@@ -162,7 +180,10 @@
     </div>
 
     <div id="chatBox">
-      <div id="chatHeader">💬 Olyesti Chat</div>
+      <div id="chatHeader">
+        <span>💬 Olyesti Chat</span>
+        <button id="clearBtn">Clear</button>
+      </div>
       <div id="msgLog"></div>
       <div id="composeBar">
         <input id="nameInput" type="text" placeholder="Your name…" maxlength="20" />
@@ -180,6 +201,7 @@
     const msgInput = document.getElementById('msgInput');
     const nameInput = document.getElementById('nameInput');
     const sendBtn = document.getElementById('sendBtn');
+    const clearBtn = document.getElementById('clearBtn');
 
     const savedName = localStorage.getItem('olyesti-name');
     if (savedName) nameInput.value = savedName;
@@ -200,13 +222,16 @@
       log.scrollTop = log.scrollHeight;
     }
 
+    // Clear chat locally (only for this user)
+    clearBtn.onclick = () => { log.innerHTML = ''; };
+
     // Chat history on connect
     socket.on('history', (msgs) => msgs.forEach(m => addMsg(m.speaker || m.name, m.text)));
 
-    // Incoming messages (web + SL relay)
+    // Incoming messages
     socket.on('message', (msg) => addMsg(msg.speaker, msg.text));
 
-    // Join / leave events
+    // Join / leave
     socket.on('user-joined', (user) => addSystem(`${user.name} joined the lounge`));
     socket.on('user-left', (user) => addSystem(`${user.name} left the lounge`));
 
@@ -222,7 +247,6 @@
     sendBtn.onclick = send;
     msgInput.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
 
-    // Announce yourself when page loads
     nameInput.addEventListener('change', () => {
       const name = nameInput.value.trim();
       if (name) {
@@ -234,3 +258,6 @@
 
 </body>
 </html>
+```
+
+Commit to `public/index.html` — the **Clear** button only clears your local view, not everyone else's. ☕
