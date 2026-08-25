@@ -83,17 +83,6 @@
       border-top: 1px solid #3a2a0a;
     }
 
-    #msgInput {
-      flex: 1;
-      background: transparent;
-      border: none;
-      padding: 12px 16px;
-      color: #f0e6d3;
-      font-family: Georgia, serif;
-      font-size: 14px;
-      outline: none;
-    }
-
     #nameInput {
       background: transparent;
       border: none;
@@ -104,6 +93,17 @@
       font-size: 14px;
       outline: none;
       width: 140px;
+    }
+
+    #msgInput {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 12px 16px;
+      color: #f0e6d3;
+      font-family: Georgia, serif;
+      font-size: 14px;
+      outline: none;
     }
 
     #sendBtn {
@@ -159,14 +159,15 @@
       log.scrollTop = log.scrollHeight;
     }
 
-    socket.on('chat', ({ name, text }) => addMsg(name, text));
+    socket.on('history', (msgs) => msgs.forEach(m => addMsg(m.speaker || m.name, m.text)));
+    socket.on('message', (msg) => addMsg(msg.speaker, msg.text));
 
     function send() {
       const name = nameInput.value.trim() || 'Guest';
       const text = msgInput.value.trim();
       if (!text) return;
       localStorage.setItem('olyesti-name', name);
-      socket.emit('chat', { name, text });
+      socket.emit('web-message', { name, text, avatar: 'guest', gender: 'f' });
       msgInput.value = '';
     }
 
