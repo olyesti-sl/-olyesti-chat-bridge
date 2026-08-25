@@ -17,14 +17,21 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 20px;
+      gap: 16px;
     }
 
     #logo {
-      font-size: 22px;
+      font-size: 20px;
       letter-spacing: 4px;
       color: #c9a84c;
       text-transform: uppercase;
+    }
+
+    #main {
+      display: flex;
+      flex-direction: row;
+      gap: 12px;
+      align-items: stretch;
     }
 
     #tv {
@@ -33,44 +40,50 @@
       border-radius: 12px;
       box-shadow: 0 0 60px rgba(201,168,76,0.15), 0 0 20px rgba(0,0,0,0.8);
       padding: 6px;
+      flex-shrink: 0;
     }
 
     #tv iframe {
       display: block;
       border-radius: 6px;
       width: 720px;
-      height: 405px;
+      height: 480px;
     }
 
     #chatBox {
-      width: 720px;
+      width: 260px;
       background: rgba(20,12,4,0.95);
       border: 1px solid #3a2a0a;
       border-radius: 10px;
+      display: flex;
+      flex-direction: column;
       overflow: hidden;
     }
 
     #chatHeader {
       background: #1a1008;
-      padding: 10px 16px;
-      font-size: 12px;
+      padding: 10px 14px;
+      font-size: 11px;
       letter-spacing: 3px;
       color: #c9a84c;
       text-transform: uppercase;
+      flex-shrink: 0;
     }
 
     #msgLog {
-      height: 160px;
+      flex: 1;
       overflow-y: auto;
-      padding: 12px 16px;
+      padding: 10px 12px;
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
 
     #msgLog .msg {
-      font-size: 14px;
+      font-size: 13px;
       color: #d4c4a8;
+      line-height: 1.4;
+      word-break: break-word;
     }
 
     #msgLog .msg span {
@@ -78,66 +91,86 @@
       font-weight: bold;
     }
 
+    #msgLog .system {
+      font-size: 11px;
+      color: #7a6a4a;
+      font-style: italic;
+    }
+
     #composeBar {
       display: flex;
+      flex-direction: column;
       border-top: 1px solid #3a2a0a;
+      flex-shrink: 0;
     }
 
     #nameInput {
       background: transparent;
       border: none;
-      border-right: 1px solid #3a2a0a;
-      padding: 12px 16px;
+      border-bottom: 1px solid #3a2a0a;
+      padding: 8px 12px;
       color: #c9a84c;
       font-family: Georgia, serif;
-      font-size: 14px;
+      font-size: 13px;
       outline: none;
-      width: 140px;
+      width: 100%;
+    }
+
+    #bottomRow {
+      display: flex;
     }
 
     #msgInput {
       flex: 1;
       background: transparent;
       border: none;
-      padding: 12px 16px;
+      padding: 10px 12px;
       color: #f0e6d3;
       font-family: Georgia, serif;
-      font-size: 14px;
+      font-size: 13px;
       outline: none;
     }
 
     #sendBtn {
       background: #c9a84c;
       border: none;
-      padding: 12px 20px;
+      padding: 10px 14px;
       color: #0a0604;
       font-family: Georgia, serif;
       font-weight: bold;
       cursor: pointer;
-      letter-spacing: 1px;
+      font-size: 13px;
     }
 
     #sendBtn:hover { background: #e0c070; }
+
+    #msgLog::-webkit-scrollbar { width: 4px; }
+    #msgLog::-webkit-scrollbar-track { background: transparent; }
+    #msgLog::-webkit-scrollbar-thumb { background: #3a2a0a; border-radius: 2px; }
   </style>
 </head>
 <body>
 
   <div id="logo">☕ Olyesti Café</div>
 
-  <div id="tv">
-    <iframe
-      src="https://player.twitch.tv/?channel=Olyesti&parent=chat.olyesti.com&muted=false&autoplay=true"
-      allowfullscreen>
-    </iframe>
-  </div>
+  <div id="main">
+    <div id="tv">
+      <iframe
+        src="https://player.twitch.tv/?channel=Olyesti&parent=chat.olyesti.com&muted=false&autoplay=true"
+        allowfullscreen>
+      </iframe>
+    </div>
 
-  <div id="chatBox">
-    <div id="chatHeader">💬 Olyesti Chat</div>
-    <div id="msgLog"></div>
-    <div id="composeBar">
-      <input id="nameInput" type="text" placeholder="Your name" maxlength="20" />
-      <input id="msgInput" type="text" placeholder="Say something…" maxlength="200" />
-      <button id="sendBtn">Send</button>
+    <div id="chatBox">
+      <div id="chatHeader">💬 Olyesti Chat</div>
+      <div id="msgLog"></div>
+      <div id="composeBar">
+        <input id="nameInput" type="text" placeholder="Your name…" maxlength="20" />
+        <div id="bottomRow">
+          <input id="msgInput" type="text" placeholder="Say something…" maxlength="200" />
+          <button id="sendBtn">Send</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -159,8 +192,23 @@
       log.scrollTop = log.scrollHeight;
     }
 
+    function addSystem(text) {
+      const div = document.createElement('div');
+      div.className = 'system';
+      div.textContent = text;
+      log.appendChild(div);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    // Chat history on connect
     socket.on('history', (msgs) => msgs.forEach(m => addMsg(m.speaker || m.name, m.text)));
+
+    // Incoming messages (web + SL relay)
     socket.on('message', (msg) => addMsg(msg.speaker, msg.text));
+
+    // Join / leave events
+    socket.on('user-joined', (user) => addSystem(`${user.name} joined the lounge`));
+    socket.on('user-left', (user) => addSystem(`${user.name} left the lounge`));
 
     function send() {
       const name = nameInput.value.trim() || 'Guest';
@@ -173,6 +221,15 @@
 
     sendBtn.onclick = send;
     msgInput.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+
+    // Announce yourself when page loads
+    nameInput.addEventListener('change', () => {
+      const name = nameInput.value.trim();
+      if (name) {
+        localStorage.setItem('olyesti-name', name);
+        socket.emit('user-join', { name, avatar: 'guest', gender: 'f', x: 50, y: 82 });
+      }
+    });
   </script>
 
 </body>
