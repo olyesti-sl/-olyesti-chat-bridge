@@ -1,6 +1,3 @@
- Easy fix! I'll add a **Clear** button to the chat. Here's the complete updated `index.html`:
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,6 +18,7 @@
       align-items: center;
       justify-content: center;
       gap: 16px;
+      overflow: hidden;
     }
 
     #logo {
@@ -44,13 +42,15 @@
       box-shadow: 0 0 60px rgba(201,168,76,0.15), 0 0 20px rgba(0,0,0,0.8);
       padding: 6px;
       flex-shrink: 0;
+      overflow: hidden;
     }
 
     #tv iframe {
       display: block;
       border-radius: 6px;
       width: 720px;
-      height: 480px;
+      height: 540px;
+      border: none;
     }
 
     #chatBox {
@@ -222,16 +222,10 @@
       log.scrollTop = log.scrollHeight;
     }
 
-    // Clear chat locally (only for this user)
     clearBtn.onclick = () => { log.innerHTML = ''; };
 
-    // Chat history on connect
     socket.on('history', (msgs) => msgs.forEach(m => addMsg(m.speaker || m.name, m.text)));
-
-    // Incoming messages
     socket.on('message', (msg) => addMsg(msg.speaker, msg.text));
-
-    // Join / leave
     socket.on('user-joined', (user) => addSystem(`${user.name} joined the lounge`));
     socket.on('user-left', (user) => addSystem(`${user.name} left the lounge`));
 
@@ -258,6 +252,3 @@
 
 </body>
 </html>
-```
-
-Commit to `public/index.html` — the **Clear** button only clears your local view, not everyone else's. ☕
