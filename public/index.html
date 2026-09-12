@@ -172,7 +172,7 @@
     }
     #tv-frame iframe { width: 100%; height: 100%; border: none; display: block; }
 
-    /* Audience area */
+    /* Audience area — light background so multiply blend works */
     #audience-section {
       flex: 1;
       overflow-y: auto;
@@ -183,27 +183,22 @@
       background-position: center bottom;
       position: relative;
       scrollbar-width: thin;
-      scrollbar-color: #c9a84c #333;
+      scrollbar-color: #c9a84c #ccc;
     }
 
-    #audience-section::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,0.15);
-      pointer-events: none;
-      z-index: 0;
-    }
+    /* No dark overlay — keep background light for multiply blend */
+    #audience-section::before { display: none; }
 
     #audience-label {
       position: relative;
       z-index: 1;
-      color: #fff;
+      color: #3a2800;
       font-size: 0.7rem;
       letter-spacing: 2px;
       text-transform: uppercase;
       margin-bottom: 10px;
-      text-shadow: 0 1px 4px #000;
+      text-shadow: 0 1px 2px rgba(255,255,255,0.5);
+      font-weight: bold;
     }
 
     .chair-row {
@@ -228,27 +223,30 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
+    /* multiply blend removes white backgrounds naturally */
     .seat-avatar {
       width: 90px;
       height: 90px;
-      object-fit: cover;
-      object-position: center top;
-      border-radius: 6px;
+      object-fit: contain;
+      object-position: center bottom;
+      border-radius: 0;
       background: transparent;
       color: transparent;
-      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.7));
+      mix-blend-mode: multiply;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
     }
 
     .seat-name {
       font-size: 9px;
-      color: #fff;
+      color: #3a2800;
       text-align: center;
       max-width: 90px;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
       margin-top: 2px;
-      text-shadow: 0 1px 3px #000;
+      font-weight: bold;
+      text-shadow: 0 1px 2px rgba(255,255,255,0.6);
     }
 
     /* CHAT */
@@ -519,7 +517,12 @@
     const container = document.getElementById('chair-rows');
     container.innerHTML = '';
     const viewers = [];
-    Object.values(state).forEach(p => p.forEach(v => viewers.push(v)));
+    Object.values(state).forEach(p => p.forEach(v => {
+      // Only show viewers with a valid Shopify CDN avatar
+      if (v.avatarUrl && v.avatarUrl.includes('cdn.shopify.com')) {
+        viewers.push(v);
+      }
+    }));
     document.getElementById('viewer-count').textContent = `${viewers.length} in the lounge`;
     for (let i = 0; i < viewers.length; i += SEATS_PER_ROW) {
       const row = document.createElement('div');
@@ -533,7 +536,6 @@
   }
 
   function makeSeat(viewer) {
-    // Skip viewers with no avatar
     if (!viewer.avatarUrl) return null;
     const seat = document.createElement('div');
     seat.classList.add('seat');
