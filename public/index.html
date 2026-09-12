@@ -18,7 +18,6 @@
       overflow: hidden;
     }
 
-    /* ── LOGIN SCREEN ── */
     #login-screen {
       display: flex;
       flex-direction: column;
@@ -29,31 +28,10 @@
       background: radial-gradient(ellipse at center, #1a1200 0%, #0a0a0a 70%);
     }
 
-    #login-screen h1 {
-      color: #c9a84c;
-      font-size: 2rem;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-    }
+    #login-screen h1 { color: #c9a84c; font-size: 2rem; letter-spacing: 3px; text-transform: uppercase; }
+    #login-screen p { color: #888; font-size: 0.85rem; letter-spacing: 1px; }
 
-    #login-screen p {
-      color: #888;
-      font-size: 0.85rem;
-      letter-spacing: 1px;
-    }
-
-    #email-input {
-      padding: 12px 16px;
-      border-radius: 6px;
-      border: 1px solid #c9a84c;
-      background: #111;
-      color: #fff;
-      width: 280px;
-      font-size: 1rem;
-      outline: none;
-    }
-
-    #name-input {
+    #email-input, #name-input {
       padding: 12px 16px;
       border-radius: 6px;
       border: 1px solid #c9a84c;
@@ -76,16 +54,10 @@
       letter-spacing: 1px;
       transition: background 0.2s;
     }
-
     .gold-btn:hover { background: #e0c060; }
 
-    #login-msg {
-      color: #c9a84c;
-      font-size: 0.85rem;
-      min-height: 20px;
-    }
+    #login-msg { color: #c9a84c; font-size: 0.85rem; min-height: 20px; }
 
-    /* ── NAME PROMPT (shown after magic link click) ── */
     #name-screen {
       display: none;
       flex-direction: column;
@@ -95,14 +67,8 @@
       gap: 16px;
       background: radial-gradient(ellipse at center, #1a1200 0%, #0a0a0a 70%);
     }
+    #name-screen h2 { color: #c9a84c; font-size: 1.5rem; letter-spacing: 2px; }
 
-    #name-screen h2 {
-      color: #c9a84c;
-      font-size: 1.5rem;
-      letter-spacing: 2px;
-    }
-
-    /* ── LOUNGE ── */
     #lounge {
       display: none;
       flex-direction: column;
@@ -110,7 +76,6 @@
       overflow: hidden;
     }
 
-    /* Top bar */
     #topbar {
       background: #111;
       border-bottom: 1px solid #2a2a2a;
@@ -120,27 +85,11 @@
       justify-content: space-between;
       flex-shrink: 0;
     }
+    #topbar .logo { color: #c9a84c; font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase; }
+    #topbar .viewer-count { color: #888; font-size: 0.8rem; }
 
-    #topbar .logo {
-      color: #c9a84c;
-      font-size: 1.1rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
+    #main { display: flex; flex: 1; overflow: hidden; }
 
-    #topbar .viewer-count {
-      color: #888;
-      font-size: 0.8rem;
-    }
-
-    /* Main layout */
-    #main {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-    }
-
-    /* Left: TV + audience */
     #stage {
       display: flex;
       flex-direction: column;
@@ -150,7 +99,6 @@
       overflow: hidden;
     }
 
-    /* TV screen embed */
     #tv-frame {
       width: 100%;
       aspect-ratio: 16/9;
@@ -160,25 +108,10 @@
       overflow: hidden;
       flex-shrink: 0;
     }
+    #tv-frame iframe { width: 100%; height: 100%; border: none; }
 
-    #tv-frame iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
-    /* Audience row */
-    #audience-section {
-      flex-shrink: 0;
-    }
-
-    #audience-label {
-      color: #555;
-      font-size: 0.7rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
+    #audience-section { flex-shrink: 0; }
+    #audience-label { color: #555; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
 
     #audience-row {
       display: flex;
@@ -188,12 +121,7 @@
       min-height: 90px;
     }
 
-    .seat {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-    }
+    .seat { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 
     .avatar {
       width: 44px;
@@ -223,7 +151,6 @@
       margin-top: 4px;
     }
 
-    /* Right: Chat */
     #chat-panel {
       width: 300px;
       min-width: 260px;
@@ -254,44 +181,15 @@
       scrollbar-width: thin;
       scrollbar-color: #2a2a2a #0d0d0d;
     }
-
     #chat-messages::-webkit-scrollbar { width: 4px; }
     #chat-messages::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
 
-    .chat-msg {
-      display: flex;
-      gap: 8px;
-      align-items: flex-start;
-    }
+    .chat-msg { display: flex; gap: 8px; align-items: flex-start; }
+    .chat-msg img { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #c9a84c; flex-shrink: 0; }
+    .chat-msg-body { display: flex; flex-direction: column; gap: 2px; }
+    .chat-msg-name { font-size: 0.7rem; color: #c9a84c; font-weight: bold; }
+    .chat-msg-text { font-size: 0.85rem; color: #ddd; line-height: 1.4; word-break: break-word; }
 
-    .chat-msg img {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      border: 1px solid #c9a84c;
-      flex-shrink: 0;
-    }
-
-    .chat-msg-body {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .chat-msg-name {
-      font-size: 0.7rem;
-      color: #c9a84c;
-      font-weight: bold;
-    }
-
-    .chat-msg-text {
-      font-size: 0.85rem;
-      color: #ddd;
-      line-height: 1.4;
-      word-break: break-word;
-    }
-
-    /* Chat input — NEVER clipped */
     #chat-input-area {
       flex-shrink: 0;
       padding: 10px;
@@ -313,7 +211,6 @@
       resize: none;
       font-family: inherit;
     }
-
     #chat-input:focus { border-color: #c9a84c; }
 
     #send-btn {
@@ -330,13 +227,12 @@
       justify-content: center;
       transition: background 0.2s;
     }
-
     #send-btn:hover { background: #e0c060; }
   </style>
 </head>
 <body>
 
-<!-- ══ LOGIN SCREEN ══ -->
+<!-- LOGIN -->
 <div id="login-screen">
   <h1>☕ Olyesti Cafe</h1>
   <p>Enter your email to join the lounge</p>
@@ -345,7 +241,7 @@
   <span id="login-msg"></span>
 </div>
 
-<!-- ══ NAME SCREEN (after magic link) ══ -->
+<!-- NAME PROMPT -->
 <div id="name-screen">
   <h2>Welcome to the Lounge</h2>
   <p style="color:#888; font-size:0.85rem;">Choose your display name</p>
@@ -353,39 +249,25 @@
   <button class="gold-btn" onclick="saveName()">Take My Seat</button>
 </div>
 
-<!-- ══ LOUNGE ══ -->
+<!-- LOUNGE -->
 <div id="lounge">
-
-  <!-- Top bar -->
   <div id="topbar">
     <span class="logo">☕ Olyesti Cafe</span>
     <span class="viewer-count" id="viewer-count">0 in the lounge</span>
   </div>
-
-  <!-- Main -->
   <div id="main">
-
-    <!-- Stage: TV + Audience -->
     <div id="stage">
-
-      <!-- TV -->
       <div id="tv-frame">
-        <!-- Replace with your Twitch/YouTube embed -->
         <iframe
           src="https://player.twitch.tv/?channel=olyesti&parent=chat.olyesti.com"
           allowfullscreen>
         </iframe>
       </div>
-
-      <!-- Audience -->
       <div id="audience-section">
         <div id="audience-label">Now Watching</div>
         <div id="audience-row"></div>
       </div>
-
     </div>
-
-    <!-- Chat Panel -->
     <div id="chat-panel">
       <div id="chat-header">💬 Lounge Chat</div>
       <div id="chat-messages"></div>
@@ -394,52 +276,41 @@
         <button id="send-btn" onclick="sendMessage()">➤</button>
       </div>
     </div>
-
   </div>
 </div>
 
 <script>
-  // ══════════════════════════════════════════
-  // CONFIGURATION — replace these two values
-  // ══════════════════════════════════════════
-  const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
-  const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
-  // ══════════════════════════════════════════
+  const SUPABASE_URL = 'https://esaeyeqjbktkcdrydgmy.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzYWV5ZXFqYmt0a2NkcnlkZ215Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkxNzIwMDgsImV4cCI6MjEwNDc0ODAwOH0.jq909W6aOx7lIO6m_4wxwUv3vJ2xxowLbay2SJ7O1_8';
 
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   let currentViewer = null;
-  let room = null;
+  let presenceRoom = null;
+  let chatRoom = null;
 
-  // ── AUTH STATE ──
+  // ── AUTH ──
   db.auth.onAuthStateChange(async (event, session) => {
     if (session) {
-      const user = session.user;
       const savedName = localStorage.getItem('olyesti_name');
-
       if (!savedName) {
-        // Show name prompt
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('name-screen').style.display = 'flex';
       } else {
-        enterLounge(user, savedName);
+        enterLounge(session.user, savedName);
       }
     }
   });
 
-  // ── LOGIN ──
   async function loginWithEmail() {
     const email = document.getElementById('email-input').value.trim();
     if (!email) return;
     const { error } = await db.auth.signInWithOtp({ email });
     const msg = document.getElementById('login-msg');
-    msg.textContent = error
-      ? '⚠️ ' + error.message
-      : '✉️ Check your email for your lounge link!';
+    msg.textContent = error ? '⚠️ ' + error.message : '✉️ Check your email for your lounge link!';
   }
 
-  // ── SAVE NAME ──
   async function saveName() {
     const name = document.getElementById('name-input').value.trim();
     if (!name) return;
@@ -448,7 +319,6 @@
     if (session) enterLounge(session.user, name);
   }
 
-  // ── ENTER LOUNGE ──
   function enterLounge(user, name) {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('name-screen').style.display = 'none';
@@ -464,20 +334,19 @@
     setupChat();
   }
 
-  // ── PRESENCE (audience seats) ──
+  // ── PRESENCE ──
   function setupPresence() {
-    room = db.channel('lounge-presence', {
+    presenceRoom = db.channel('lounge-presence', {
       config: { presence: { key: currentViewer.id } }
     });
 
-    room.on('presence', { event: 'sync' }, () => {
-      const state = room.presenceState();
-      renderAudience(state);
+    presenceRoom.on('presence', { event: 'sync' }, () => {
+      renderAudience(presenceRoom.presenceState());
     });
 
-    room.subscribe(async (status) => {
+    presenceRoom.subscribe(async (status) => {
       if (status === 'SUBSCRIBED') {
-        await room.track(currentViewer);
+        await presenceRoom.track(currentViewer);
       }
     });
   }
@@ -490,12 +359,11 @@
     Object.values(state).forEach(presences => {
       presences.forEach(viewer => {
         count++;
-        if (count > 12) return; // max 12 visible seats
+        if (count > 12) return;
         const seat = document.createElement('div');
         seat.classList.add('seat');
         seat.innerHTML = `
-          <img class="avatar" src="${viewer.avatarUrl}"
-               alt="${viewer.name}" title="${viewer.name}"
+          <img class="avatar" src="${viewer.avatarUrl}" alt="${viewer.name}" title="${viewer.name}"
                onerror="this.src='https://api.dicebear.com/7.x/thumbs/svg?seed=guest'" />
           <div class="chair"></div>
           <span class="viewer-label">${viewer.name}</span>
@@ -504,35 +372,29 @@
       });
     });
 
-    const extra = Math.max(0, count - 12);
-    if (extra > 0) {
+    if (count > 12) {
       const more = document.createElement('div');
       more.classList.add('seat');
       more.innerHTML = `
         <div class="avatar" style="display:flex;align-items:center;justify-content:center;
-             background:#1a1a1a;color:#c9a84c;font-size:11px;font-weight:bold;">
-          +${extra}
-        </div>
+             background:#1a1a1a;color:#c9a84c;font-size:11px;font-weight:bold;">+${count - 12}</div>
         <div class="chair"></div>
         <span class="viewer-label">more</span>
       `;
       row.appendChild(more);
     }
 
-    document.getElementById('viewer-count').textContent =
-      `${count} in the lounge`;
+    document.getElementById('viewer-count').textContent = `${count} in the lounge`;
   }
 
   // ── CHAT ──
   function setupChat() {
-    // Listen for new messages
-    db.channel('lounge-chat')
-      .on('broadcast', { event: 'message' }, ({ payload }) => {
-        appendMessage(payload);
-      })
-      .subscribe();
+    chatRoom = db.channel('lounge-chat');
 
-    // Send on Enter key
+    chatRoom.on('broadcast', { event: 'message' }, ({ payload }) => {
+      appendMessage(payload);
+    }).subscribe();
+
     document.getElementById('chat-input').addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -551,18 +413,16 @@
       id: Date.now(),
       name: currentViewer.name,
       avatarUrl: currentViewer.avatarUrl,
-      text: text
+      text
     };
 
-    // Broadcast to all viewers
-    await db.channel('lounge-chat').send({
+    appendMessage(msg);
+
+    await chatRoom.send({
       type: 'broadcast',
       event: 'message',
       payload: msg
     });
-
-    // Show locally immediately
-    appendMessage(msg);
   }
 
   function appendMessage(msg) {
@@ -570,9 +430,8 @@
     const div = document.createElement('div');
     div.classList.add('chat-msg');
     div.innerHTML = `
-      <img src="${msg.avatarUrl}"
-           onerror="this.src='https://api.dicebear.com/7.x/thumbs/svg?seed=guest'"
-           alt="${msg.name}" />
+      <img src="${msg.avatarUrl}" alt="${msg.name}"
+           onerror="this.src='https://api.dicebear.com/7.x/thumbs/svg?seed=guest'" />
       <div class="chat-msg-body">
         <span class="chat-msg-name">${msg.name}</span>
         <span class="chat-msg-text">${escapeHtml(msg.text)}</span>
@@ -583,8 +442,7 @@
   }
 
   function escapeHtml(str) {
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;')
-              .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 </script>
 </body>
