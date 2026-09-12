@@ -73,7 +73,6 @@
 
     .error-msg { color: #e07070; font-size: 0.85rem; min-height: 20px; }
 
-    /* Character picker grid */
     #character-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -120,7 +119,6 @@
     }
     .char-card.selected span { color: #c9a84c; }
 
-    /* Confirm screen */
     #confirm-avatar-img {
       width: 200px;
       height: 200px;
@@ -132,7 +130,6 @@
       color: transparent;
     }
 
-    /* LOUNGE */
     #lounge {
       display: none;
       flex-direction: column;
@@ -172,13 +169,13 @@
     }
     #tv-frame iframe { width: 100%; height: 100%; border: none; display: block; }
 
-    /* Audience area — light background so multiply blend works */
+    /* ── NEW lounge background — no chairs ── */
     #audience-section {
       flex: 1;
       overflow-y: auto;
       padding: 16px;
       min-height: 200px;
-      background-image: url('https://cdn.shopify.com/s/files/1/0750/1244/0231/files/lighter-lounge-background.png?v=1789191121');
+      background-image: url('https://cdn.shopify.com/s/files/1/0750/1244/0231/files/lounge-no-chairs.png?v=1789192352');
       background-size: cover;
       background-position: center bottom;
       position: relative;
@@ -186,7 +183,6 @@
       scrollbar-color: #c9a84c #ccc;
     }
 
-    /* No dark overlay — keep background light for multiply blend */
     #audience-section::before { display: none; }
 
     #audience-label {
@@ -223,7 +219,6 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* multiply blend removes white backgrounds naturally */
     .seat-avatar {
       width: 90px;
       height: 90px;
@@ -249,7 +244,6 @@
       text-shadow: 0 1px 2px rgba(255,255,255,0.6);
     }
 
-    /* CHAT */
     #chat-panel {
       width: 300px;
       min-width: 260px;
@@ -400,27 +394,21 @@
   const SEATS_PER_ROW = 6;
 
   const CHARACTERS = [
-    // ── Angels ──
     { id: 'angel-female',   label: '👼 Angel (Female)',    url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/female-angel.png?v=1789189358' },
     { id: 'angel-male',     label: '👼 Angel (Male)',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-angel.png?v=1789189356' },
-    // ── Military ──
     { id: 'male-captain',   label: '🎖️ Male Captain',     url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-captain.png?v=1789188395' },
     { id: 'female-captain', label: '🎖️ Female Captain',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/female-captain.png?v=1789188399' },
     { id: 'commander',      label: '🪖 Commander',         url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/brown-leather-commander.png?v=1789188401' },
-    // ── Humans ──
     { id: 'woman-natural',  label: '👩🏾 Elegant Woman',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/woman-natural-hair_c79dcfe2-4811-4c85-a260-5372644c16f7.png?v=1789187211' },
     { id: 'casual-guy',     label: '🧑🏻 Casual Guy',       url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/casual-guy_457cfc7c-b939-4f68-9929-d4285bc76de5.png?v=1789187221' },
     { id: 'boho-woman',     label: '👩🏻‍🦱 Boho Woman',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/boho-red-hair_b0c3462a-566e-42c1-87be-22c4b3059ebf.png?v=1789187217' },
     { id: 'male-dark',      label: '🧔🏿 Dark Skin Guy',    url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-character-dark-skin_13feb81e-eb54-435c-84ea-15dd2a16effc.png?v=1789187202' },
-    // ── Fantasy ──
     { id: 'fantasy-elf',    label: '🧝 Fantasy Elf',       url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/fantasy-elf.png?v=1789186863' },
     { id: 'regal-king',     label: '🤴🏿 Regal King',       url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/regal-king.png?v=1789186861' },
     { id: 'mystic-wizard',  label: '🧙🏿 Mystic Wizard',    url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/mystic-wizard.png?v=1789186859' },
-    // ── Dark ──
     { id: 'female-vampire', label: '🧛‍♀️ Vampire Queen',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/vampire.png?v=1789186856' },
     { id: 'male-vampire',   label: '🧛‍♂️ Male Vampire',     url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-vampire.png?v=1789186850' },
     { id: 'ghost',          label: '👻 Ghost',             url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/ghost.png?v=1789186854' },
-    // ── Cat People ──
     { id: 'cat-calico-f',   label: '🐱 Calico Cat Girl',  url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-cat-person-tail-over-arm_e3a04b54-9156-49f8-9684-1c695070d2da.png?v=1789186839' },
     { id: 'cat-white-f',    label: '🐱 White Cat Girl',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/white-silver-cat-girl_dd1b50e3-3b3f-4a74-856b-3b5ea11dbbdb.png?v=1789186836' },
     { id: 'cat-dark-f',     label: '🐱 Dark Cat Girl',    url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/dark-brown-cat-girl_c49ef217-05e3-4751-939c-60fa34358b1f.png?v=1789186834' },
@@ -518,7 +506,6 @@
     container.innerHTML = '';
     const viewers = [];
     Object.values(state).forEach(p => p.forEach(v => {
-      // Only show viewers with a valid Shopify CDN avatar
       if (v.avatarUrl && v.avatarUrl.includes('cdn.shopify.com')) {
         viewers.push(v);
       }
