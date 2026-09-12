@@ -30,7 +30,6 @@
       overflow-y: auto;
     }
     .screen.active { display: flex; }
-
     .screen h1 { color: #c9a84c; font-size: 2rem; letter-spacing: 3px; text-transform: uppercase; }
     .screen h2 { color: #c9a84c; font-size: 1.4rem; letter-spacing: 2px; }
     .screen p  { color: #aaa; font-size: 0.9rem; text-align: center; }
@@ -74,16 +73,21 @@
 
     .error-msg { color: #e07070; font-size: 0.85rem; min-height: 20px; }
 
-    /* Avatar style picker grid */
-    #style-grid {
+    /* Character picker grid */
+    #character-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 12px;
-      max-width: 480px;
+      max-width: 640px;
       width: 100%;
+      max-height: 55vh;
+      overflow-y: auto;
+      padding: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: #c9a84c #1a1a1a;
     }
 
-    .style-card {
+    .char-card {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -93,31 +97,34 @@
       border-radius: 10px;
       border: 2px solid #2a2a2a;
       transition: border-color 0.2s, background 0.2s;
+      background: #111;
     }
-    .style-card:hover { border-color: #c9a84c; background: #1a1500; }
-    .style-card.selected { border-color: #c9a84c; background: #1a1500; }
+    .char-card:hover { border-color: #c9a84c; background: #1a1500; }
+    .char-card.selected { border-color: #c9a84c; background: #1a1500; box-shadow: 0 0 12px #c9a84c44; }
 
-    .style-card img {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      border: 2px solid #333;
+    .char-card img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #2a2a2a;
       background: #222;
     }
-    .style-card span {
+    .char-card span {
       font-size: 10px;
       color: #888;
       text-align: center;
+      line-height: 1.3;
     }
-    .style-card.selected span { color: #c9a84c; }
+    .char-card.selected span { color: #c9a84c; }
 
-    /* Confirm preview */
+    /* Confirm screen */
     #confirm-avatar-img {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      border: 3px solid #c9a84c;
+      width: 180px;
+      height: 180px;
       object-fit: cover;
+      border-radius: 12px;
+      border: 3px solid #c9a84c;
       background: #222;
     }
 
@@ -181,9 +188,9 @@
     .chair-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 14px;
+      gap: 10px;
       align-items: flex-end;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
 
     .seat {
@@ -191,6 +198,7 @@
       flex-direction: column;
       align-items: center;
       animation: seatIn 0.4s ease;
+      width: 90px;
     }
     @keyframes seatIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -198,53 +206,22 @@
     }
 
     .seat-avatar {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      border: 2px solid #c9a84c;
+      width: 90px;
+      height: 90px;
       object-fit: cover;
-      background: #222;
-      margin-bottom: -4px;
-      position: relative;
-      z-index: 1;
+      border-radius: 6px;
+      background: transparent;
     }
-    .chair-back {
-      width: 58px;
-      height: 26px;
-      background: #e8e0d0;
-      border-radius: 10px 10px 3px 3px;
-      border: 1px solid #d4c9b8;
-    }
-    .chair-seat {
-      width: 64px;
-      height: 16px;
-      background: #ede8df;
-      border-radius: 3px;
-      margin-top: 2px;
-      border: 1px solid #d4c9b8;
-    }
-    .chair-base {
-      width: 28px;
-      height: 16px;
-      background: linear-gradient(135deg, #c9a84c, #8a6a20);
-      border-radius: 0 0 4px 4px;
-      margin-top: 1px;
-    }
-    .chair-foot {
-      width: 40px;
-      height: 5px;
-      background: linear-gradient(135deg, #b8962e, #7a5c10);
-      border-radius: 3px;
-    }
+
     .seat-name {
       font-size: 9px;
       color: #c9a84c;
       text-align: center;
-      max-width: 64px;
+      max-width: 90px;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
-      margin-top: 4px;
+      margin-top: 2px;
     }
 
     /* CHAT */
@@ -280,7 +257,14 @@
     #chat-messages::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
 
     .chat-msg { display: flex; gap: 8px; align-items: flex-start; }
-    .chat-msg img { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #c9a84c; flex-shrink: 0; }
+    .chat-msg img {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      border: 1px solid #c9a84c;
+      flex-shrink: 0;
+      object-fit: cover;
+    }
     .chat-msg-body { display: flex; flex-direction: column; gap: 2px; }
     .chat-msg-name { font-size: 0.7rem; color: #c9a84c; font-weight: bold; }
     .chat-msg-text { font-size: 0.85rem; color: #ddd; line-height: 1.4; word-break: break-word; }
@@ -329,26 +313,27 @@
   <h1>☕ Olyesti Cafe</h1>
   <p>Enter your name to join the lounge</p>
   <input id="name-input" class="text-input" type="text" placeholder="Your name..." maxlength="24" />
-  <button class="gold-btn" onclick="goToStylePicker()">Next →</button>
+  <button class="gold-btn" onclick="goToCharacterPicker()">Next →</button>
   <span id="name-error" class="error-msg"></span>
 </div>
 
-<!-- SCREEN 2: Avatar Style Picker -->
-<div id="screen-style" class="screen">
-  <h2>Pick Your Avatar Style</h2>
-  <p>Choose how you'll appear in the lounge</p>
-  <div id="style-grid"></div>
+<!-- SCREEN 2: Character Picker -->
+<div id="screen-character" class="screen">
+  <h2>Choose Your Character</h2>
+  <p>Pick who you'll be in the lounge</p>
+  <div id="character-grid"></div>
   <button class="gold-btn" onclick="goToConfirm()">Next →</button>
-  <span id="style-error" class="error-msg"></span>
+  <span id="char-error" class="error-msg"></span>
 </div>
 
 <!-- SCREEN 3: Confirm -->
 <div id="screen-confirm" class="screen">
   <h2>Ready to Join? ☕</h2>
-  <img id="confirm-avatar-img" src="" alt="Your avatar" />
+  <img id="confirm-avatar-img" src="" alt="Your character" />
   <span id="confirm-name-label" style="color:#c9a84c; font-size:1.1rem;"></span>
+  <span id="confirm-char-label" style="color:#888; font-size:0.85rem;"></span>
   <button class="gold-btn" onclick="enterLounge()">Take My Seat</button>
-  <button class="ghost-btn" onclick="showScreen('screen-style')">Change Style</button>
+  <button class="ghost-btn" onclick="showScreen('screen-character')">Change Character</button>
 </div>
 
 <!-- LOUNGE -->
@@ -386,22 +371,32 @@
 
   const SEATS_PER_ROW = 6;
 
-  // All 8 DiceBear styles
-  const AVATAR_STYLES = [
-    { id: 'adventurer',       label: 'Adventurer' },
-    { id: 'adventurer-neutral', label: 'Neutral' },
-    { id: 'lorelei',          label: 'Lorelei' },
-    { id: 'lorelei-neutral',  label: 'Lorelei 2' },
-    { id: 'notionists',       label: 'Notion' },
-    { id: 'open-peeps',       label: 'Peeps' },
-    { id: 'pixel-art',        label: 'Pixel' },
-    { id: 'thumbs',           label: 'Thumbs' },
+  // ── ALL CHARACTERS ──
+  const CHARACTERS = [
+    { id: 'angel',            label: '👼 Angel',               url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/ChatGPT_Image_Sep_11_2026_08_59_29_PM.png' },
+    { id: 'woman-natural',    label: '👩🏾 Elegant Woman',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/woman-natural-hair.png?v=1789186870' },
+    { id: 'casual-guy',       label: '🧑🏻 Casual Guy',          url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/casual-guy.png?v=1789186867' },
+    { id: 'boho-woman',       label: '👩🏻‍🦱 Boho Woman',         url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/boho-red-hair.png?v=1789186865' },
+    { id: 'fantasy-elf',      label: '🧝 Fantasy Elf',          url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/fantasy-elf.png?v=1789186863' },
+    { id: 'regal-king',       label: '🤴🏿 Regal King',          url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/regal-king.png?v=1789186861' },
+    { id: 'mystic-wizard',    label: '🧙🏿 Mystic Wizard',       url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/mystic-wizard.png?v=1789186859' },
+    { id: 'female-vampire',   label: '🧛‍♀️ Vampire Queen',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/vampire.png?v=1789186856' },
+    { id: 'male-vampire',     label: '🧛‍♂️ Male Vampire',        url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-vampire.png?v=1789186850' },
+    { id: 'ghost',            label: '👻 Ghost',                url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/ghost.png?v=1789186854' },
+    { id: 'cat-calico-f',     label: '🐱 Calico Cat Girl',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-cat-person-tail-over-arm_e3a04b54-9156-49f8-9684-1c695070d2da.png?v=1789186839' },
+    { id: 'cat-white-f',      label: '🐱 White Cat Girl',       url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/white-silver-cat-girl_dd1b50e3-3b3f-4a74-856b-3b5ea11dbbdb.png?v=1789186836' },
+    { id: 'cat-dark-f',       label: '🐱 Dark Cat Girl',        url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/dark-brown-cat-girl_c49ef217-05e3-4751-939c-60fa34358b1f.png?v=1789186834' },
+    { id: 'cat-gray-f',       label: '🐱 Gray Cat Girl',        url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/gray-striped-cat-girl_bfce1d7b-268f-4d39-93d6-73d8f90f35d6.png?v=1789186830' },
+    { id: 'cat-white-m',      label: '🐱 White Cat Guy',        url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/white-silver-male-cat_37487333-26ce-45a5-999e-bd14918ab765.png?v=1789186823' },
+    { id: 'cat-dark-m',       label: '🐱 Dark Cat Guy',         url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/dark-male-cat-using-calico-reference.png?v=1789186801' },
+    { id: 'cat-gray-m',       label: '🐱 Gray Cat Guy',         url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/gray-striped-male-cat.png?v=1789186667' },
+    { id: 'male-dark',        label: '🧔🏿 Dark Skin Guy',       url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-character-dark-skin.png?v=1789186874' },
   ];
 
   let currentViewer = null;
   let presenceRoom = null;
   let chatRoom = null;
-  let selectedStyle = null;
+  let selectedChar = null;
   let viewerName = '';
 
   // ── SCREENS ──
@@ -415,64 +410,59 @@
     }
   }
 
-  // ── STEP 1 ──
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('name-input').addEventListener('keydown', e => {
-      if (e.key === 'Enter') goToStylePicker();
+      if (e.key === 'Enter') goToCharacterPicker();
     });
-    buildStyleGrid();
+    buildCharacterGrid();
   });
 
-  function goToStylePicker() {
+  // ── STEP 1 ──
+  function goToCharacterPicker() {
     viewerName = document.getElementById('name-input').value.trim();
     if (!viewerName) {
       document.getElementById('name-error').textContent = '⚠️ Please enter your name';
       return;
     }
-    buildStyleGrid(); // refresh previews with name as seed
-    showScreen('screen-style');
+    showScreen('screen-character');
   }
 
-  // ── STEP 2: Style Grid ──
-  function buildStyleGrid() {
-    const grid = document.getElementById('style-grid');
+  // ── STEP 2: Character Grid ──
+  function buildCharacterGrid() {
+    const grid = document.getElementById('character-grid');
     grid.innerHTML = '';
-    const seed = viewerName || 'preview';
-
-    AVATAR_STYLES.forEach(style => {
-      const url = `https://api.dicebear.com/7.x/${style.id}/svg?seed=${encodeURIComponent(seed)}`;
+    CHARACTERS.forEach(char => {
       const card = document.createElement('div');
-      card.classList.add('style-card');
-      if (selectedStyle === style.id) card.classList.add('selected');
+      card.classList.add('char-card');
+      if (selectedChar && selectedChar.id === char.id) card.classList.add('selected');
       card.innerHTML = `
-        <img src="${url}" alt="${style.label}" />
-        <span>${style.label}</span>
+        <img src="${char.url}" alt="${char.label}" loading="lazy" />
+        <span>${char.label}</span>
       `;
       card.onclick = () => {
-        document.querySelectorAll('.style-card').forEach(c => c.classList.remove('selected'));
+        document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
         card.classList.add('selected');
-        selectedStyle = style.id;
+        selectedChar = char;
       };
       grid.appendChild(card);
     });
   }
 
   function goToConfirm() {
-    if (!selectedStyle) {
-      document.getElementById('style-error').textContent = '⚠️ Please pick a style';
+    if (!selectedChar) {
+      document.getElementById('char-error').textContent = '⚠️ Please pick a character';
       return;
     }
-    const avatarUrl = `https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${encodeURIComponent(viewerName)}`;
-    document.getElementById('confirm-avatar-img').src = avatarUrl;
+    document.getElementById('confirm-avatar-img').src = selectedChar.url;
     document.getElementById('confirm-name-label').textContent = viewerName;
+    document.getElementById('confirm-char-label').textContent = selectedChar.label;
     showScreen('screen-confirm');
   }
 
   // ── STEP 3: Enter Lounge ──
   function enterLounge() {
-    const avatarUrl = `https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${encodeURIComponent(viewerName)}`;
     const id = 'guest_' + Math.random().toString(36).substr(2, 9);
-    currentViewer = { id, name: viewerName, avatarUrl };
+    currentViewer = { id, name: viewerName, avatarUrl: selectedChar.url, charLabel: selectedChar.label };
     showScreen('lounge');
     setupPresence();
     setupChat();
@@ -498,7 +488,6 @@
     Object.values(state).forEach(p => p.forEach(v => viewers.push(v)));
     document.getElementById('viewer-count').textContent = `${viewers.length} in the lounge`;
 
-    // Split into rows — new row auto-loads when current fills up
     for (let i = 0; i < viewers.length; i += SEATS_PER_ROW) {
       const row = document.createElement('div');
       row.classList.add('chair-row');
@@ -511,12 +500,7 @@
     const seat = document.createElement('div');
     seat.classList.add('seat');
     seat.innerHTML = `
-      <img class="seat-avatar" src="${viewer.avatarUrl}" alt="${viewer.name}"
-           onerror="this.src='https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(viewer.name)}'" />
-      <div class="chair-back"></div>
-      <div class="chair-seat"></div>
-      <div class="chair-base"></div>
-      <div class="chair-foot"></div>
+      <img class="seat-avatar" src="${viewer.avatarUrl}" alt="${viewer.name}" title="${viewer.name}" />
       <span class="seat-name">${viewer.name}</span>
     `;
     return seat;
@@ -546,8 +530,7 @@
     const div = document.createElement('div');
     div.classList.add('chat-msg');
     div.innerHTML = `
-      <img src="${msg.avatarUrl}" alt="${msg.name}"
-           onerror="this.src='https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(msg.name)}'" />
+      <img src="${msg.avatarUrl}" alt="${msg.name}" />
       <div class="chat-msg-body">
         <span class="chat-msg-name">${msg.name}</span>
         <span class="chat-msg-text">${escapeHtml(msg.text)}</span>
