@@ -97,7 +97,7 @@
       border-radius: 10px;
       border: 2px solid #2a2a2a;
       transition: border-color 0.2s, background 0.2s;
-      background: #111;
+      background: #0d0d0d;
     }
     .char-card:hover { border-color: #c9a84c; background: #1a1500; }
     .char-card.selected { border-color: #c9a84c; background: #1a1500; box-shadow: 0 0 12px #c9a84c44; }
@@ -106,9 +106,10 @@
       width: 100%;
       aspect-ratio: 1;
       object-fit: cover;
+      object-position: center top;
       border-radius: 8px;
-      border: 1px solid #2a2a2a;
-      background: #222;
+      border: none;
+      background: transparent;
     }
     .char-card span {
       font-size: 10px;
@@ -120,12 +121,13 @@
 
     /* Confirm screen */
     #confirm-avatar-img {
-      width: 180px;
-      height: 180px;
+      width: 200px;
+      height: 200px;
       object-fit: cover;
+      object-position: center top;
       border-radius: 12px;
       border: 3px solid #c9a84c;
-      background: #222;
+      background: transparent;
     }
 
     /* LOUNGE */
@@ -188,7 +190,7 @@
     .chair-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
       align-items: flex-end;
       margin-bottom: 10px;
     }
@@ -209,6 +211,7 @@
       width: 90px;
       height: 90px;
       object-fit: cover;
+      object-position: center top;
       border-radius: 6px;
       background: transparent;
     }
@@ -264,6 +267,7 @@
       border: 1px solid #c9a84c;
       flex-shrink: 0;
       object-fit: cover;
+      object-position: center top;
     }
     .chat-msg-body { display: flex; flex-direction: column; gap: 2px; }
     .chat-msg-name { font-size: 0.7rem; color: #c9a84c; font-weight: bold; }
@@ -371,26 +375,32 @@
 
   const SEATS_PER_ROW = 6;
 
-  // ── ALL CHARACTERS ──
   const CHARACTERS = [
-    { id: 'angel',            label: '👼 Angel',               url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/ChatGPT_Image_Sep_11_2026_08_59_29_PM.png' },
-    { id: 'woman-natural',    label: '👩🏾 Elegant Woman',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/woman-natural-hair.png?v=1789186870' },
-    { id: 'casual-guy',       label: '🧑🏻 Casual Guy',          url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/casual-guy.png?v=1789186867' },
-    { id: 'boho-woman',       label: '👩🏻‍🦱 Boho Woman',         url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/boho-red-hair.png?v=1789186865' },
-    { id: 'fantasy-elf',      label: '🧝 Fantasy Elf',          url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/fantasy-elf.png?v=1789186863' },
-    { id: 'regal-king',       label: '🤴🏿 Regal King',          url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/regal-king.png?v=1789186861' },
-    { id: 'mystic-wizard',    label: '🧙🏿 Mystic Wizard',       url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/mystic-wizard.png?v=1789186859' },
-    { id: 'female-vampire',   label: '🧛‍♀️ Vampire Queen',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/vampire.png?v=1789186856' },
-    { id: 'male-vampire',     label: '🧛‍♂️ Male Vampire',        url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-vampire.png?v=1789186850' },
-    { id: 'ghost',            label: '👻 Ghost',                url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/ghost.png?v=1789186854' },
-    { id: 'cat-calico-f',     label: '🐱 Calico Cat Girl',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-cat-person-tail-over-arm_e3a04b54-9156-49f8-9684-1c695070d2da.png?v=1789186839' },
-    { id: 'cat-white-f',      label: '🐱 White Cat Girl',       url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/white-silver-cat-girl_dd1b50e3-3b3f-4a74-856b-3b5ea11dbbdb.png?v=1789186836' },
-    { id: 'cat-dark-f',       label: '🐱 Dark Cat Girl',        url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/dark-brown-cat-girl_c49ef217-05e3-4751-939c-60fa34358b1f.png?v=1789186834' },
-    { id: 'cat-gray-f',       label: '🐱 Gray Cat Girl',        url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/gray-striped-cat-girl_bfce1d7b-268f-4d39-93d6-73d8f90f35d6.png?v=1789186830' },
-    { id: 'cat-white-m',      label: '🐱 White Cat Guy',        url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/white-silver-male-cat_37487333-26ce-45a5-999e-bd14918ab765.png?v=1789186823' },
-    { id: 'cat-dark-m',       label: '🐱 Dark Cat Guy',         url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/dark-male-cat-using-calico-reference.png?v=1789186801' },
-    { id: 'cat-gray-m',       label: '🐱 Gray Cat Guy',         url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/gray-striped-male-cat.png?v=1789186667' },
-    { id: 'male-dark',        label: '🧔🏿 Dark Skin Guy',       url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-character-dark-skin.png?v=1789186874' },
+    // ── Humans ──
+    { id: 'angel',          label: '👼 Angel',              url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/ChatGPT_Image_Sep_11_2026_08_59_29_PM.png' },
+    { id: 'male-captain',   label: '🎖️ Male Captain',       url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-captain.png?v=1789188395' },
+    { id: 'female-captain', label: '🎖️ Female Captain',     url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/female-captain.png?v=1789188399' },
+    { id: 'commander',      label: '🪖 Commander',          url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/brown-leather-commander.png?v=1789188401' },
+    { id: 'woman-natural',  label: '👩🏾 Elegant Woman',     url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/woman-natural-hair_c79dcfe2-4811-4c85-a260-5372644c16f7.png?v=1789187211' },
+    { id: 'casual-guy',     label: '🧑🏻 Casual Guy',         url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/casual-guy_457cfc7c-b939-4f68-9929-d4285bc76de5.png?v=1789187221' },
+    { id: 'boho-woman',     label: '👩🏻‍🦱 Boho Woman',        url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/boho-red-hair_b0c3462a-566e-42c1-87be-22c4b3059ebf.png?v=1789187217' },
+    { id: 'male-dark',      label: '🧔🏿 Dark Skin Guy',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-character-dark-skin_13feb81e-eb54-435c-84ea-15dd2a16effc.png?v=1789187202' },
+    // ── Fantasy ──
+    { id: 'fantasy-elf',    label: '🧝 Fantasy Elf',         url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/fantasy-elf.png?v=1789186863' },
+    { id: 'regal-king',     label: '🤴🏿 Regal King',         url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/regal-king.png?v=1789186861' },
+    { id: 'mystic-wizard',  label: '🧙🏿 Mystic Wizard',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/mystic-wizard.png?v=1789186859' },
+    // ── Dark ──
+    { id: 'female-vampire', label: '🧛‍♀️ Vampire Queen',     url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/vampire.png?v=1789186856' },
+    { id: 'male-vampire',   label: '🧛‍♂️ Male Vampire',       url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-vampire.png?v=1789186850' },
+    { id: 'ghost',          label: '👻 Ghost',               url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/ghost.png?v=1789186854' },
+    // ── Cat People ──
+    { id: 'cat-calico-f',   label: '🐱 Calico Cat Girl',     url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-cat-person-tail-over-arm_e3a04b54-9156-49f8-9684-1c695070d2da.png?v=1789186839' },
+    { id: 'cat-white-f',    label: '🐱 White Cat Girl',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/white-silver-cat-girl_dd1b50e3-3b3f-4a74-856b-3b5ea11dbbdb.png?v=1789186836' },
+    { id: 'cat-dark-f',     label: '🐱 Dark Cat Girl',       url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/dark-brown-cat-girl_c49ef217-05e3-4751-939c-60fa34358b1f.png?v=1789186834' },
+    { id: 'cat-gray-f',     label: '🐱 Gray Cat Girl',       url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/gray-striped-cat-girl_bfce1d7b-268f-4d39-93d6-73d8f90f35d6.png?v=1789186830' },
+    { id: 'cat-white-m',    label: '🐱 White Cat Guy',       url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/white-silver-male-cat_37487333-26ce-45a5-999e-bd14918ab765.png?v=1789186823' },
+    { id: 'cat-dark-m',     label: '🐱 Dark Cat Guy',        url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/dark-male-cat-using-calico-reference.png?v=1789186801' },
+    { id: 'cat-gray-m',     label: '🐱 Gray Cat Guy',        url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/gray-striped-male-cat.png?v=1789186667' },
   ];
 
   let currentViewer = null;
@@ -399,7 +409,6 @@
   let selectedChar = null;
   let viewerName = '';
 
-  // ── SCREENS ──
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('lounge').style.display = 'none';
@@ -417,7 +426,6 @@
     buildCharacterGrid();
   });
 
-  // ── STEP 1 ──
   function goToCharacterPicker() {
     viewerName = document.getElementById('name-input').value.trim();
     if (!viewerName) {
@@ -427,7 +435,6 @@
     showScreen('screen-character');
   }
 
-  // ── STEP 2: Character Grid ──
   function buildCharacterGrid() {
     const grid = document.getElementById('character-grid');
     grid.innerHTML = '';
@@ -436,13 +443,15 @@
       card.classList.add('char-card');
       if (selectedChar && selectedChar.id === char.id) card.classList.add('selected');
       card.innerHTML = `
-        <img src="${char.url}" alt="${char.label}" loading="lazy" />
+        <img src="${char.url}" alt="${char.label}" loading="lazy"
+             onerror="this.style.opacity='0.3'; this.style.filter='grayscale(1)'" />
         <span>${char.label}</span>
       `;
       card.onclick = () => {
         document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
         card.classList.add('selected');
         selectedChar = char;
+        document.getElementById('char-error').textContent = '';
       };
       grid.appendChild(card);
     });
@@ -459,7 +468,6 @@
     showScreen('screen-confirm');
   }
 
-  // ── STEP 3: Enter Lounge ──
   function enterLounge() {
     const id = 'guest_' + Math.random().toString(36).substr(2, 9);
     currentViewer = { id, name: viewerName, avatarUrl: selectedChar.url, charLabel: selectedChar.label };
@@ -468,7 +476,6 @@
     setupChat();
   }
 
-  // ── PRESENCE ──
   function setupPresence() {
     presenceRoom = db.channel('lounge-presence', {
       config: { presence: { key: currentViewer.id } }
@@ -487,7 +494,6 @@
     const viewers = [];
     Object.values(state).forEach(p => p.forEach(v => viewers.push(v)));
     document.getElementById('viewer-count').textContent = `${viewers.length} in the lounge`;
-
     for (let i = 0; i < viewers.length; i += SEATS_PER_ROW) {
       const row = document.createElement('div');
       row.classList.add('chair-row');
@@ -506,7 +512,6 @@
     return seat;
   }
 
-  // ── CHAT ──
   function setupChat() {
     chatRoom = db.channel('lounge-chat');
     chatRoom.on('broadcast', { event: 'message' }, ({ payload }) => appendMessage(payload)).subscribe();
