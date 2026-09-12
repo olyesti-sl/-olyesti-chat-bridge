@@ -401,27 +401,34 @@
 
   const SEATS_PER_ROW = 6;
 
+  // Cache-bust helper — strips old ?v= and adds fresh timestamp
+  // so Shopify CDN always serves the latest edited version
+  const CB = Date.now();
+  function bust(url) {
+    return url.split('?')[0] + '?t=' + CB;
+  }
+
   const CHARACTERS = [
-    { id: 'angel-female',   label: '👼 Angel (Female)',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/female-angel.png?v=1789195341' },
-    { id: 'angel-male',     label: '👼 Angel (Male)',     url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-angel.png?v=1789195460' },
-    { id: 'male-captain',   label: '🎖️ Male Captain',    url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-captain.png?v=1789195549' },
-    { id: 'female-captain', label: '🎖️ Female Captain',  url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/female-captain.png?v=1789195520' },
-    { id: 'commander',      label: '🪖 Commander',        url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/brown-leather-commander.png?v=1789195493' },
-    { id: 'woman-natural',  label: '👩🏾 Elegant Woman',  url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/woman-natural-hair_c79dcfe2-4811-4c85-a260-5372644c16f7.png?v=1789195644' },
-    { id: 'casual-guy',     label: '🧑🏻 Casual Guy',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/casual-guy_457cfc7c-b939-4f68-9929-d4285bc76de5.png?v=1789195577' },
-    { id: 'boho-woman',     label: '👩🏻‍🦱 Boho Woman',     url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/boho-red-hair_b0c3462a-566e-42c1-87be-22c4b3059ebf.png?v=1789195612' },
-    { id: 'male-dark',      label: '🧔🏿 Dark Skin Guy',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-character-dark-skin_13feb81e-eb54-435c-84ea-15dd2a16effc.png?v=1789195673' },
-    { id: 'fantasy-elf',    label: '🧝 Fantasy Elf',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/fantasy-elf.png?v=1789195796' },
-    { id: 'regal-king',     label: '🤴🏿 Regal King',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/regal-king.png?v=1789195820' },
-    { id: 'mystic-wizard',  label: '🧙🏿 Mystic Wizard',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/mystic-wizard.png?v=1789195846' },
-    { id: 'female-vampire', label: '🧛‍♀️ Vampire Queen',  url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/vampire.png?v=1789195875' },
-    { id: 'male-vampire',   label: '🧛‍♂️ Male Vampire',    url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-vampire.png?v=1789195937' },
-    { id: 'ghost',          label: '👻 Ghost',            url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/ghost.png?v=1789195908' },
-    { id: 'cat-calico-f',   label: '🐱 Calico Cat Girl', url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-cat-person-tail-over-arm_e3a04b54-9156-49f8-9684-1c695070d2da.png?v=1789195965' },
-    { id: 'cat-white-f',    label: '🐱 White Cat Girl',  url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/white-silver-cat-girl_dd1b50e3-3b3f-4a74-856b-3b5ea11dbbdb.png?v=1789195999' },
-    { id: 'cat-dark-f',     label: '🐱 Dark Cat Girl',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/dark-brown-cat-girl_c49ef217-05e3-4751-939c-60fa34358b1f.png?v=1789196030' },
-    { id: 'cat-gray-f',     label: '🐱 Gray Cat Girl',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/gray-striped-cat-girl_bfce1d7b-268f-4d39-93d6-73d8f90f35d6.png?v=1789196059' },
-    { id: 'cat-white-m',    label: '🐱 White Cat Guy',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/white-silver-male-cat_37487333-26ce-45a5-999e-bd14918ab765.png?v=1789196081' },
+    { id: 'angel-female',   label: '👼 Angel (Female)',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/female-angel.png' },
+    { id: 'angel-male',     label: '👼 Angel (Male)',     url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-angel.png' },
+    { id: 'male-captain',   label: '🎖️ Male Captain',    url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-captain.png' },
+    { id: 'female-captain', label: '🎖️ Female Captain',  url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/female-captain.png' },
+    { id: 'commander',      label: '🪖 Commander',        url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/brown-leather-commander.png' },
+    { id: 'woman-natural',  label: '👩🏾 Elegant Woman',  url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/woman-natural-hair_c79dcfe2-4811-4c85-a260-5372644c16f7.png' },
+    { id: 'casual-guy',     label: '🧑🏻 Casual Guy',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/casual-guy_457cfc7c-b939-4f68-9929-d4285bc76de5.png' },
+    { id: 'boho-woman',     label: '👩🏻‍🦱 Boho Woman',     url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/boho-red-hair_b0c3462a-566e-42c1-87be-22c4b3059ebf.png' },
+    { id: 'male-dark',      label: '🧔🏿 Dark Skin Guy',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-character-dark-skin_13feb81e-eb54-435c-84ea-15dd2a16effc.png' },
+    { id: 'fantasy-elf',    label: '🧝 Fantasy Elf',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/fantasy-elf.png' },
+    { id: 'regal-king',     label: '🤴🏿 Regal King',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/regal-king.png' },
+    { id: 'mystic-wizard',  label: '🧙🏿 Mystic Wizard',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/mystic-wizard.png' },
+    { id: 'female-vampire', label: '🧛‍♀️ Vampire Queen',  url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/vampire.png' },
+    { id: 'male-vampire',   label: '🧛‍♂️ Male Vampire',    url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-vampire.png' },
+    { id: 'ghost',          label: '👻 Ghost',            url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/ghost.png' },
+    { id: 'cat-calico-f',   label: '🐱 Calico Cat Girl', url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-cat-person-tail-over-arm_e3a04b54-9156-49f8-9684-1c695070d2da.png' },
+    { id: 'cat-white-f',    label: '🐱 White Cat Girl',  url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/white-silver-cat-girl_dd1b50e3-3b3f-4a74-856b-3b5ea11dbbdb.png' },
+    { id: 'cat-dark-f',     label: '🐱 Dark Cat Girl',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/dark-brown-cat-girl_c49ef217-05e3-4751-939c-60fa34358b1f.png' },
+    { id: 'cat-gray-f',     label: '🐱 Gray Cat Girl',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/gray-striped-cat-girl_bfce1d7b-268f-4d39-93d6-73d8f90f35d6.png' },
+    { id: 'cat-white-m',    label: '🐱 White Cat Guy',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/white-silver-male-cat_37487333-26ce-45a5-999e-bd14918ab765.png' },
   ];
 
   let currentViewer = null;
@@ -464,7 +471,7 @@
       card.classList.add('char-card');
       if (selectedChar && selectedChar.id === char.id) card.classList.add('selected');
       card.innerHTML = `
-        <img src="${char.url}" alt="${char.label}" loading="lazy"
+        <img src="${bust(char.url)}" alt="${char.label}" loading="lazy"
              onerror="this.style.display='none'" />
         <span>${char.label}</span>
       `;
@@ -483,7 +490,7 @@
       document.getElementById('char-error').textContent = '⚠️ Please pick a character';
       return;
     }
-    document.getElementById('confirm-avatar-img').src = selectedChar.url;
+    document.getElementById('confirm-avatar-img').src = bust(selectedChar.url);
     document.getElementById('confirm-name-label').textContent = viewerName;
     document.getElementById('confirm-char-label').textContent = selectedChar.label;
     showScreen('screen-confirm');
@@ -491,6 +498,8 @@
 
   function enterLounge() {
     const id = 'guest_' + Math.random().toString(36).substr(2, 9);
+    // Store the clean base URL (no cache-buster) in presence so other
+    // viewers receive the canonical URL; bust() is applied on render only
     currentViewer = { id, name: viewerName, avatarUrl: selectedChar.url, charLabel: selectedChar.label };
     showScreen('lounge');
     setupPresence();
@@ -537,7 +546,7 @@
     seat.innerHTML = `
       <div class="seat-avatar-wrap">
         <img class="seat-avatar"
-             src="${viewer.avatarUrl}"
+             src="${bust(viewer.avatarUrl)}"
              alt="${viewer.name}"
              title="${viewer.name}"
              onerror="this.closest('.seat').style.display='none'" />
@@ -570,7 +579,7 @@
     const div = document.createElement('div');
     div.classList.add('chat-msg');
     div.innerHTML = `
-      <img src="${msg.avatarUrl}" alt="${msg.name}" onerror="this.style.display='none'" />
+      <img src="${bust(msg.avatarUrl)}" alt="${msg.name}" onerror="this.style.display='none'" />
       <div class="chat-msg-body">
         <span class="chat-msg-name">${msg.name}</span>
         <span class="chat-msg-text">${escapeHtml(msg.text)}</span>
