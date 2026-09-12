@@ -514,6 +514,8 @@
     const msg = { id: Date.now(), name: currentViewer.name, avatarUrl: currentViewer.avatarUrl, text };
     appendMessage(msg);
     await chatRoom.send({ type: 'broadcast', event: 'message', payload: msg });
+    // Store for Second Life relay pickup
+    await db.from('relay_messages').insert({ speaker: currentViewer.name, text });
   }
 
   function appendMessage(msg) {
