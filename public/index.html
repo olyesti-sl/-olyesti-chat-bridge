@@ -217,15 +217,17 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
+    /* transparent wrap — no background box at all */
     .seat-avatar-wrap {
       width: 90px;
       height: 90px;
-      background: #ffffff;
+      background: transparent;
       position: relative;
       overflow: hidden;
       flex-shrink: 0;
     }
 
+    /* screen blend dissolves light/grey backgrounds into the warm floor */
     .seat-avatar {
       width: 90px;
       height: 90px;
@@ -233,7 +235,7 @@
       object-position: center bottom;
       display: block;
       color: transparent;
-      mix-blend-mode: multiply;
+      mix-blend-mode: screen;
       position: relative;
       z-index: 1;
     }
@@ -401,8 +403,7 @@
 
   const SEATS_PER_ROW = 6;
 
-  // Cache-bust helper — strips old ?v= and adds fresh timestamp
-  // so Shopify CDN always serves the latest edited version
+  // Strips old ?v= cache key and adds fresh timestamp on every load
   const CB = Date.now();
   function bust(url) {
     return url.split('?')[0] + '?t=' + CB;
@@ -498,8 +499,6 @@
 
   function enterLounge() {
     const id = 'guest_' + Math.random().toString(36).substr(2, 9);
-    // Store the clean base URL (no cache-buster) in presence so other
-    // viewers receive the canonical URL; bust() is applied on render only
     currentViewer = { id, name: viewerName, avatarUrl: selectedChar.url, charLabel: selectedChar.label };
     showScreen('lounge');
     setupPresence();
