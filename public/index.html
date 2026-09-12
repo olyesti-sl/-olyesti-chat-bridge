@@ -18,28 +18,24 @@
       overflow: hidden;
     }
 
-    #login-screen {
-      display: flex;
+    .screen {
+      display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
       gap: 16px;
       background: radial-gradient(ellipse at center, #2a1f00 0%, #0a0a0a 70%);
+      padding: 24px;
+      overflow-y: auto;
     }
-    #login-screen h1 {
-      color: #c9a84c;
-      font-size: 2rem;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-    }
-    #login-screen p {
-      color: #aaa;
-      font-size: 0.9rem;
-      letter-spacing: 1px;
-    }
+    .screen.active { display: flex; }
 
-    #name-input-login {
+    .screen h1 { color: #c9a84c; font-size: 2rem; letter-spacing: 3px; text-transform: uppercase; }
+    .screen h2 { color: #c9a84c; font-size: 1.4rem; letter-spacing: 2px; }
+    .screen p  { color: #aaa; font-size: 0.9rem; text-align: center; }
+
+    .text-input {
       padding: 12px 16px;
       border-radius: 6px;
       border: 1px solid #c9a84c;
@@ -49,7 +45,7 @@
       font-size: 1rem;
       outline: none;
     }
-    #name-input-login:focus { border-color: #e0c060; }
+    .text-input:focus { border-color: #e0c060; }
 
     .gold-btn {
       background: #c9a84c;
@@ -65,12 +61,67 @@
     }
     .gold-btn:hover { background: #e0c060; }
 
-    #login-msg {
-      color: #e07070;
-      font-size: 0.85rem;
-      min-height: 20px;
+    .ghost-btn {
+      background: transparent;
+      color: #c9a84c;
+      padding: 10px 24px;
+      border: 1px solid #c9a84c;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .ghost-btn:hover { background: #c9a84c22; }
+
+    .error-msg { color: #e07070; font-size: 0.85rem; min-height: 20px; }
+
+    /* Avatar style picker grid */
+    #style-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      max-width: 480px;
+      width: 100%;
     }
 
+    .style-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 10px;
+      border: 2px solid #2a2a2a;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .style-card:hover { border-color: #c9a84c; background: #1a1500; }
+    .style-card.selected { border-color: #c9a84c; background: #1a1500; }
+
+    .style-card img {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 2px solid #333;
+      background: #222;
+    }
+    .style-card span {
+      font-size: 10px;
+      color: #888;
+      text-align: center;
+    }
+    .style-card.selected span { color: #c9a84c; }
+
+    /* Confirm preview */
+    #confirm-avatar-img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 3px solid #c9a84c;
+      object-fit: cover;
+      background: #222;
+    }
+
+    /* LOUNGE */
     #lounge {
       display: none;
       flex-direction: column;
@@ -91,11 +142,7 @@
     .logo { color: #c9a84c; font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase; }
     .viewer-count { color: #888; font-size: 0.8rem; }
 
-    #main {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-    }
+    #main { display: flex; flex: 1; overflow: hidden; }
 
     #stage {
       display: flex;
@@ -106,27 +153,22 @@
       overflow: hidden;
     }
 
-    /* TV fixed at 55% height so chairs always show */
     #tv-frame {
       width: 100%;
-      height: 55vh;
+      height: 52vh;
       background: #000;
       border: 2px solid #333;
       border-radius: 8px;
       overflow: hidden;
       flex-shrink: 0;
     }
-    #tv-frame iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      display: block;
-    }
+    #tv-frame iframe { width: 100%; height: 100%; border: none; display: block; }
 
-    /* Audience section */
     #audience-section {
-      flex-shrink: 0;
-      padding-bottom: 8px;
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #2a2a2a #0a0a0a;
     }
     #audience-label {
       color: #555;
@@ -136,46 +178,76 @@
       margin-bottom: 8px;
     }
 
-    #audience-row {
+    .chair-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 14px;
       align-items: flex-end;
-      min-height: 100px;
-      padding-bottom: 8px;
+      margin-bottom: 14px;
     }
 
-    .seat { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .seat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: seatIn 0.4s ease;
+    }
+    @keyframes seatIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-    .avatar {
-      width: 44px;
-      height: 44px;
+    .seat-avatar {
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       border: 2px solid #c9a84c;
       object-fit: cover;
       background: #222;
+      margin-bottom: -4px;
+      position: relative;
+      z-index: 1;
     }
-
-    .chair {
-      width: 52px;
-      height: 14px;
-      background: #5a3e2b;
-      border-radius: 4px 4px 0 0;
-      box-shadow: 0 4px 0 #3d2a1a;
+    .chair-back {
+      width: 58px;
+      height: 26px;
+      background: #e8e0d0;
+      border-radius: 10px 10px 3px 3px;
+      border: 1px solid #d4c9b8;
     }
-
-    .viewer-label {
+    .chair-seat {
+      width: 64px;
+      height: 16px;
+      background: #ede8df;
+      border-radius: 3px;
+      margin-top: 2px;
+      border: 1px solid #d4c9b8;
+    }
+    .chair-base {
+      width: 28px;
+      height: 16px;
+      background: linear-gradient(135deg, #c9a84c, #8a6a20);
+      border-radius: 0 0 4px 4px;
+      margin-top: 1px;
+    }
+    .chair-foot {
+      width: 40px;
+      height: 5px;
+      background: linear-gradient(135deg, #b8962e, #7a5c10);
+      border-radius: 3px;
+    }
+    .seat-name {
       font-size: 9px;
       color: #c9a84c;
       text-align: center;
-      max-width: 56px;
+      max-width: 64px;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
       margin-top: 4px;
     }
 
-    /* Chat panel */
+    /* CHAT */
     #chat-panel {
       width: 300px;
       min-width: 260px;
@@ -185,7 +257,6 @@
       background: #0d0d0d;
       overflow: hidden;
     }
-
     #chat-header {
       padding: 10px 14px;
       border-bottom: 1px solid #1e1e1e;
@@ -195,7 +266,6 @@
       text-transform: uppercase;
       flex-shrink: 0;
     }
-
     #chat-messages {
       flex: 1;
       overflow-y: auto;
@@ -210,13 +280,7 @@
     #chat-messages::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
 
     .chat-msg { display: flex; gap: 8px; align-items: flex-start; }
-    .chat-msg img {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      border: 1px solid #c9a84c;
-      flex-shrink: 0;
-    }
+    .chat-msg img { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #c9a84c; flex-shrink: 0; }
     .chat-msg-body { display: flex; flex-direction: column; gap: 2px; }
     .chat-msg-name { font-size: 0.7rem; color: #c9a84c; font-weight: bold; }
     .chat-msg-text { font-size: 0.85rem; color: #ddd; line-height: 1.4; word-break: break-word; }
@@ -229,7 +293,6 @@
       gap: 8px;
       background: #0d0d0d;
     }
-
     #chat-input {
       flex: 1;
       padding: 9px 12px;
@@ -243,7 +306,6 @@
       font-family: inherit;
     }
     #chat-input:focus { border-color: #c9a84c; }
-
     #send-btn {
       background: #c9a84c;
       border: none;
@@ -256,20 +318,37 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.2s;
     }
     #send-btn:hover { background: #e0c060; }
   </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="login-screen">
+<!-- SCREEN 1: Name -->
+<div id="screen-name" class="screen active">
   <h1>☕ Olyesti Cafe</h1>
   <p>Enter your name to join the lounge</p>
-  <input id="name-input-login" type="text" placeholder="Your name..." maxlength="24" />
-  <button class="gold-btn" onclick="quickJoin()">Enter the Lounge</button>
-  <span id="login-msg"></span>
+  <input id="name-input" class="text-input" type="text" placeholder="Your name..." maxlength="24" />
+  <button class="gold-btn" onclick="goToStylePicker()">Next →</button>
+  <span id="name-error" class="error-msg"></span>
+</div>
+
+<!-- SCREEN 2: Avatar Style Picker -->
+<div id="screen-style" class="screen">
+  <h2>Pick Your Avatar Style</h2>
+  <p>Choose how you'll appear in the lounge</p>
+  <div id="style-grid"></div>
+  <button class="gold-btn" onclick="goToConfirm()">Next →</button>
+  <span id="style-error" class="error-msg"></span>
+</div>
+
+<!-- SCREEN 3: Confirm -->
+<div id="screen-confirm" class="screen">
+  <h2>Ready to Join? ☕</h2>
+  <img id="confirm-avatar-img" src="" alt="Your avatar" />
+  <span id="confirm-name-label" style="color:#c9a84c; font-size:1.1rem;"></span>
+  <button class="gold-btn" onclick="enterLounge()">Take My Seat</button>
+  <button class="ghost-btn" onclick="showScreen('screen-style')">Change Style</button>
 </div>
 
 <!-- LOUNGE -->
@@ -278,28 +357,16 @@
     <span class="logo">☕ Olyesti Cafe</span>
     <span class="viewer-count" id="viewer-count">0 in the lounge</span>
   </div>
-
   <div id="main">
-
     <div id="stage">
-
-      <!-- TV -->
       <div id="tv-frame">
-        <iframe
-          src="https://player.twitch.tv/?channel=olyesti&parent=chat.olyesti.com"
-          allowfullscreen>
-        </iframe>
+        <iframe src="https://player.twitch.tv/?channel=olyesti&parent=chat.olyesti.com" allowfullscreen></iframe>
       </div>
-
-      <!-- Audience chairs -->
       <div id="audience-section">
         <div id="audience-label">Now Watching</div>
-        <div id="audience-row"></div>
+        <div id="chair-rows"></div>
       </div>
-
     </div>
-
-    <!-- Chat -->
     <div id="chat-panel">
       <div id="chat-header">💬 Lounge Chat</div>
       <div id="chat-messages"></div>
@@ -308,7 +375,6 @@
         <button id="send-btn" onclick="sendMessage()">➤</button>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -318,30 +384,101 @@
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  const SEATS_PER_ROW = 6;
+
+  // All 8 DiceBear styles
+  const AVATAR_STYLES = [
+    { id: 'adventurer',       label: 'Adventurer' },
+    { id: 'adventurer-neutral', label: 'Neutral' },
+    { id: 'lorelei',          label: 'Lorelei' },
+    { id: 'lorelei-neutral',  label: 'Lorelei 2' },
+    { id: 'notionists',       label: 'Notion' },
+    { id: 'open-peeps',       label: 'Peeps' },
+    { id: 'pixel-art',        label: 'Pixel' },
+    { id: 'thumbs',           label: 'Thumbs' },
+  ];
+
   let currentViewer = null;
   let presenceRoom = null;
   let chatRoom = null;
+  let selectedStyle = null;
+  let viewerName = '';
 
+  // ── SCREENS ──
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('lounge').style.display = 'none';
+    if (id === 'lounge') {
+      document.getElementById('lounge').style.display = 'flex';
+    } else {
+      document.getElementById(id).classList.add('active');
+    }
+  }
+
+  // ── STEP 1 ──
   document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('name-input-login').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') quickJoin();
+    document.getElementById('name-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') goToStylePicker();
     });
+    buildStyleGrid();
   });
 
-  function quickJoin() {
-    const name = document.getElementById('name-input-login').value.trim();
-    if (!name) {
-      document.getElementById('login-msg').textContent = '⚠️ Please enter a name';
+  function goToStylePicker() {
+    viewerName = document.getElementById('name-input').value.trim();
+    if (!viewerName) {
+      document.getElementById('name-error').textContent = '⚠️ Please enter your name';
       return;
     }
+    buildStyleGrid(); // refresh previews with name as seed
+    showScreen('screen-style');
+  }
+
+  // ── STEP 2: Style Grid ──
+  function buildStyleGrid() {
+    const grid = document.getElementById('style-grid');
+    grid.innerHTML = '';
+    const seed = viewerName || 'preview';
+
+    AVATAR_STYLES.forEach(style => {
+      const url = `https://api.dicebear.com/7.x/${style.id}/svg?seed=${encodeURIComponent(seed)}`;
+      const card = document.createElement('div');
+      card.classList.add('style-card');
+      if (selectedStyle === style.id) card.classList.add('selected');
+      card.innerHTML = `
+        <img src="${url}" alt="${style.label}" />
+        <span>${style.label}</span>
+      `;
+      card.onclick = () => {
+        document.querySelectorAll('.style-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedStyle = style.id;
+      };
+      grid.appendChild(card);
+    });
+  }
+
+  function goToConfirm() {
+    if (!selectedStyle) {
+      document.getElementById('style-error').textContent = '⚠️ Please pick a style';
+      return;
+    }
+    const avatarUrl = `https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${encodeURIComponent(viewerName)}`;
+    document.getElementById('confirm-avatar-img').src = avatarUrl;
+    document.getElementById('confirm-name-label').textContent = viewerName;
+    showScreen('screen-confirm');
+  }
+
+  // ── STEP 3: Enter Lounge ──
+  function enterLounge() {
+    const avatarUrl = `https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${encodeURIComponent(viewerName)}`;
     const id = 'guest_' + Math.random().toString(36).substr(2, 9);
-    currentViewer = { id, name, avatarUrl: `https://api.dicebear.com/7.x/thumbs/svg?seed=${id}` };
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('lounge').style.display = 'flex';
+    currentViewer = { id, name: viewerName, avatarUrl };
+    showScreen('lounge');
     setupPresence();
     setupChat();
   }
 
+  // ── PRESENCE ──
   function setupPresence() {
     presenceRoom = db.channel('lounge-presence', {
       config: { presence: { key: currentViewer.id } }
@@ -349,54 +486,48 @@
     presenceRoom.on('presence', { event: 'sync' }, () => {
       renderAudience(presenceRoom.presenceState());
     });
-    presenceRoom.subscribe(async (status) => {
+    presenceRoom.subscribe(async status => {
       if (status === 'SUBSCRIBED') await presenceRoom.track(currentViewer);
     });
   }
 
   function renderAudience(state) {
-    const row = document.getElementById('audience-row');
-    row.innerHTML = '';
-    let count = 0;
-    Object.values(state).forEach(presences => {
-      presences.forEach(viewer => {
-        count++;
-        if (count > 12) return;
-        const seat = document.createElement('div');
-        seat.classList.add('seat');
-        seat.innerHTML = `
-          <img class="avatar" src="${viewer.avatarUrl}" alt="${viewer.name}" title="${viewer.name}"
-               onerror="this.src='https://api.dicebear.com/7.x/thumbs/svg?seed=guest'" />
-          <div class="chair"></div>
-          <span class="viewer-label">${viewer.name}</span>
-        `;
-        row.appendChild(seat);
-      });
-    });
-    if (count > 12) {
-      const more = document.createElement('div');
-      more.classList.add('seat');
-      more.innerHTML = `
-        <div class="avatar" style="display:flex;align-items:center;justify-content:center;
-             background:#1a1a1a;color:#c9a84c;font-size:11px;font-weight:bold;">+${count - 12}</div>
-        <div class="chair"></div>
-        <span class="viewer-label">more</span>
-      `;
-      row.appendChild(more);
+    const container = document.getElementById('chair-rows');
+    container.innerHTML = '';
+    const viewers = [];
+    Object.values(state).forEach(p => p.forEach(v => viewers.push(v)));
+    document.getElementById('viewer-count').textContent = `${viewers.length} in the lounge`;
+
+    // Split into rows — new row auto-loads when current fills up
+    for (let i = 0; i < viewers.length; i += SEATS_PER_ROW) {
+      const row = document.createElement('div');
+      row.classList.add('chair-row');
+      viewers.slice(i, i + SEATS_PER_ROW).forEach(v => row.appendChild(makeSeat(v)));
+      container.appendChild(row);
     }
-    document.getElementById('viewer-count').textContent = `${count} in the lounge`;
   }
 
+  function makeSeat(viewer) {
+    const seat = document.createElement('div');
+    seat.classList.add('seat');
+    seat.innerHTML = `
+      <img class="seat-avatar" src="${viewer.avatarUrl}" alt="${viewer.name}"
+           onerror="this.src='https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(viewer.name)}'" />
+      <div class="chair-back"></div>
+      <div class="chair-seat"></div>
+      <div class="chair-base"></div>
+      <div class="chair-foot"></div>
+      <span class="seat-name">${viewer.name}</span>
+    `;
+    return seat;
+  }
+
+  // ── CHAT ──
   function setupChat() {
     chatRoom = db.channel('lounge-chat');
-    chatRoom.on('broadcast', { event: 'message' }, ({ payload }) => {
-      appendMessage(payload);
-    }).subscribe();
-    document.getElementById('chat-input').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
+    chatRoom.on('broadcast', { event: 'message' }, ({ payload }) => appendMessage(payload)).subscribe();
+    document.getElementById('chat-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
     });
   }
 
@@ -416,7 +547,7 @@
     div.classList.add('chat-msg');
     div.innerHTML = `
       <img src="${msg.avatarUrl}" alt="${msg.name}"
-           onerror="this.src='https://api.dicebear.com/7.x/thumbs/svg?seed=guest'" />
+           onerror="this.src='https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(msg.name)}'" />
       <div class="chat-msg-body">
         <span class="chat-msg-name">${msg.name}</span>
         <span class="chat-msg-text">${escapeHtml(msg.text)}</span>
