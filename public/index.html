@@ -119,8 +119,8 @@
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const SEATS_PER_ROW = 6;
-
   const CB = Date.now();
+
   function bust(url) { return url ? url.split('?')[0] + '?t=' + CB : ''; }
 
   const BASE = 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/';
@@ -152,24 +152,35 @@
     { id: 'queen-female',   label: '👑 The Queen',        url: BASE + 'queen-female.png' },
   ];
 
-  let currentViewer = null, presenceRoom = null, chatRoom = null, selectedChar = null, viewerName = '';
-  let lastSLMessageId = 0;
+  let currentViewer = null;
+  let presenceRoom = null;
+  let chatRoom = null;
+  let selectedChar = null;
+  let viewerName = '';
 
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('lounge').style.display = 'none';
-    if (id === 'lounge') document.getElementById('lounge').style.display = 'flex';
-    else document.getElementById(id).classList.add('active');
+    if (id === 'lounge') {
+      document.getElementById('lounge').style.display = 'flex';
+    } else {
+      document.getElementById(id).classList.add('active');
+    }
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('name-input').addEventListener('keydown', e => { if (e.key === 'Enter') goToCharacterPicker(); });
+    document.getElementById('name-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') goToCharacterPicker();
+    });
     buildCharacterGrid();
   });
 
   function goToCharacterPicker() {
     viewerName = document.getElementById('name-input').value.trim();
-    if (!viewerName) { document.getElementById('name-error').textContent = '⚠️ Please enter your name'; return; }
+    if (!viewerName) {
+      document.getElementById('name-error').textContent = '⚠️ Please enter your name';
+      return;
+    }
     showScreen('screen-character');
   }
 
@@ -192,7 +203,10 @@
   }
 
   function goToConfirm() {
-    if (!selectedChar) { document.getElementById('char-error').textContent = '⚠️ Please pick a character'; return; }
+    if (!selectedChar) {
+      document.getElementById('char-error').textContent = '⚠️ Please pick a character';
+      return;
+    }
     document.getElementById('confirm-avatar-img').src = bust(selectedChar.url);
     document.getElementById('confirm-name-label').textContent = viewerName;
     document.getElementById('confirm-char-label').textContent = selectedChar.label;
@@ -211,19 +225,26 @@
   function setupPresence() {
     presenceRoom = db.channel('lounge-presence', { config: { presence: { key: currentViewer.id } } });
     presenceRoom.on('presence', { event: 'sync' }, () => renderAudience(presenceRoom.presenceState()));
-    presenceRoom.subscribe(async status => { if (status === 'SUBSCRIBED') await presenceRoom.track(currentViewer); });
+    presenceRoom.subscribe(async status => {
+      if (status === 'SUBSCRIBED') await presenceRoom.track(currentViewer);
+    });
   }
 
   function renderAudience(state) {
     const container = document.getElementById('chair-rows');
     container.innerHTML = '';
     const viewers = [];
-    Object.values(state).forEach(p => p.forEach(v => { if (v.avatarUrl && v.avatarUrl.includes('cdn.shopify.com')) viewers.push(v); }));
+    Object.values(state).forEach(p => p.forEach(v => {
+      if (v.avatarUrl && v.avatarUrl.includes('cdn.shopify.com')) viewers.push(v);
+    }));
     document.getElementById('viewer-count').textContent = `${viewers.length} in the lounge`;
     for (let i = 0; i < viewers.length; i += SEATS_PER_ROW) {
       const row = document.createElement('div');
       row.classList.add('chair-row');
-      viewers.slice(i, i + SEATS_PER_ROW).forEach(v => { const s = makeSeat(v); if (s) row.appendChild(s); });
+      viewers.slice(i, i + SEATS_PER_ROW).forEach(v => {
+        const s = makeSeat(v);
+        if (s) row.appendChild(s);
+      });
       container.appendChild(row);
     }
   }
@@ -239,7 +260,9 @@
   function setupChat() {
     chatRoom = db.channel('lounge-chat');
     chatRoom.on('broadcast', { event: 'message' }, ({ payload }) => appendMessage(payload)).subscribe();
-    document.getElementById('chat-input').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+    document.getElementById('chat-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
   }
 
   async function sendMessage() {
@@ -250,11 +273,9 @@
     const msg = { id: Date.now(), name: currentViewer.name, avatarUrl: currentViewer.avatarUrl, text };
     appendMessage(msg);
     await chatRoom.send({ type: 'broadcast', event: 'message', payload: msg });
-    // Store for SL pickup
     await db.from('relay_messages').insert({ speaker: currentViewer.name, text, delivered: false });
   }
 
-  // Poll Supabase for SL→Web messages
   async function startSLPolling() {
     setInterval(async () => {
       const { data } = await db
@@ -279,7 +300,9 @@
     div.classList.add('chat-msg');
     if (msg.fromSL) div.classList.add('sl-msg');
     div.innerHTML = `
-      ${msg.avatarUrl ? `<img src="${bust(msg.avatarUrl)}" alt="${msg.name}" onerror="this.style.display='none'" />` : `<div style="width:36px;height:36px;border-radius:6px;border:1px solid #7ecfff;background:#1a1a1a;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🌐</div>`}
+      ${msg.avatarUrl
+        ? `<img src="${bust(msg.avatarUrl)}" alt="${msg.name}" onerror="this.style.display='none'" />`
+        : `<div style="width:36px;height:36px;border-radius:6px;border:1px solid #7ecfff;background:#1a1a1a;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🌐</div>`}
       <div class="chat-msg-body">
         <span class="chat-msg-name">${msg.name}</span>
         <span class="chat-msg-text">${escapeHtml(msg.text)}</span>
