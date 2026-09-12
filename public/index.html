@@ -169,13 +169,14 @@
     }
     #tv-frame iframe { width: 100%; height: 100%; border: none; display: block; }
 
-    /* ── NEW lounge background — no chairs ── */
+    /* Audience — warm cream base so multiply blend removes white boxes */
     #audience-section {
       flex: 1;
       overflow-y: auto;
       padding: 16px;
       min-height: 200px;
-      background-image: url('https://cdn.shopify.com/s/files/1/0750/1244/0231/files/lounge-no-chairs.png?v=1789192352');
+      background-color: #f5efe0;
+      background-image: url('https://cdn.shopify.com/s/files/1/0750/1244/0231/files/empty-lounge-floor.png?v=1789192804');
       background-size: cover;
       background-position: center bottom;
       position: relative;
@@ -193,8 +194,8 @@
       letter-spacing: 2px;
       text-transform: uppercase;
       margin-bottom: 10px;
-      text-shadow: 0 1px 2px rgba(255,255,255,0.5);
       font-weight: bold;
+      text-shadow: 0 1px 3px rgba(255,255,255,0.6);
     }
 
     .chair-row {
@@ -219,16 +220,16 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
+    /* multiply on light background = white boxes disappear */
     .seat-avatar {
       width: 90px;
       height: 90px;
       object-fit: contain;
       object-position: center bottom;
-      border-radius: 0;
       background: transparent;
       color: transparent;
       mix-blend-mode: multiply;
-      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+      filter: drop-shadow(0 3px 6px rgba(0,0,0,0.25));
     }
 
     .seat-name {
@@ -241,7 +242,7 @@
       text-overflow: ellipsis;
       margin-top: 2px;
       font-weight: bold;
-      text-shadow: 0 1px 2px rgba(255,255,255,0.6);
+      text-shadow: 0 1px 2px rgba(255,255,255,0.7);
     }
 
     #chat-panel {
