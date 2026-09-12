@@ -164,7 +164,7 @@
 
     #tv-frame {
       width: 100%;
-      height: 52vh;
+      height: 44vh;
       background: #000;
       border-bottom: 2px solid #333;
       overflow: hidden;
@@ -172,25 +172,25 @@
     }
     #tv-frame iframe { width: 100%; height: 100%; border: none; display: block; }
 
-    /* Audience area with lighter lounge background */
+    /* Audience area */
     #audience-section {
       flex: 1;
       overflow-y: auto;
       padding: 16px;
+      min-height: 200px;
       background-image: url('https://cdn.shopify.com/s/files/1/0750/1244/0231/files/lighter-lounge-background.png?v=1789191121');
       background-size: cover;
-      background-position: center top;
+      background-position: center bottom;
       position: relative;
       scrollbar-width: thin;
       scrollbar-color: #c9a84c #333;
     }
 
-    /* Subtle overlay — lighter than before */
     #audience-section::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: rgba(0,0,0,0.2);
+      background: rgba(0,0,0,0.15);
       pointer-events: none;
       z-index: 0;
     }
@@ -524,17 +524,22 @@
     for (let i = 0; i < viewers.length; i += SEATS_PER_ROW) {
       const row = document.createElement('div');
       row.classList.add('chair-row');
-      viewers.slice(i, i + SEATS_PER_ROW).forEach(v => row.appendChild(makeSeat(v)));
+      viewers.slice(i, i + SEATS_PER_ROW).forEach(v => {
+        const seat = makeSeat(v);
+        if (seat) row.appendChild(seat);
+      });
       container.appendChild(row);
     }
   }
 
   function makeSeat(viewer) {
+    // Skip viewers with no avatar
+    if (!viewer.avatarUrl) return null;
     const seat = document.createElement('div');
     seat.classList.add('seat');
     seat.innerHTML = `
       <img class="seat-avatar" src="${viewer.avatarUrl}" alt="${viewer.name}" title="${viewer.name}"
-           onerror="this.style.display='none'" />
+           onerror="this.closest('.seat').style.display='none'" />
       <span class="seat-name">${viewer.name}</span>
     `;
     return seat;
