@@ -181,8 +181,6 @@
       scrollbar-color: #c9a84c #a06030;
     }
 
-    #audience-section::before { display: none; }
-
     #audience-label {
       position: relative;
       z-index: 1;
@@ -219,8 +217,6 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* White layer ONLY under the avatar image — multiply makes white vanish,
-       transparent PNG areas fill with white then also vanish. Perfect blend. */
     .seat-avatar-wrap {
       width: 90px;
       height: 90px;
@@ -406,26 +402,26 @@
   const SEATS_PER_ROW = 6;
 
   const CHARACTERS = [
-    { id: 'angel-female',   label: '👼 Angel (Female)',    url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/female-angel.png?v=1789189358' },
-    { id: 'angel-male',     label: '👼 Angel (Male)',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-angel.png?v=1789189356' },
-    { id: 'male-captain',   label: '🎖️ Male Captain',     url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-captain.png?v=1789188395' },
-    { id: 'female-captain', label: '🎖️ Female Captain',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/female-captain.png?v=1789188399' },
-    { id: 'commander',      label: '🪖 Commander',         url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/brown-leather-commander.png?v=1789188401' },
-    { id: 'woman-natural',  label: '👩🏾 Elegant Woman',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/woman-natural-hair_c79dcfe2-4811-4c85-a260-5372644c16f7.png?v=1789187211' },
-    { id: 'casual-guy',     label: '🧑🏻 Casual Guy',       url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/casual-guy_457cfc7c-b939-4f68-9929-d4285bc76de5.png?v=1789187221' },
-    { id: 'boho-woman',     label: '👩🏻‍🦱 Boho Woman',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/boho-red-hair_b0c3462a-566e-42c1-87be-22c4b3059ebf.png?v=1789187217' },
-    { id: 'male-dark',      label: '🧔🏿 Dark Skin Guy',    url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-character-dark-skin_13feb81e-eb54-435c-84ea-15dd2a16effc.png?v=1789187202' },
-    { id: 'fantasy-elf',    label: '🧝 Fantasy Elf',       url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/fantasy-elf.png?v=1789186863' },
-    { id: 'regal-king',     label: '🤴🏿 Regal King',       url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/regal-king.png?v=1789186861' },
-    { id: 'mystic-wizard',  label: '🧙🏿 Mystic Wizard',    url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/mystic-wizard.png?v=1789186859' },
-    { id: 'female-vampire', label: '🧛‍♀️ Vampire Queen',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/vampire.png?v=1789186856' },
-    { id: 'male-vampire',   label: '🧛‍♂️ Male Vampire',     url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-vampire.png?v=1789186850' },
-    { id: 'ghost',          label: '👻 Ghost',             url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/ghost.png?v=1789186854' },
-    { id: 'cat-calico-f',   label: '🐱 Calico Cat Girl',  url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-cat-person-tail-over-arm_e3a04b54-9156-49f8-9684-1c695070d2da.png?v=1789186839' },
-    { id: 'cat-white-f',    label: '🐱 White Cat Girl',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/white-silver-cat-girl_dd1b50e3-3b3f-4a74-856b-3b5ea11dbbdb.png?v=1789186836' },
-    { id: 'cat-dark-f',     label: '🐱 Dark Cat Girl',    url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/dark-brown-cat-girl_c49ef217-05e3-4751-939c-60fa34358b1f.png?v=1789186834' },
-    { id: 'cat-gray-f',     label: '🐱 Gray Cat Girl',    url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/gray-striped-cat-girl_bfce1d7b-268f-4d39-93d6-73d8f90f35d6.png?v=1789186830' },
-    { id: 'cat-white-m',    label: '🐱 White Cat Guy',    url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/white-silver-male-cat_37487333-26ce-45a5-999e-bd14918ab765.png?v=1789186823' },
+    { id: 'angel-female',   label: '👼 Angel (Female)',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/female-angel.png?v=1789195341' },
+    { id: 'angel-male',     label: '👼 Angel (Male)',     url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-angel.png?v=1789195460' },
+    { id: 'male-captain',   label: '🎖️ Male Captain',    url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-captain.png?v=1789195549' },
+    { id: 'female-captain', label: '🎖️ Female Captain',  url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/female-captain.png?v=1789195520' },
+    { id: 'commander',      label: '🪖 Commander',        url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/brown-leather-commander.png?v=1789195493' },
+    { id: 'woman-natural',  label: '👩🏾 Elegant Woman',  url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/woman-natural-hair_c79dcfe2-4811-4c85-a260-5372644c16f7.png?v=1789195644' },
+    { id: 'casual-guy',     label: '🧑🏻 Casual Guy',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/casual-guy_457cfc7c-b939-4f68-9929-d4285bc76de5.png?v=1789195577' },
+    { id: 'boho-woman',     label: '👩🏻‍🦱 Boho Woman',     url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/boho-red-hair_b0c3462a-566e-42c1-87be-22c4b3059ebf.png?v=1789195612' },
+    { id: 'male-dark',      label: '🧔🏿 Dark Skin Guy',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-character-dark-skin_13feb81e-eb54-435c-84ea-15dd2a16effc.png?v=1789195673' },
+    { id: 'fantasy-elf',    label: '🧝 Fantasy Elf',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/fantasy-elf.png?v=1789195796' },
+    { id: 'regal-king',     label: '🤴🏿 Regal King',      url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/regal-king.png?v=1789195820' },
+    { id: 'mystic-wizard',  label: '🧙🏿 Mystic Wizard',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/mystic-wizard.png?v=1789195846' },
+    { id: 'female-vampire', label: '🧛‍♀️ Vampire Queen',  url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/vampire.png?v=1789195875' },
+    { id: 'male-vampire',   label: '🧛‍♂️ Male Vampire',    url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-vampire.png?v=1789195937' },
+    { id: 'ghost',          label: '👻 Ghost',            url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/ghost.png?v=1789195908' },
+    { id: 'cat-calico-f',   label: '🐱 Calico Cat Girl', url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/male-cat-person-tail-over-arm_e3a04b54-9156-49f8-9684-1c695070d2da.png?v=1789195965' },
+    { id: 'cat-white-f',    label: '🐱 White Cat Girl',  url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/white-silver-cat-girl_dd1b50e3-3b3f-4a74-856b-3b5ea11dbbdb.png?v=1789195999' },
+    { id: 'cat-dark-f',     label: '🐱 Dark Cat Girl',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/dark-brown-cat-girl_c49ef217-05e3-4751-939c-60fa34358b1f.png?v=1789196030' },
+    { id: 'cat-gray-f',     label: '🐱 Gray Cat Girl',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/gray-striped-cat-girl_bfce1d7b-268f-4d39-93d6-73d8f90f35d6.png?v=1789196059' },
+    { id: 'cat-white-m',    label: '🐱 White Cat Guy',   url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/white-silver-male-cat_37487333-26ce-45a5-999e-bd14918ab765.png?v=1789196081' },
   ];
 
   let currentViewer = null;
