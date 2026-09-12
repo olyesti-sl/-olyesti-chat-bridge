@@ -174,10 +174,10 @@
       overflow-y: auto;
       padding: 16px;
       min-height: 200px;
-      background-color: #c8874a;
       background-image: url('https://cdn.shopify.com/s/files/1/0750/1244/0231/files/empty-lounge-floor.png?v=1789192804');
       background-size: cover;
       background-position: center bottom;
+      background-color: #c8874a;
       position: relative;
       scrollbar-width: thin;
       scrollbar-color: #c9a84c #a06030;
@@ -194,7 +194,7 @@
       text-transform: uppercase;
       margin-bottom: 10px;
       font-weight: bold;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+      text-shadow: 0 1px 4px rgba(0,0,0,0.7);
     }
 
     .chair-row {
@@ -202,28 +202,29 @@
       z-index: 1;
       display: flex;
       flex-wrap: wrap;
-      gap: 4px;
+      gap: 6px;
       align-items: flex-end;
       margin-bottom: 10px;
     }
 
-    /* Key fix: seat background matches floor color so white image
-       backgrounds are invisible against it */
+    /* WHITE background + multiply = white areas become fully transparent */
     .seat {
       display: flex;
       flex-direction: column;
       align-items: center;
       animation: seatIn 0.4s ease;
       width: 90px;
-      background: #c8874a;
-      border-radius: 4px;
+      background: #ffffff;
+      border-radius: 0;
       overflow: hidden;
     }
+
     @keyframes seatIn {
       from { opacity: 0; transform: translateY(10px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
+    /* multiply on white background = white pixels invisible, colors preserved */
     .seat-avatar {
       width: 90px;
       height: 90px;
@@ -231,7 +232,7 @@
       object-position: center bottom;
       display: block;
       color: transparent;
-      filter: drop-shadow(0 3px 8px rgba(0,0,0,0.4));
+      mix-blend-mode: multiply;
     }
 
     .seat-name {
@@ -244,8 +245,8 @@
       text-overflow: ellipsis;
       padding: 2px 4px;
       font-weight: bold;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-      background: rgba(0,0,0,0.25);
+      background: rgba(0,0,0,0.45);
+      mix-blend-mode: normal;
     }
 
     #chat-panel {
