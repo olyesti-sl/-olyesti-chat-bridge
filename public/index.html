@@ -97,10 +97,10 @@
       border-radius: 10px;
       border: 2px solid #2a2a2a;
       transition: border-color 0.2s, background 0.2s;
-      background: #1a1a1a;
+      background: #1a1500;
     }
-    .char-card:hover { border-color: #c9a84c; background: #1a1500; }
-    .char-card.selected { border-color: #c9a84c; background: #1a1500; box-shadow: 0 0 12px #c9a84c44; }
+    .char-card:hover { border-color: #c9a84c; background: #241e00; }
+    .char-card.selected { border-color: #c9a84c; background: #241e00; box-shadow: 0 0 12px #c9a84c44; }
 
     .char-card img {
       width: 100%;
@@ -157,8 +157,6 @@
       display: flex;
       flex-direction: column;
       flex: 1;
-      padding: 12px;
-      gap: 10px;
       overflow: hidden;
     }
 
@@ -166,28 +164,49 @@
       width: 100%;
       height: 52vh;
       background: #000;
-      border: 2px solid #333;
-      border-radius: 8px;
+      border-bottom: 2px solid #333;
       overflow: hidden;
       flex-shrink: 0;
     }
     #tv-frame iframe { width: 100%; height: 100%; border: none; display: block; }
 
+    /* Audience area with lounge background */
     #audience-section {
       flex: 1;
       overflow-y: auto;
+      padding: 16px;
+      background-image: url('https://cdn.shopify.com/s/files/1/0750/1244/0231/files/olyesti-lounge-with-cream-gold-chairs_d1088807-1fff-4b11-bf5d-8f119aaafcc8.png?v=1789187169');
+      background-size: cover;
+      background-position: center top;
+      position: relative;
       scrollbar-width: thin;
       scrollbar-color: #2a2a2a #0a0a0a;
     }
+
+    /* Dark overlay to keep text readable while showing the scene */
+    #audience-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      pointer-events: none;
+      z-index: 0;
+    }
+
     #audience-label {
-      color: #555;
+      position: relative;
+      z-index: 1;
+      color: #c9a84c;
       font-size: 0.7rem;
       letter-spacing: 2px;
       text-transform: uppercase;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
+      text-shadow: 0 1px 4px #000;
     }
 
     .chair-row {
+      position: relative;
+      z-index: 1;
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
@@ -214,17 +233,19 @@
       object-position: center top;
       border-radius: 6px;
       background: transparent;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
     }
 
     .seat-name {
       font-size: 9px;
-      color: #c9a84c;
+      color: #fff;
       text-align: center;
       max-width: 90px;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
       margin-top: 2px;
+      text-shadow: 0 1px 3px #000;
     }
 
     /* CHAT */
@@ -402,8 +423,6 @@
     { id: 'cat-dark-f',     label: '🐱 Dark Cat Girl',    url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/dark-brown-cat-girl_c49ef217-05e3-4751-939c-60fa34358b1f.png?v=1789186834' },
     { id: 'cat-gray-f',     label: '🐱 Gray Cat Girl',    url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/gray-striped-cat-girl_bfce1d7b-268f-4d39-93d6-73d8f90f35d6.png?v=1789186830' },
     { id: 'cat-white-m',    label: '🐱 White Cat Guy',    url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/white-silver-male-cat_37487333-26ce-45a5-999e-bd14918ab765.png?v=1789186823' },
-    { id: 'cat-dark-m',     label: '🐱 Dark Cat Guy',     url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/dark-male-cat-using-calico-reference.png?v=1789186801' },
-    { id: 'cat-gray-m',     label: '🐱 Gray Cat Guy',     url: 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/gray-striped-male-cat.png?v=1789186667' },
   ];
 
   let currentViewer = null;
@@ -447,7 +466,7 @@
       if (selectedChar && selectedChar.id === char.id) card.classList.add('selected');
       card.innerHTML = `
         <img src="${char.url}" alt="${char.label}" loading="lazy"
-             onerror="this.style.opacity='0.3'; this.style.filter='grayscale(1)'" />
+             onerror="this.style.display='none'" />
         <span>${char.label}</span>
       `;
       card.onclick = () => {
