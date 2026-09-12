@@ -110,6 +110,7 @@
       border-radius: 8px;
       border: none;
       background: transparent;
+      color: transparent;
     }
     .char-card span {
       font-size: 10px;
@@ -128,6 +129,7 @@
       border-radius: 12px;
       border: 3px solid #c9a84c;
       background: transparent;
+      color: transparent;
     }
 
     /* LOUNGE */
@@ -170,25 +172,25 @@
     }
     #tv-frame iframe { width: 100%; height: 100%; border: none; display: block; }
 
-    /* Audience area with lounge background */
+    /* Audience area with lighter lounge background */
     #audience-section {
       flex: 1;
       overflow-y: auto;
       padding: 16px;
-      background-image: url('https://cdn.shopify.com/s/files/1/0750/1244/0231/files/olyesti-lounge-with-cream-gold-chairs_d1088807-1fff-4b11-bf5d-8f119aaafcc8.png?v=1789187169');
+      background-image: url('https://cdn.shopify.com/s/files/1/0750/1244/0231/files/lighter-lounge-background.png?v=1789191121');
       background-size: cover;
       background-position: center top;
       position: relative;
       scrollbar-width: thin;
-      scrollbar-color: #2a2a2a #0a0a0a;
+      scrollbar-color: #c9a84c #333;
     }
 
-    /* Dark overlay to keep text readable while showing the scene */
+    /* Subtle overlay — lighter than before */
     #audience-section::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: rgba(0,0,0,0.35);
+      background: rgba(0,0,0,0.2);
       pointer-events: none;
       z-index: 0;
     }
@@ -196,7 +198,7 @@
     #audience-label {
       position: relative;
       z-index: 1;
-      color: #c9a84c;
+      color: #fff;
       font-size: 0.7rem;
       letter-spacing: 2px;
       text-transform: uppercase;
@@ -233,7 +235,8 @@
       object-position: center top;
       border-radius: 6px;
       background: transparent;
-      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
+      color: transparent;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.7));
     }
 
     .seat-name {
@@ -289,6 +292,8 @@
       flex-shrink: 0;
       object-fit: cover;
       object-position: center top;
+      color: transparent;
+      background: #1a1a1a;
     }
     .chat-msg-body { display: flex; flex-direction: column; gap: 2px; }
     .chat-msg-name { font-size: 0.7rem; color: #c9a84c; font-weight: bold; }
@@ -528,7 +533,8 @@
     const seat = document.createElement('div');
     seat.classList.add('seat');
     seat.innerHTML = `
-      <img class="seat-avatar" src="${viewer.avatarUrl}" alt="${viewer.name}" title="${viewer.name}" />
+      <img class="seat-avatar" src="${viewer.avatarUrl}" alt="${viewer.name}" title="${viewer.name}"
+           onerror="this.style.display='none'" />
       <span class="seat-name">${viewer.name}</span>
     `;
     return seat;
@@ -557,7 +563,7 @@
     const div = document.createElement('div');
     div.classList.add('chat-msg');
     div.innerHTML = `
-      <img src="${msg.avatarUrl}" alt="${msg.name}" />
+      <img src="${msg.avatarUrl}" alt="${msg.name}" onerror="this.style.display='none'" />
       <div class="chat-msg-body">
         <span class="chat-msg-name">${msg.name}</span>
         <span class="chat-msg-text">${escapeHtml(msg.text)}</span>
