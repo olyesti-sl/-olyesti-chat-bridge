@@ -3,252 +3,589 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Olyesti Live</title>
-  <script src="/socket.io/socket.io.js"></script>
+  <title>Olyesti Cafe — Live Lounge</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: #0a0604;
-      color: #f0e6d3;
-      font-family: Georgia, serif;
+      background: #0a0a0a;
+      color: #fff;
+      font-family: 'Georgia', serif;
       height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── LOGIN SCREEN ── */
+    #login-screen {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      height: 100vh;
       gap: 16px;
-      overflow: hidden;
+      background: radial-gradient(ellipse at center, #1a1200 0%, #0a0a0a 70%);
     }
 
-    #logo {
-      font-size: 20px;
-      letter-spacing: 4px;
+    #login-screen h1 {
       color: #c9a84c;
-      text-transform: uppercase;
-    }
-
-    #main {
-      display: flex;
-      flex-direction: row;
-      gap: 12px;
-      align-items: stretch;
-    }
-
-    #tv {
-      background: #1a1008;
-      border: 8px solid #2a1f0a;
-      border-radius: 12px;
-      box-shadow: 0 0 60px rgba(201,168,76,0.15), 0 0 20px rgba(0,0,0,0.8);
-      padding: 6px;
-      flex-shrink: 0;
-      overflow: hidden;
-    }
-
-    #tv iframe {
-      display: block;
-      border-radius: 6px;
-      width: 720px;
-      height: 540px;
-      border: none;
-    }
-
-    #chatBox {
-      width: 260px;
-      background: rgba(20,12,4,0.95);
-      border: 1px solid #3a2a0a;
-      border-radius: 10px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    #chatHeader {
-      background: #1a1008;
-      padding: 10px 14px;
-      font-size: 11px;
+      font-size: 2rem;
       letter-spacing: 3px;
-      color: #c9a84c;
       text-transform: uppercase;
-      flex-shrink: 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
     }
 
-    #clearBtn {
-      background: none;
-      border: 1px solid #3a2a0a;
-      color: #7a6a4a;
-      font-size: 10px;
-      padding: 2px 8px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-family: Georgia, serif;
+    #login-screen p {
+      color: #888;
+      font-size: 0.85rem;
       letter-spacing: 1px;
     }
 
-    #clearBtn:hover { color: #c9a84c; border-color: #c9a84c; }
-
-    #msgLog {
-      flex: 1;
-      overflow-y: auto;
-      padding: 10px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+    #email-input {
+      padding: 12px 16px;
+      border-radius: 6px;
+      border: 1px solid #c9a84c;
+      background: #111;
+      color: #fff;
+      width: 280px;
+      font-size: 1rem;
+      outline: none;
     }
 
-    #msgLog .msg {
-      font-size: 13px;
-      color: #d4c4a8;
+    #name-input {
+      padding: 12px 16px;
+      border-radius: 6px;
+      border: 1px solid #c9a84c;
+      background: #111;
+      color: #fff;
+      width: 280px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .gold-btn {
+      background: #c9a84c;
+      color: #000;
+      padding: 12px 32px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      transition: background 0.2s;
+    }
+
+    .gold-btn:hover { background: #e0c060; }
+
+    #login-msg {
+      color: #c9a84c;
+      font-size: 0.85rem;
+      min-height: 20px;
+    }
+
+    /* ── NAME PROMPT (shown after magic link click) ── */
+    #name-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      gap: 16px;
+      background: radial-gradient(ellipse at center, #1a1200 0%, #0a0a0a 70%);
+    }
+
+    #name-screen h2 {
+      color: #c9a84c;
+      font-size: 1.5rem;
+      letter-spacing: 2px;
+    }
+
+    /* ── LOUNGE ── */
+    #lounge {
+      display: none;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Top bar */
+    #topbar {
+      background: #111;
+      border-bottom: 1px solid #2a2a2a;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    #topbar .logo {
+      color: #c9a84c;
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    #topbar .viewer-count {
+      color: #888;
+      font-size: 0.8rem;
+    }
+
+    /* Main layout */
+    #main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Left: TV + audience */
+    #stage {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      padding: 12px;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    /* TV screen embed */
+    #tv-frame {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #000;
+      border: 2px solid #2a2a2a;
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    #tv-frame iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Audience row */
+    #audience-section {
+      flex-shrink: 0;
+    }
+
+    #audience-label {
+      color: #555;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    #audience-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: flex-end;
+      min-height: 90px;
+    }
+
+    .seat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid #c9a84c;
+      object-fit: cover;
+      background: #222;
+    }
+
+    .chair {
+      width: 52px;
+      height: 14px;
+      background: #5a3e2b;
+      border-radius: 4px 4px 0 0;
+      box-shadow: 0 4px 0 #3d2a1a;
+    }
+
+    .viewer-label {
+      font-size: 9px;
+      color: #c9a84c;
+      text-align: center;
+      max-width: 56px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      margin-top: 4px;
+    }
+
+    /* Right: Chat */
+    #chat-panel {
+      width: 300px;
+      min-width: 260px;
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid #1e1e1e;
+      background: #0d0d0d;
+      overflow: hidden;
+    }
+
+    #chat-header {
+      padding: 10px 14px;
+      border-bottom: 1px solid #1e1e1e;
+      color: #c9a84c;
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    #chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      scrollbar-width: thin;
+      scrollbar-color: #2a2a2a #0d0d0d;
+    }
+
+    #chat-messages::-webkit-scrollbar { width: 4px; }
+    #chat-messages::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
+
+    .chat-msg {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .chat-msg img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid #c9a84c;
+      flex-shrink: 0;
+    }
+
+    .chat-msg-body {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .chat-msg-name {
+      font-size: 0.7rem;
+      color: #c9a84c;
+      font-weight: bold;
+    }
+
+    .chat-msg-text {
+      font-size: 0.85rem;
+      color: #ddd;
       line-height: 1.4;
       word-break: break-word;
     }
 
-    #msgLog .msg span {
-      color: #c9a84c;
-      font-weight: bold;
-    }
-
-    #msgLog .system {
-      font-size: 11px;
-      color: #7a6a4a;
-      font-style: italic;
-    }
-
-    #composeBar {
-      display: flex;
-      flex-direction: column;
-      border-top: 1px solid #3a2a0a;
+    /* Chat input — NEVER clipped */
+    #chat-input-area {
       flex-shrink: 0;
+      padding: 10px;
+      border-top: 1px solid #1e1e1e;
+      display: flex;
+      gap: 8px;
+      background: #0d0d0d;
     }
 
-    #nameInput {
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid #3a2a0a;
-      padding: 8px 12px;
-      color: #c9a84c;
-      font-family: Georgia, serif;
-      font-size: 13px;
-      outline: none;
-      width: 100%;
-    }
-
-    #bottomRow { display: flex; }
-
-    #msgInput {
+    #chat-input {
       flex: 1;
-      background: transparent;
-      border: none;
-      padding: 10px 12px;
-      color: #f0e6d3;
-      font-family: Georgia, serif;
-      font-size: 13px;
+      padding: 9px 12px;
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 20px;
+      color: #fff;
+      font-size: 0.85rem;
       outline: none;
+      resize: none;
+      font-family: inherit;
     }
 
-    #sendBtn {
+    #chat-input:focus { border-color: #c9a84c; }
+
+    #send-btn {
       background: #c9a84c;
       border: none;
-      padding: 10px 14px;
-      color: #0a0604;
-      font-family: Georgia, serif;
-      font-weight: bold;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
       cursor: pointer;
-      font-size: 13px;
+      font-size: 1rem;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
     }
 
-    #sendBtn:hover { background: #e0c070; }
-
-    #msgLog::-webkit-scrollbar { width: 4px; }
-    #msgLog::-webkit-scrollbar-track { background: transparent; }
-    #msgLog::-webkit-scrollbar-thumb { background: #3a2a0a; border-radius: 2px; }
+    #send-btn:hover { background: #e0c060; }
   </style>
 </head>
 <body>
 
-  <div id="logo">☕ Olyesti Café</div>
+<!-- ══ LOGIN SCREEN ══ -->
+<div id="login-screen">
+  <h1>☕ Olyesti Cafe</h1>
+  <p>Enter your email to join the lounge</p>
+  <input id="email-input" type="email" placeholder="your@email.com" />
+  <button class="gold-btn" onclick="loginWithEmail()">Enter the Lounge</button>
+  <span id="login-msg"></span>
+</div>
 
-  <div id="main">
-    <div id="tv">
-      <iframe
-        src="https://player.twitch.tv/?channel=Olyesti&parent=chat.olyesti.com&muted=false&autoplay=true"
-        allowfullscreen>
-      </iframe>
-    </div>
+<!-- ══ NAME SCREEN (after magic link) ══ -->
+<div id="name-screen">
+  <h2>Welcome to the Lounge</h2>
+  <p style="color:#888; font-size:0.85rem;">Choose your display name</p>
+  <input id="name-input" type="text" placeholder="Your name..." maxlength="24" />
+  <button class="gold-btn" onclick="saveName()">Take My Seat</button>
+</div>
 
-    <div id="chatBox">
-      <div id="chatHeader">
-        <span>💬 Olyesti Chat</span>
-        <button id="clearBtn">Clear</button>
-      </div>
-      <div id="msgLog"></div>
-      <div id="composeBar">
-        <input id="nameInput" type="text" placeholder="Your name…" maxlength="20" />
-        <div id="bottomRow">
-          <input id="msgInput" type="text" placeholder="Say something…" maxlength="200" />
-          <button id="sendBtn">Send</button>
-        </div>
-      </div>
-    </div>
+<!-- ══ LOUNGE ══ -->
+<div id="lounge">
+
+  <!-- Top bar -->
+  <div id="topbar">
+    <span class="logo">☕ Olyesti Cafe</span>
+    <span class="viewer-count" id="viewer-count">0 in the lounge</span>
   </div>
 
-  <script>
-    const socket = io();
-    const log = document.getElementById('msgLog');
-    const msgInput = document.getElementById('msgInput');
-    const nameInput = document.getElementById('nameInput');
-    const sendBtn = document.getElementById('sendBtn');
-    const clearBtn = document.getElementById('clearBtn');
+  <!-- Main -->
+  <div id="main">
 
-    const savedName = localStorage.getItem('olyesti-name');
-    if (savedName) nameInput.value = savedName;
+    <!-- Stage: TV + Audience -->
+    <div id="stage">
 
-    function addMsg(name, text) {
-      const div = document.createElement('div');
-      div.className = 'msg';
-      div.innerHTML = `<span>${name}:</span> ${text}`;
-      log.appendChild(div);
-      log.scrollTop = log.scrollHeight;
+      <!-- TV -->
+      <div id="tv-frame">
+        <!-- Replace with your Twitch/YouTube embed -->
+        <iframe
+          src="https://player.twitch.tv/?channel=olyesti&parent=chat.olyesti.com"
+          allowfullscreen>
+        </iframe>
+      </div>
+
+      <!-- Audience -->
+      <div id="audience-section">
+        <div id="audience-label">Now Watching</div>
+        <div id="audience-row"></div>
+      </div>
+
+    </div>
+
+    <!-- Chat Panel -->
+    <div id="chat-panel">
+      <div id="chat-header">💬 Lounge Chat</div>
+      <div id="chat-messages"></div>
+      <div id="chat-input-area">
+        <textarea id="chat-input" rows="1" placeholder="Say something..."></textarea>
+        <button id="send-btn" onclick="sendMessage()">➤</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ══════════════════════════════════════════
+  // CONFIGURATION — replace these two values
+  // ══════════════════════════════════════════
+  const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
+  const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+  // ══════════════════════════════════════════
+
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let currentViewer = null;
+  let room = null;
+
+  // ── AUTH STATE ──
+  db.auth.onAuthStateChange(async (event, session) => {
+    if (session) {
+      const user = session.user;
+      const savedName = localStorage.getItem('olyesti_name');
+
+      if (!savedName) {
+        // Show name prompt
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('name-screen').style.display = 'flex';
+      } else {
+        enterLounge(user, savedName);
+      }
     }
+  });
 
-    function addSystem(text) {
-      const div = document.createElement('div');
-      div.className = 'system';
-      div.textContent = text;
-      log.appendChild(div);
-      log.scrollTop = log.scrollHeight;
-    }
+  // ── LOGIN ──
+  async function loginWithEmail() {
+    const email = document.getElementById('email-input').value.trim();
+    if (!email) return;
+    const { error } = await db.auth.signInWithOtp({ email });
+    const msg = document.getElementById('login-msg');
+    msg.textContent = error
+      ? '⚠️ ' + error.message
+      : '✉️ Check your email for your lounge link!';
+  }
 
-    clearBtn.onclick = () => { log.innerHTML = ''; };
+  // ── SAVE NAME ──
+  async function saveName() {
+    const name = document.getElementById('name-input').value.trim();
+    if (!name) return;
+    localStorage.setItem('olyesti_name', name);
+    const { data: { session } } = await db.auth.getSession();
+    if (session) enterLounge(session.user, name);
+  }
 
-    socket.on('history', (msgs) => msgs.forEach(m => addMsg(m.speaker || m.name, m.text)));
-    socket.on('message', (msg) => addMsg(msg.speaker, msg.text));
-    socket.on('user-joined', (user) => addSystem(`${user.name} joined the lounge`));
-    socket.on('user-left', (user) => addSystem(`${user.name} left the lounge`));
+  // ── ENTER LOUNGE ──
+  function enterLounge(user, name) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('name-screen').style.display = 'none';
+    document.getElementById('lounge').style.display = 'flex';
 
-    function send() {
-      const name = nameInput.value.trim() || 'Guest';
-      const text = msgInput.value.trim();
-      if (!text) return;
-      localStorage.setItem('olyesti-name', name);
-      socket.emit('web-message', { name, text, avatar: 'guest', gender: 'f' });
-      msgInput.value = '';
-    }
+    currentViewer = {
+      id: user.id,
+      name: name,
+      avatarUrl: `https://api.dicebear.com/7.x/thumbs/svg?seed=${user.id}`
+    };
 
-    sendBtn.onclick = send;
-    msgInput.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+    setupPresence();
+    setupChat();
+  }
 
-    nameInput.addEventListener('change', () => {
-      const name = nameInput.value.trim();
-      if (name) {
-        localStorage.setItem('olyesti-name', name);
-        socket.emit('user-join', { name, avatar: 'guest', gender: 'f', x: 50, y: 82 });
+  // ── PRESENCE (audience seats) ──
+  function setupPresence() {
+    room = db.channel('lounge-presence', {
+      config: { presence: { key: currentViewer.id } }
+    });
+
+    room.on('presence', { event: 'sync' }, () => {
+      const state = room.presenceState();
+      renderAudience(state);
+    });
+
+    room.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        await room.track(currentViewer);
       }
     });
-  </script>
+  }
 
+  function renderAudience(state) {
+    const row = document.getElementById('audience-row');
+    row.innerHTML = '';
+    let count = 0;
+
+    Object.values(state).forEach(presences => {
+      presences.forEach(viewer => {
+        count++;
+        if (count > 12) return; // max 12 visible seats
+        const seat = document.createElement('div');
+        seat.classList.add('seat');
+        seat.innerHTML = `
+          <img class="avatar" src="${viewer.avatarUrl}"
+               alt="${viewer.name}" title="${viewer.name}"
+               onerror="this.src='https://api.dicebear.com/7.x/thumbs/svg?seed=guest'" />
+          <div class="chair"></div>
+          <span class="viewer-label">${viewer.name}</span>
+        `;
+        row.appendChild(seat);
+      });
+    });
+
+    const extra = Math.max(0, count - 12);
+    if (extra > 0) {
+      const more = document.createElement('div');
+      more.classList.add('seat');
+      more.innerHTML = `
+        <div class="avatar" style="display:flex;align-items:center;justify-content:center;
+             background:#1a1a1a;color:#c9a84c;font-size:11px;font-weight:bold;">
+          +${extra}
+        </div>
+        <div class="chair"></div>
+        <span class="viewer-label">more</span>
+      `;
+      row.appendChild(more);
+    }
+
+    document.getElementById('viewer-count').textContent =
+      `${count} in the lounge`;
+  }
+
+  // ── CHAT ──
+  function setupChat() {
+    // Listen for new messages
+    db.channel('lounge-chat')
+      .on('broadcast', { event: 'message' }, ({ payload }) => {
+        appendMessage(payload);
+      })
+      .subscribe();
+
+    // Send on Enter key
+    document.getElementById('chat-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text || !currentViewer) return;
+    input.value = '';
+
+    const msg = {
+      id: Date.now(),
+      name: currentViewer.name,
+      avatarUrl: currentViewer.avatarUrl,
+      text: text
+    };
+
+    // Broadcast to all viewers
+    await db.channel('lounge-chat').send({
+      type: 'broadcast',
+      event: 'message',
+      payload: msg
+    });
+
+    // Show locally immediately
+    appendMessage(msg);
+  }
+
+  function appendMessage(msg) {
+    const box = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    div.classList.add('chat-msg');
+    div.innerHTML = `
+      <img src="${msg.avatarUrl}"
+           onerror="this.src='https://api.dicebear.com/7.x/thumbs/svg?seed=guest'"
+           alt="${msg.name}" />
+      <div class="chat-msg-body">
+        <span class="chat-msg-name">${msg.name}</span>
+        <span class="chat-msg-text">${escapeHtml(msg.text)}</span>
+      </div>
+    `;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;')
+              .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+</script>
 </body>
 </html>
