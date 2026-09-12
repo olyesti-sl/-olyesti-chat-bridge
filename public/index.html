@@ -9,7 +9,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: #0a0a0a;
+      background: #1a1200;
       color: #fff;
       font-family: 'Georgia', serif;
       height: 100vh;
@@ -25,10 +25,31 @@
       justify-content: center;
       height: 100vh;
       gap: 16px;
-      background: radial-gradient(ellipse at center, #1a1200 0%, #0a0a0a 70%);
+      background: radial-gradient(ellipse at center, #2a1f00 0%, #0a0a0a 70%);
     }
-    #login-screen h1 { color: #c9a84c; font-size: 2rem; letter-spacing: 3px; text-transform: uppercase; }
-    #login-screen p { color: #888; font-size: 0.85rem; letter-spacing: 1px; }
+    #login-screen h1 {
+      color: #c9a84c;
+      font-size: 2rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    #login-screen p {
+      color: #aaa;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+    }
+
+    #name-input-login {
+      padding: 12px 16px;
+      border-radius: 6px;
+      border: 1px solid #c9a84c;
+      background: #1a1a1a;
+      color: #fff;
+      width: 280px;
+      font-size: 1rem;
+      outline: none;
+    }
+    #name-input-login:focus { border-color: #e0c060; }
 
     .gold-btn {
       background: #c9a84c;
@@ -44,13 +65,18 @@
     }
     .gold-btn:hover { background: #e0c060; }
 
-    #login-msg { color: #c9a84c; font-size: 0.85rem; min-height: 20px; }
+    #login-msg {
+      color: #e07070;
+      font-size: 0.85rem;
+      min-height: 20px;
+    }
 
     #lounge {
       display: none;
       flex-direction: column;
       height: 100vh;
       overflow: hidden;
+      background: #0a0a0a;
     }
 
     #topbar {
@@ -62,10 +88,14 @@
       justify-content: space-between;
       flex-shrink: 0;
     }
-    #topbar .logo { color: #c9a84c; font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase; }
-    #topbar .viewer-count { color: #888; font-size: 0.8rem; }
+    .logo { color: #c9a84c; font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase; }
+    .viewer-count { color: #888; font-size: 0.8rem; }
 
-    #main { display: flex; flex: 1; overflow: hidden; }
+    #main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
 
     #stage {
       display: flex;
@@ -80,15 +110,26 @@
       width: 100%;
       aspect-ratio: 16/9;
       background: #000;
-      border: 2px solid #2a2a2a;
+      border: 2px solid #333;
       border-radius: 8px;
       overflow: hidden;
       flex-shrink: 0;
     }
-    #tv-frame iframe { width: 100%; height: 100%; border: none; }
+    #tv-frame iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
 
     #audience-section { flex-shrink: 0; }
-    #audience-label { color: #555; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+    #audience-label {
+      color: #555;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
 
     #audience-row {
       display: flex;
@@ -162,7 +203,13 @@
     #chat-messages::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
 
     .chat-msg { display: flex; gap: 8px; align-items: flex-start; }
-    .chat-msg img { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #c9a84c; flex-shrink: 0; }
+    .chat-msg img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid #c9a84c;
+      flex-shrink: 0;
+    }
     .chat-msg-body { display: flex; flex-direction: column; gap: 2px; }
     .chat-msg-name { font-size: 0.7rem; color: #c9a84c; font-weight: bold; }
     .chat-msg-text { font-size: 0.85rem; color: #ddd; line-height: 1.4; word-break: break-word; }
@@ -207,3 +254,190 @@
     #send-btn:hover { background: #e0c060; }
   </style>
 </head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <h1>☕ Olyesti Cafe</h1>
+  <p>Enter your name to join the lounge</p>
+  <input id="name-input-login" type="text" placeholder="Your name..." maxlength="24" />
+  <button class="gold-btn" onclick="quickJoin()">Enter the Lounge</button>
+  <span id="login-msg"></span>
+</div>
+
+<!-- LOUNGE -->
+<div id="lounge">
+  <div id="topbar">
+    <span class="logo">☕ Olyesti Cafe</span>
+    <span class="viewer-count" id="viewer-count">0 in the lounge</span>
+  </div>
+
+  <div id="main">
+
+    <div id="stage">
+
+      <!-- TV — YouTube live stream -->
+      <div id="tv-frame">
+        <iframe
+          src="https://www.youtube.com/embed/live_stream?channel=UCYourYouTubeChannelIDHere&autoplay=1&mute=1"
+          allow="autoplay; encrypted-media; fullscreen"
+          allowfullscreen>
+        </iframe>
+      </div>
+
+      <!-- Audience -->
+      <div id="audience-section">
+        <div id="audience-label">Now Watching</div>
+        <div id="audience-row"></div>
+      </div>
+
+    </div>
+
+    <!-- Chat -->
+    <div id="chat-panel">
+      <div id="chat-header">💬 Lounge Chat</div>
+      <div id="chat-messages"></div>
+      <div id="chat-input-area">
+        <textarea id="chat-input" rows="1" placeholder="Say something..."></textarea>
+        <button id="send-btn" onclick="sendMessage()">➤</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://esaeyeqjbktkcdrydgmy.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzYWV5ZXFqYmt0a2NkcnlkZ215Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkxNzIwMDgsImV4cCI6MjEwNDc0ODAwOH0.jq909W6aOx7lIO6m_4wxwUv3vJ2xxowLbay2SJ7O1_8';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let currentViewer = null;
+  let presenceRoom = null;
+  let chatRoom = null;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('name-input-login').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') quickJoin();
+    });
+  });
+
+  function quickJoin() {
+    const name = document.getElementById('name-input-login').value.trim();
+    if (!name) {
+      document.getElementById('login-msg').textContent = '⚠️ Please enter a name';
+      return;
+    }
+    const id = 'guest_' + Math.random().toString(36).substr(2, 9);
+    currentViewer = {
+      id,
+      name,
+      avatarUrl: `https://api.dicebear.com/7.x/thumbs/svg?seed=${id}`
+    };
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('lounge').style.display = 'flex';
+    setupPresence();
+    setupChat();
+  }
+
+  function setupPresence() {
+    presenceRoom = db.channel('lounge-presence', {
+      config: { presence: { key: currentViewer.id } }
+    });
+    presenceRoom.on('presence', { event: 'sync' }, () => {
+      renderAudience(presenceRoom.presenceState());
+    });
+    presenceRoom.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        await presenceRoom.track(currentViewer);
+      }
+    });
+  }
+
+  function renderAudience(state) {
+    const row = document.getElementById('audience-row');
+    row.innerHTML = '';
+    let count = 0;
+
+    Object.values(state).forEach(presences => {
+      presences.forEach(viewer => {
+        count++;
+        if (count > 12) return;
+        const seat = document.createElement('div');
+        seat.classList.add('seat');
+        seat.innerHTML = `
+          <img class="avatar" src="${viewer.avatarUrl}" alt="${viewer.name}" title="${viewer.name}"
+               onerror="this.src='https://api.dicebear.com/7.x/thumbs/svg?seed=guest'" />
+          <div class="chair"></div>
+          <span class="viewer-label">${viewer.name}</span>
+        `;
+        row.appendChild(seat);
+      });
+    });
+
+    if (count > 12) {
+      const more = document.createElement('div');
+      more.classList.add('seat');
+      more.innerHTML = `
+        <div class="avatar" style="display:flex;align-items:center;justify-content:center;
+             background:#1a1a1a;color:#c9a84c;font-size:11px;font-weight:bold;">+${count-12}</div>
+        <div class="chair"></div>
+        <span class="viewer-label">more</span>
+      `;
+      row.appendChild(more);
+    }
+
+    document.getElementById('viewer-count').textContent = `${count} in the lounge`;
+  }
+
+  function setupChat() {
+    chatRoom = db.channel('lounge-chat');
+    chatRoom.on('broadcast', { event: 'message' }, ({ payload }) => {
+      appendMessage(payload);
+    }).subscribe();
+
+    document.getElementById('chat-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text || !currentViewer) return;
+    input.value = '';
+    const msg = {
+      id: Date.now(),
+      name: currentViewer.name,
+      avatarUrl: currentViewer.avatarUrl,
+      text
+    };
+    appendMessage(msg);
+    await chatRoom.send({ type: 'broadcast', event: 'message', payload: msg });
+  }
+
+  function appendMessage(msg) {
+    const box = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    div.classList.add('chat-msg');
+    div.innerHTML = `
+      <img src="${msg.avatarUrl}" alt="${msg.name}"
+           onerror="this.src='https://api.dicebear.com/7.x/thumbs/svg?seed=guest'" />
+      <div class="chat-msg-body">
+        <span class="chat-msg-name">${msg.name}</span>
+        <span class="chat-msg-text">${escapeHtml(msg.text)}</span>
+      </div>
+    `;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>
