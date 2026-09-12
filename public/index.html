@@ -100,14 +100,12 @@
     }
     .char-card:hover { border-color: #c9a84c; background: #241e00; }
     .char-card.selected { border-color: #c9a84c; background: #241e00; box-shadow: 0 0 12px #c9a84c44; }
-
     .char-card img {
       width: 100%;
       aspect-ratio: 1;
       object-fit: cover;
       object-position: center top;
       border-radius: 8px;
-      border: none;
       background: transparent;
       color: transparent;
     }
@@ -207,16 +205,13 @@
       margin-bottom: 10px;
     }
 
-    /* WHITE background + multiply = white areas become fully transparent */
     .seat {
       display: flex;
       flex-direction: column;
       align-items: center;
       animation: seatIn 0.4s ease;
       width: 90px;
-      background: #ffffff;
-      border-radius: 0;
-      overflow: hidden;
+      background: transparent;
     }
 
     @keyframes seatIn {
@@ -224,7 +219,17 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* multiply on white background = white pixels invisible, colors preserved */
+    /* White layer ONLY under the avatar image — multiply makes white vanish,
+       transparent PNG areas fill with white then also vanish. Perfect blend. */
+    .seat-avatar-wrap {
+      width: 90px;
+      height: 90px;
+      background: #ffffff;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
     .seat-avatar {
       width: 90px;
       height: 90px;
@@ -233,6 +238,8 @@
       display: block;
       color: transparent;
       mix-blend-mode: multiply;
+      position: relative;
+      z-index: 1;
     }
 
     .seat-name {
@@ -245,8 +252,8 @@
       text-overflow: ellipsis;
       padding: 2px 4px;
       font-weight: bold;
-      background: rgba(0,0,0,0.45);
-      mix-blend-mode: normal;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+      background: rgba(0,0,0,0.4);
     }
 
     #chat-panel {
@@ -532,11 +539,13 @@
     const seat = document.createElement('div');
     seat.classList.add('seat');
     seat.innerHTML = `
-      <img class="seat-avatar"
-           src="${viewer.avatarUrl}"
-           alt="${viewer.name}"
-           title="${viewer.name}"
-           onerror="this.closest('.seat').style.display='none'" />
+      <div class="seat-avatar-wrap">
+        <img class="seat-avatar"
+             src="${viewer.avatarUrl}"
+             alt="${viewer.name}"
+             title="${viewer.name}"
+             onerror="this.closest('.seat').style.display='none'" />
+      </div>
       <span class="seat-name">${viewer.name}</span>
     `;
     return seat;
