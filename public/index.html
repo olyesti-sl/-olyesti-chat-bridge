@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Olyesti Cafe — Live Lounge</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0a0a0a; color: #fff; font-family: 'Georgia', serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    .screen { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100vh; gap: 16px; background: radial-gradient(ellipse at center, #2a1f00 0%, #0a0a0a 70%); padding: 24px; overflow-y: auto; }
+    .screen.active { display: flex; }
+    .screen h1 { color: #c9a84c; font-size: 2rem; letter-spacing: 3px; text-transform: uppercase; }
+    .screen h2 { color: #c9a84c; font-size: 1.4rem; letter-spacing: 2px; }
+    .screen p { color: #aaa; font-size: 0.9rem; text-align: center; }
+    .text-input { padding: 12px 16px; border-radius: 6px; border: 1px solid #c9a84c; background: #1a1a1a; color: #fff; width: 280px; font-size: 1rem; outline: none; }
+    .text-input:focus { border-color: #e0c060; }
+    .gold-btn { background: #c9a84c; color: #000; padding: 12px 32px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem; letter-spacing: 1px; transition: background 0.2s; }
+    .gold-btn:hover { background: #e0c060; }
+    .ghost-btn { background: transparent; color: #c9a84c; padding: 10px 24px; border: 1px solid #c9a84c; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
+    .ghost-btn:hover { background: #c9a84c22; }
+    .error-msg { color: #e07070; font-size: 0.85rem; min-height: 20px; }
+    #character-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 680px; width: 100%; max-height: 55vh; overflow-y: auto; padding: 4px; scrollbar-width: thin; scrollbar-color: #c9a84c #1a1a1a; }
+    .char-card { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; padding: 8px; border-radius: 10px; border: 2px solid #2a2a2a; transition: border-color 0.2s, background 0.2s; background: #1a1500; }
+    .char-card:hover { border-color: #c9a84c; background: #241e00; }
+    .char-card.selected { border-color: #c9a84c; background: #241e00; box-shadow: 0 0 12px #c9a84c44; }
+    .char-card img { width: 100%; aspect-ratio: 1; object-fit: cover; object-position: center top; border-radius: 8px; background: transparent; color: transparent; }
+    .char-card span { font-size: 10px; color: #888; text-align: center; line-height: 1.3; }
+    .char-card.selected span { color: #c9a84c; }
+    #confirm-avatar-img { width: 200px; height: 200px; object-fit: cover; object-position: center top; border-radius: 12px; border: 3px solid #c9a84c; }
+    #lounge { display: none; flex-direction: column; height: 100vh; overflow: hidden; background: #0a0a0a; }
+    #topbar { background: #111; border-bottom: 1px solid #2a2a2a; padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .logo { color: #c9a84c; font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase; }
+    .viewer-count { color: #888; font-size: 0.8rem; }
+    #main { display: flex; flex: 1; overflow: hidden; }
+    #stage { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+    #tv-frame { width: 100%; height: 44vh; background: #000; border-bottom: 2px solid #333; overflow: hidden; flex-shrink: 0; }
+    #tv-frame iframe { width: 100%; height: 100%; border: none; display: block; }
+    #audience-section { flex: 1; overflow-y: auto; padding: 16px; background-image: url('https://cdn.shopify.com/s/files/1/0750/1244/0231/files/narrow-hardwood-lounge-floor.png?v=1789199407'); background-size: 50%; background-repeat: repeat-x; background-position: center bottom; background-color: #c8874a; position: relative; scrollbar-width: thin; scrollbar-color: #c9a84c #a06030; }
+    #audience-label { position: relative; z-index: 1; color: #fff; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; font-weight: bold; text-shadow: 0 1px 4px rgba(0,0,0,0.7); }
+    .chair-row { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-end; margin-bottom: 10px; }
+    .seat { display: flex; flex-direction: column; align-items: center; animation: seatIn 0.4s ease; width: 90px; }
+    @keyframes seatIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .seat-avatar-wrap { width: 90px; height: 90px; overflow: hidden; flex-shrink: 0; }
+    .seat-avatar { width: 90px; height: 90px; object-fit: contain; object-position: center bottom; display: block; color: transparent; mix-blend-mode: screen; }
+    .seat-name { font-size: 9px; color: #fff; text-align: center; width: 90px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 2px 4px; font-weight: bold; text-shadow: 0 1px 3px rgba(0,0,0,0.9); background: rgba(0,0,0,0.4); }
+    #chat-panel { width: 300px; min-width: 260px; display: flex; flex-direction: column; border-left: 1px solid #1e1e1e; background: #0d0d0d; overflow: hidden; }
+    #chat-header { padding: 10px 14px; border-bottom: 1px solid #1e1e1e; color: #c9a84c; font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; flex-shrink: 0; }
+    #chat-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; scrollbar-width: thin; scrollbar-color: #2a2a2a #0d0d0d; }
+    .chat-msg { display: flex; gap: 8px; align-items: flex-start; }
+    .chat-msg img { width: 36px; height: 36px; border-radius: 6px; border: 1px solid #c9a84c; flex-shrink: 0; object-fit: cover; object-position: center top; color: transparent; background: #1a1a1a; }
+    .chat-msg-body { display: flex; flex-direction: column; gap: 2px; }
+    .chat-msg-name { font-size: 0.7rem; color: #c9a84c; font-weight: bold; }
+    .chat-msg-text { font-size: 0.85rem; color: #ddd; line-height: 1.4; word-break: break-word; }
+    #chat-input-area { flex-shrink: 0; padding: 10px; border-top: 1px solid #1e1e1e; display: flex; gap: 8px; background: #0d0d0d; }
+    #chat-input { flex: 1; padding: 9px 12px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 20px; color: #fff; font-size: 0.85rem; outline: none; resize: none; font-family: inherit; }
+    #chat-input:focus { border-color: #c9a84c; }
+    #send-btn { background: #c9a84c; border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; font-size: 1rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    #send-btn:hover { background: #e0c060; }
+    .sl-msg .chat-msg-name { color: #7ecfff; }
+  </style>
+</head>
+<body>
+
+<div id="screen-name" class="screen active">
+  <h1>☕ Olyesti Cafe</h1>
+  <p>Enter your name to join the lounge</p>
+  <input id="name-input" class="text-input" type="text" placeholder="Your name..." maxlength="24" />
+  <button class="gold-btn" onclick="goToCharacterPicker()">Next →</button>
+  <span id="name-error" class="error-msg"></span>
+</div>
+
+<div id="screen-character" class="screen">
+  <h2>Choose Your Character</h2>
+  <p>Pick who you'll be in the lounge</p>
+  <div id="character-grid"></div>
+  <button class="gold-btn" onclick="goToConfirm()">Next →</button>
+  <span id="char-error" class="error-msg"></span>
+</div>
+
+<div id="screen-confirm" class="screen">
+  <h2>Ready to Join? ☕</h2>
+  <img id="confirm-avatar-img" src="" alt="Your character" />
+  <span id="confirm-name-label" style="color:#c9a84c; font-size:1.1rem;"></span>
+  <span id="confirm-char-label" style="color:#888; font-size:0.85rem;"></span>
+  <button class="gold-btn" onclick="enterLounge()">Take My Seat</button>
+  <button class="ghost-btn" onclick="showScreen('screen-character')">Change Character</button>
+</div>
+
+<div id="lounge">
+  <div id="topbar">
+    <span class="logo">☕ Olyesti Cafe</span>
+    <span class="viewer-count" id="viewer-count">0 in the lounge</span>
+  </div>
+  <div id="main">
+    <div id="stage">
+      <div id="tv-frame">
+        <iframe src="https://player.twitch.tv/?channel=olyesti&parent=chat.olyesti.com" allowfullscreen></iframe>
+      </div>
+      <div id="audience-section">
+        <div id="audience-label">Now Watching</div>
+        <div id="chair-rows"></div>
+      </div>
+    </div>
+    <div id="chat-panel">
+      <div id="chat-header">💬 Lounge Chat</div>
+      <div id="chat-messages"></div>
+      <div id="chat-input-area">
+        <textarea id="chat-input" rows="1" placeholder="Say something..."></textarea>
+        <button id="send-btn" onclick="sendMessage()">➤</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://esaeyeqjbktkcdrydgmy.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzYWV5ZXFqYmt0a2NkcnlkZ215Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkxNzIwMDgsImV4cCI6MjEwNDc0ODAwOH0.jq909W6aOx7lIO6m_4wxwUv3vJ2xxowLbay2SJ7O1_8';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const SEATS_PER_ROW = 6;
+  const CB = Date.now();
+
+  function bust(url) { return url ? url.split('?')[0] + '?t=' + CB : ''; }
+
+  const BASE = 'https://cdn.shopify.com/s/files/1/0750/1244/0231/files/';
+  const CHARACTERS = [
+    { id: 'angel-female',   label: '👼 Angel (Female)',   url: BASE + 'female-angel.png' },
+    { id: 'angel-male',     label: '👼 Angel (Male)',     url: BASE + 'male-angel.png' },
+    { id: 'male-captain',   label: '🎖️ Male Captain',    url: BASE + 'male-captain.png' },
+    { id: 'female-captain', label: '🎖️ Female Captain',  url: BASE + 'female-captain.png' },
+    { id: 'commander',      label: '🪖 Commander',        url: BASE + 'brown-leather-commander.png' },
+    { id: 'woman-natural',  label: '👩🏾 Elegant Woman',  url: BASE + 'woman-natural-hair_c79dcfe2-4811-4c85-a260-5372644c16f7.png' },
+    { id: 'casual-guy',     label: '🧑🏻 Casual Guy',      url: BASE + 'casual-guy_457cfc7c-b939-4f68-9929-d4285bc76de5.png' },
+    { id: 'boho-woman',     label: '👩🏻‍🦱 Boho Woman',     url: BASE + 'boho-red-hair_b0c3462a-566e-42c1-87be-22c4b3059ebf.png' },
+    { id: 'male-dark',      label: '🧔🏿 Dark Skin Guy',   url: BASE + 'male-character-dark-skin_13feb81e-eb54-435c-84ea-15dd2a16effc.png' },
+    { id: 'fantasy-elf',    label: '🧝 Fantasy Elf',      url: BASE + 'fantasy-elf.png' },
+    { id: 'regal-king',     label: '🤴🏿 Regal King',      url: BASE + 'regal-king.png' },
+    { id: 'mystic-wizard',  label: '🧙🏿 Mystic Wizard',   url: BASE + 'mystic-wizard.png' },
+    { id: 'female-vampire', label: '🧛‍♀️ Vampire Queen',  url: BASE + 'vampire.png' },
+    { id: 'male-vampire',   label: '🧛‍♂️ Male Vampire',    url: BASE + 'male-vampire.png' },
+    { id: 'ghost',          label: '👻 Ghost',            url: BASE + 'ghost.png' },
+    { id: 'cat-calico-f',   label: '🐱 Calico Cat Girl', url: BASE + 'male-cat-person-tail-over-arm.png' },
+    { id: 'cat-white-f',    label: '🐱 White Cat Girl',  url: BASE + 'white-silver-cat-girl.png' },
+    { id: 'cat-dark-f',     label: '🐱 Dark Cat Girl',   url: BASE + 'dark-brown-cat-girl.png' },
+    { id: 'cat-gray-f',     label: '🐱 Gray Cat Girl',   url: BASE + 'gray-striped-cat-girl.png' },
+    { id: 'cat-white-m',    label: '🐱 White Cat Guy',   url: BASE + 'white-silver-male-cat.png' },
+    { id: 'cyclist-female', label: '🚴‍♀️ Cyclist Girl',   url: BASE + 'cyclist-female.png' },
+    { id: 'cyclist-male',   label: '🚴 Cyclist Guy',      url: BASE + 'cyclist-male.png' },
+    { id: 'biker-female',   label: '🏍️ Biker Girl',      url: BASE + 'Biker-female.png' },
+    { id: 'biker-male',     label: '🏍️ Biker Guy',       url: BASE + 'biker-male.png' },
+    { id: 'queen-female',   label: '👑 The Queen',        url: BASE + 'queen-female.png' },
+  ];
+
+  let currentViewer = null;
+  let presenceRoom = null;
+  let chatRoom = null;
+  let selectedChar = null;
+  let viewerName = '';
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('lounge').style.display = 'none';
+    if (id === 'lounge') {
+      document.getElementById('lounge').style.display = 'flex';
+    } else {
+      document.getElementById(id).classList.add('active');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('name-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') goToCharacterPicker();
+    });
+    buildCharacterGrid();
+  });
+
+  function goToCharacterPicker() {
+    viewerName = document.getElementById('name-input').value.trim();
+    if (!viewerName) {
+      document.getElementById('name-error').textContent = '⚠️ Please enter your name';
+      return;
+    }
+    showScreen('screen-character');
+  }
+
+  function buildCharacterGrid() {
+    const grid = document.getElementById('character-grid');
+    grid.innerHTML = '';
+    CHARACTERS.forEach(char => {
+      const card = document.createElement('div');
+      card.classList.add('char-card');
+      if (selectedChar && selectedChar.id === char.id) card.classList.add('selected');
+      card.innerHTML = `<img src="${bust(char.url)}" alt="${char.label}" loading="lazy" onerror="this.style.display='none'" /><span>${char.label}</span>`;
+      card.onclick = () => {
+        document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedChar = char;
+        document.getElementById('char-error').textContent = '';
+      };
+      grid.appendChild(card);
+    });
+  }
+
+  function goToConfirm() {
+    if (!selectedChar) {
+      document.getElementById('char-error').textContent = '⚠️ Please pick a character';
+      return;
+    }
+    document.getElementById('confirm-avatar-img').src = bust(selectedChar.url);
+    document.getElementById('confirm-name-label').textContent = viewerName;
+    document.getElementById('confirm-char-label').textContent = selectedChar.label;
+    showScreen('screen-confirm');
+  }
+
+  function enterLounge() {
+    const id = 'guest_' + Math.random().toString(36).substr(2, 9);
+    currentViewer = { id, name: viewerName, avatarUrl: selectedChar.url, charLabel: selectedChar.label };
+    showScreen('lounge');
+    setupPresence();
+    setupChat();
+    startSLPolling();
+  }
+
+  function setupPresence() {
+    presenceRoom = db.channel('lounge-presence', { config: { presence: { key: currentViewer.id } } });
+    presenceRoom.on('presence', { event: 'sync' }, () => renderAudience(presenceRoom.presenceState()));
+    presenceRoom.subscribe(async status => {
+      if (status === 'SUBSCRIBED') await presenceRoom.track(currentViewer);
+    });
+  }
+
+  function renderAudience(state) {
+    const container = document.getElementById('chair-rows');
+    container.innerHTML = '';
+    const viewers = [];
+    Object.values(state).forEach(p => p.forEach(v => {
+      if (v.avatarUrl && v.avatarUrl.includes('cdn.shopify.com')) viewers.push(v);
+    }));
+    document.getElementById('viewer-count').textContent = `${viewers.length} in the lounge`;
+    for (let i = 0; i < viewers.length; i += SEATS_PER_ROW) {
+      const row = document.createElement('div');
+      row.classList.add('chair-row');
+      viewers.slice(i, i + SEATS_PER_ROW).forEach(v => {
+        const s = makeSeat(v);
+        if (s) row.appendChild(s);
+      });
+      container.appendChild(row);
+    }
+  }
+
+  function makeSeat(viewer) {
+    if (!viewer.avatarUrl) return null;
+    const seat = document.createElement('div');
+    seat.classList.add('seat');
+    seat.innerHTML = `<div class="seat-avatar-wrap"><img class="seat-avatar" src="${bust(viewer.avatarUrl)}" alt="${viewer.name}" title="${viewer.name}" onerror="this.closest('.seat').style.display='none'" /></div><span class="seat-name">${viewer.name}</span>`;
+    return seat;
+  }
+
+  function setupChat() {
+    chatRoom = db.channel('lounge-chat');
+    chatRoom.on('broadcast', { event: 'message' }, ({ payload }) => appendMessage(payload)).subscribe();
+    document.getElementById('chat-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text || !currentViewer) return;
+    input.value = '';
+    const msg = { id: Date.now(), name: currentViewer.name, avatarUrl: currentViewer.avatarUrl, text };
+    appendMessage(msg);
+    await chatRoom.send({ type: 'broadcast', event: 'message', payload: msg });
+    await db.from('relay_messages').insert({ speaker: currentViewer.name, text, delivered: false });
+  }
+
+  async function startSLPolling() {
+    setInterval(async () => {
+      const { data } = await db
+        .from('sl_to_web')
+        .select('*')
+        .eq('delivered', false)
+        .order('created_at', { ascending: true })
+        .limit(10);
+      if (!data || data.length === 0) return;
+      const ids = data.map(m => m.id);
+      for (const m of data) {
+        appendMessage({ id: m.id, name: '🌐 ' + m.speaker, avatarUrl: '', text: m.text, fromSL: true });
+        await chatRoom.send({ type: 'broadcast', event: 'message', payload: { id: m.id, name: '🌐 ' + m.speaker, avatarUrl: '', text: m.text } });
+      }
+      await db.from('sl_to_web').update({ delivered: true }).in('id', ids);
+    }, 3000);
+  }
+
+  function appendMessage(msg) {
+    const box = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    div.classList.add('chat-msg');
+    if (msg.fromSL) div.classList.add('sl-msg');
+    div.innerHTML = `
+      ${msg.avatarUrl
+        ? `<img src="${bust(msg.avatarUrl)}" alt="${msg.name}" onerror="this.style.display='none'" />`
+        : `<div style="width:36px;height:36px;border-radius:6px;border:1px solid #7ecfff;background:#1a1a1a;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🌐</div>`}
+      <div class="chat-msg-body">
+        <span class="chat-msg-name">${msg.name}</span>
+        <span class="chat-msg-text">${escapeHtml(msg.text)}</span>
+      </div>`;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>
