@@ -2,6 +2,9 @@ const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
 const app = express();
 app.use(express.json());
+const path = require('path');
+app.use(express.static(path.join(__dirname)));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 const SECRET = 'OlyestiRelay!AmberSky49#';
 const SUPABASE_URL = 'https://esaeyeqjbktkcdrydgmy.supabase.co';
