@@ -260,7 +260,7 @@
   }
 
   function setupChat() {
-    chatRoom = db.channel('lounge-chat');
+    chatRoom = db.channel('lounge-chat', { config: { broadcast: { self: true } } });
     chatRoom.on('broadcast', { event: 'message' }, ({ payload }) => appendMessage(payload)).subscribe();
     document.getElementById('chat-input').addEventListener('keydown', e => {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
