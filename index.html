@@ -34,8 +34,8 @@
     .viewer-count { color: #888; font-size: 0.8rem; }
     #main { display: flex; flex: 1; overflow: hidden; }
     #stage { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
-    #tv-frame { width: 100%; height: 44vh; background: #000; border-bottom: 2px solid #333; overflow: hidden; flex-shrink: 0; }
-    #tv-frame iframe { width: 100%; height: 100%; border: none; display: block; }
+    #tv-frame { width: 100%; height: 44vh; background: #000; border-bottom: 2px solid #333; overflow: hidden; flex-shrink: 0; position: relative; }
+    #tv-frame iframe, #tv-frame video { width: 100%; height: 100%; border: none; display: block; }
     #audience-section { flex: 1; overflow-y: auto; padding: 16px; background-image: url('https://cdn.shopify.com/s/files/1/0750/1244/0231/files/narrow-hardwood-lounge-floor.png?v=1789199407'); background-size: 100% 100%; background-repeat: no-repeat; background-position: center bottom; background-color: #c8874a; position: relative; scrollbar-width: thin; scrollbar-color: #c9a84c #a06030; }
     #audience-label { position: relative; z-index: 1; color: #fff; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; font-weight: bold; text-shadow: 0 1px 4px rgba(0,0,0,0.7); }
     .chair-row { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-end; margin-bottom: 10px; }
@@ -95,7 +95,8 @@
   <div id="main">
     <div id="stage">
       <div id="tv-frame">
-        <iframe src="https://player.twitch.tv/?channel=olyesti&parent=chat.olyesti.com" allowfullscreen></iframe>
+        <iframe id="twitch-player" src="https://player.twitch.tv/?channel=olyesti&parent=chat.olyesti.com" allowfullscreen></iframe>
+        <video id="offline-video" src="/grok_video_2026-07-14-08-19-42.mp4" autoplay loop muted playsinline style="display:none; position:absolute; top:0; left:0;"></video>
       </div>
       <div id="audience-section">
         <div id="audience-label">Now Watching</div>
@@ -220,6 +221,7 @@
     setupPresence();
     setupChat();
     startSLPolling();
+    checkTwitchStatus();
   }
 
   function setupPresence() {
@@ -287,10 +289,26 @@
       const ids = data.map(m => m.id);
       for (const m of data) {
         appendMessage({ id: m.id, name: '🌐 ' + m.speaker, avatarUrl: '', text: m.text, fromSL: true });
-        await chatRoom.send({ type: 'broadcast', event: 'message', payload: { id: m.id, name: '🌐 ' + m.speaker, avatarUrl: '', text: m.text } });
       }
       await db.from('sl_to_web').update({ delivered: true }).in('id', ids);
     }, 3000);
+  }
+
+  async function checkTwitchStatus() {
+    try {
+      const res = await fetch('/api/twitch-status');
+      const data = await res.json();
+      if (!data.live) {
+        document.getElementById('twitch-player').style.display = 'none';
+        document.getElementById('offline-video').style.display = 'block';
+      } else {
+        document.getElementById('twitch-player').style.display = 'block';
+        document.getElementById('offline-video').style.display = 'none';
+      }
+    } catch(e) {
+      document.getElementById('twitch-player').style.display = 'none';
+      document.getElementById('offline-video').style.display = 'block';
+    }
   }
 
   function appendMessage(msg) {
