@@ -34,13 +34,11 @@ app.post('/api/secondlife/incoming', async (req, res) => {
   if (!checkSecret(req, res)) return;
   const { speaker, text } = req.body;
   if (!speaker || !text) return res.status(400).json({ error: 'Missing fields' });
-
   await channel.send({
     type: 'broadcast',
     event: 'message',
     payload: { id: Date.now(), name: `🌐 ${speaker}`, avatarUrl: '', text, fromSL: true }
   });
-
   res.json({ ok: true });
 });
 
@@ -49,6 +47,17 @@ app.post('/api/secondlife/outgoing', (req, res) => {
   const messages = [...outgoingQueue];
   outgoingQueue = [];
   res.json({ messages });
+});
+
+app.get('/api/twitch-status', async (req, res) => {
+  try {
+    const r = await fetch('https://www.twitch.tv/olyesti');
+    const html = await r.text();
+    const live = html.includes('"isLiveBroadcast"');
+    res.json({ live });
+  } catch(e) {
+    res.json({ live: false });
+  }
 });
 
 const PORT = process.env.PORT || 3000;
