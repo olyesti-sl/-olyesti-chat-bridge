@@ -17,6 +17,7 @@ let outgoingQueue = [];
 const channel = db.channel('lounge-chat');
 channel.on('broadcast', { event: 'message' }, ({ payload }) => {
   if (payload.fromSL) return;
+  if (payload.name && payload.name.startsWith('🌐')) return;
   outgoingQueue.push({ speaker: payload.name, text: payload.text });
   if (outgoingQueue.length > 20) outgoingQueue.shift();
 }).subscribe();
