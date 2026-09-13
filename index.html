@@ -271,7 +271,6 @@
     if (!text || !currentViewer) return;
     input.value = '';
     const msg = { id: Date.now(), name: currentViewer.name, avatarUrl: currentViewer.avatarUrl, text };
-    appendMessage(msg);
     await chatRoom.send({ type: 'broadcast', event: 'message', payload: msg });
     await db.from('relay_messages').insert({ speaker: currentViewer.name, text, delivered: false });
   }
