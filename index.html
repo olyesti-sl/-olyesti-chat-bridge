@@ -222,6 +222,7 @@
     setupChat();
     startSLPolling();
     checkTwitchStatus();
+    setInterval(checkTwitchStatus, 30000);
   }
 
   function setupPresence() {
@@ -298,12 +299,14 @@
     try {
       const res = await fetch('/api/twitch-status');
       const data = await res.json();
-      if (!data.live) {
-        document.getElementById('twitch-player').style.display = 'none';
-        document.getElementById('offline-video').style.display = 'block';
+      const player = document.getElementById('twitch-player');
+      const video = document.getElementById('offline-video');
+      if (data.live) {
+        video.style.display = 'none';
+        player.style.display = 'block';
       } else {
-        document.getElementById('twitch-player').style.display = 'block';
-        document.getElementById('offline-video').style.display = 'none';
+        player.style.display = 'none';
+        video.style.display = 'block';
       }
     } catch(e) {
       document.getElementById('twitch-player').style.display = 'none';
